@@ -1,5 +1,7 @@
 package com.example.fullthrottle.viewModel
 
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fullthrottle.data.SettingsRepository
@@ -13,9 +15,9 @@ class SettingsViewModel @Inject constructor (
 ) : ViewModel() {
     val username = settingsRepository.preferenceFlow
 
-    fun saveUsername(username:String) {
+    fun saveData(key: String, value: String) {
         viewModelScope.launch {
-            settingsRepository.saveToDataStore(username)
+            settingsRepository.saveToDataStore(stringPreferencesKey(key), value)
         }
     }
 }

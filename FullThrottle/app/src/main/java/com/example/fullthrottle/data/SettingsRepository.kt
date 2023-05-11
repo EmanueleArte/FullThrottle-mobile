@@ -2,10 +2,7 @@ package com.example.fullthrottle.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +23,7 @@ class SettingsRepository(private val context: Context) {
         private val USER_IMAGE = stringPreferencesKey("user_image")
     }
 
-    val preferenceFlow: Flow<String> = context.dataStore.data
+    val preferenceFlow: Flow<Map<String, String>> = context.dataStore.data
         .catch {
             if (it is IOException) {
                 it.printStackTrace()
@@ -36,14 +33,16 @@ class SettingsRepository(private val context: Context) {
             }
         }
         .map { preferences ->
-            preferences[USERNAME]?:""
-            preferences[USER_ID]?:""
-            preferences[USER_IMAGE]?:""
+            val prefMap = mutableMapOf<String, String>()
+            prefMap["username"] = preferences[USERNAME]?: ""
+            prefMap["user_id"] = preferences[USER_ID]?: 0.toString()
+            prefMap["user_image"] = preferences[USER_IMAGE]?: ""
+            prefMap
         }
 
-    suspend fun saveToDataStore(username: String) {
+    suspend fun saveToDataStore(key: Preferences.Key<String>, value: String) {
         context.dataStore.edit { preferences ->
-            preferences[USERNAME] = username
+            preferences[key] = value
         }
     }
 }
