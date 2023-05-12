@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
@@ -147,6 +148,27 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                             }
                         }
                     }
+                }
+
+                // Gps
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text("Posizione attuale")
+
+                    var checkedState by remember {
+                        mutableStateOf(true)
+
+                    }
+
+                    Switch(
+                        checked = checkedState,
+                        onCheckedChange = { checkedState = it }
+                    )
                 }
             }
         }

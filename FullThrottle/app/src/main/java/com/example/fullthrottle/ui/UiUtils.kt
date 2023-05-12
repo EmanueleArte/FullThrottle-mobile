@@ -14,6 +14,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OutLineTextField(label: String) {
     var text by remember { mutableStateOf(TextFieldValue("")) }
@@ -37,6 +38,7 @@ fun SimpleButton(value: String, onClick: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
     CenterAlignedTopAppBar(

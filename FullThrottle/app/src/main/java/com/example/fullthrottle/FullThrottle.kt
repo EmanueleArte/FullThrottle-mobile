@@ -4,6 +4,7 @@ import android.app.Application;
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -65,7 +66,7 @@ fun TopAppBarFunction(
                 painter = painterResource(id = R.drawable.fullthrottle_logo_light),
                 contentDescription = "app logo",
                 modifier = Modifier
-                    .size(140.dp),
+                    .requiredHeight(40.dp),
                 contentScale = ContentScale.Fit
             )
         },
