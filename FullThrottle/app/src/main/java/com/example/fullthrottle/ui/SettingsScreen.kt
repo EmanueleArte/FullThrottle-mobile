@@ -1,13 +1,15 @@
 package com.example.fullthrottle.ui
 
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.fullthrottle.MainActivity.Companion.checkGPS
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.POSTS_NOTIFICATIONS
@@ -18,7 +20,11 @@ import com.example.fullthrottle.viewModel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(settingsViewModel: SettingsViewModel) {
+fun SettingsScreen(
+    settingsViewModel: SettingsViewModel,
+    //startLocationUpdates: () -> Unit
+    methods: Map<String, () -> Unit>
+) {
     val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
@@ -158,16 +164,29 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                         .padding(horizontal = 20.dp)
                         .fillMaxWidth()
                 ) {
-                    Text("Posizione attuale")
+                    Text("Utilizza posizione attuale")
 
                     var checkedState by remember {
-                        mutableStateOf(true)
-
+                        /* TODO: dataStore per utilizzo posizione attuale */
+                        mutableStateOf(checkGPS(context))
                     }
 
                     Switch(
+                        //checked = checkedState,
                         checked = checkedState,
-                        onCheckedChange = { checkedState = it }
+                        onCheckedChange = {
+                            if (it) {
+                                methods["startLocationUpdates"]?.invoke().let {
+                                    if (checkGPS(context)) {
+                                        checkedState = true
+                                    }
+                                }
+                            } else {
+                                methods["stopLocationUpdates"]?.invoke().let {
+                                    checkedState = false
+                                }
+                            }
+                        }
                     )
                 }
             }

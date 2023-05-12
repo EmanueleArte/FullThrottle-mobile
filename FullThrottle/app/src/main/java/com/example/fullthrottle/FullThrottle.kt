@@ -25,8 +25,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.fullthrottle.ui.ConnectivitySnackBarComposable
+import com.example.fullthrottle.ui.GPSAlertDialogComposable
+import com.example.fullthrottle.ui.PermissionSnackBarComposable
 import com.example.fullthrottle.ui.SettingsScreen
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.example.fullthrottle.viewModel.WarningViewModel
 import dagger.hilt.android.HiltAndroidApp;
 
 sealed class AppScreen(val name: String) {
@@ -106,8 +110,9 @@ fun TopAppBarFunction(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationApp(
-    //warningViewModel: WarningViewModel,
+    warningViewModel: WarningViewModel,
     //startLocationUpdates: () -> Unit,
+    methods: Map<String, () -> Unit>,
     navController: NavHostController = rememberNavController()
 ) {
 
@@ -128,9 +133,9 @@ fun NavigationApp(
             )
         }
     ) { innerPadding ->
-        NavigationGraph(navController, innerPadding/*, startLocationUpdates*/)
+        NavigationGraph(navController, innerPadding, methods)
         val context = LocalContext.current
-        /*if (warningViewModel.showPermissionSnackBar.value) {
+        if (warningViewModel.showPermissionSnackBar.value) {
             PermissionSnackBarComposable(snackbarHostState, context, warningViewModel)
         }
         if (warningViewModel.showGPSAlertDialog.value) {
@@ -142,7 +147,21 @@ fun NavigationApp(
                 context,
                 warningViewModel
             )
-        }*/
+        }
+        if (warningViewModel.stopLocationSnackBar.value) {
+            PermissionSnackBarComposable(
+                snackbarHostState,
+                warningViewModel,
+                "Aggiornamenti sulla posizione attuale disabilitati"
+            )
+        }
+        if (warningViewModel.startLocationSnackBar.value) {
+            PermissionSnackBarComposable(
+                snackbarHostState,
+                warningViewModel,
+                "Aggiornamenti sulla posizione attuale abilitati"
+            )
+        }
     }
 }
 
@@ -151,6 +170,7 @@ private fun NavigationGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
     //startLocationUpdates: () -> Unit,
+    methods: Map<String, () -> Unit>,
     modifier: Modifier = Modifier
 ) {
     //val placesViewModel = hiltViewModel<PlacesViewModel>()
@@ -184,7 +204,7 @@ private fun NavigationGraph(
         }*/
         composable(route = AppScreen.Settings.name) {
             val settingsViewModel = hiltViewModel<SettingsViewModel>()
-            SettingsScreen(settingsViewModel)
+            SettingsScreen(settingsViewModel, methods)
         }
     }
 }
