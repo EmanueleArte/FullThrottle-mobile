@@ -84,3 +84,13 @@ fun BottomBar() {
         )
     }
 }
+
+@Composable
+fun SimpleTextButton(value: String, onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Text(value)
+    }
+}
