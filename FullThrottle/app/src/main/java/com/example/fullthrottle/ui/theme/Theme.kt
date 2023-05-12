@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.fullthrottle.ui.ThemeConstants.DARK_THEME
-import com.example.fullthrottle.ui.ThemeConstants.SYSTEM_THEME
+import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
+import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.viewModel.SettingsViewModel
 
 private val LightColorScheme = lightColorScheme(

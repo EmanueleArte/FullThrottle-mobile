@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.fullthrottle.ui.ThemeConstants.SYSTEM_THEME
+import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
+import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -23,6 +24,7 @@ class SettingsRepository(private val context: Context) {
         private val USERNAME = stringPreferencesKey("username")
         private val USER_IMAGE = stringPreferencesKey("user_image")
         private val THEME = stringPreferencesKey("theme")
+        private val PUSH_NOTIFICATIONS = stringPreferencesKey("push_notifications")
     }
 
     val preferenceFlow: Flow<Map<String, String>> = context.dataStore.data
@@ -40,6 +42,7 @@ class SettingsRepository(private val context: Context) {
             prefMap[USER_ID.toString()] = preferences[USER_ID]?: 0.toString()
             prefMap[USER_IMAGE.toString()] = preferences[USER_IMAGE]?: ""
             prefMap[THEME.toString()] = preferences[THEME]?: SYSTEM_THEME
+            prefMap[PUSH_NOTIFICATIONS.toString()] = preferences[PUSH_NOTIFICATIONS]?: ALL_NOTIFICATIONS
             prefMap
         }
 
