@@ -13,7 +13,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor (
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-    val username = settingsRepository.preferenceFlow
+    val settings = settingsRepository.preferenceFlow
 
     fun saveData(key: String, value: String) {
         viewModelScope.launch {

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.fullthrottle.ui.ThemeConstants.SYSTEM_THEME
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -21,6 +22,7 @@ class SettingsRepository(private val context: Context) {
         private val USER_ID = stringPreferencesKey("user_id")
         private val USERNAME = stringPreferencesKey("username")
         private val USER_IMAGE = stringPreferencesKey("user_image")
+        private val THEME = stringPreferencesKey("theme")
     }
 
     val preferenceFlow: Flow<Map<String, String>> = context.dataStore.data
@@ -34,9 +36,10 @@ class SettingsRepository(private val context: Context) {
         }
         .map { preferences ->
             val prefMap = mutableMapOf<String, String>()
-            prefMap["username"] = preferences[USERNAME]?: ""
-            prefMap["user_id"] = preferences[USER_ID]?: 0.toString()
-            prefMap["user_image"] = preferences[USER_IMAGE]?: ""
+            prefMap[USERNAME.toString()] = preferences[USERNAME]?: ""
+            prefMap[USER_ID.toString()] = preferences[USER_ID]?: 0.toString()
+            prefMap[USER_IMAGE.toString()] = preferences[USER_IMAGE]?: ""
+            prefMap[THEME.toString()] = preferences[THEME]?: SYSTEM_THEME
             prefMap
         }
 
