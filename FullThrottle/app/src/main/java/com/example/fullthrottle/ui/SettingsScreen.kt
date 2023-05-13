@@ -1,6 +1,5 @@
 package com.example.fullthrottle.ui
 
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -59,7 +58,9 @@ fun SettingsScreen(
                 )
             }
 
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
                 // Theme settings
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -166,24 +167,18 @@ fun SettingsScreen(
                 ) {
                     Text("Utilizza posizione attuale")
 
-                    var checkedState by remember {
-                        /* TODO: dataStore per utilizzo posizione attuale */
-                        mutableStateOf(checkGPS(context))
-                    }
-
                     Switch(
-                        //checked = checkedState,
-                        checked = checkedState,
+                        checked = settings["location_updates"] == "true",
                         onCheckedChange = {
                             if (it) {
                                 methods["startLocationUpdates"]?.invoke().let {
                                     if (checkGPS(context)) {
-                                        checkedState = true
+                                        settingsViewModel.saveData("location_updates", "true")
                                     }
                                 }
                             } else {
                                 methods["stopLocationUpdates"]?.invoke().let {
-                                    checkedState = false
+                                    settingsViewModel.saveData("location_updates", "false")
                                 }
                             }
                         }

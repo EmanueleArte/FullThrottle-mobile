@@ -17,13 +17,17 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.ui.theme.FullThrottleTheme
+import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
 import com.google.android.gms.location.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,6 +50,8 @@ class MainActivity : ComponentActivity() {
     private var queue : RequestQueue? = null
 
     val warningViewModel by viewModels<WarningViewModel>()
+
+    private var showSnackbar: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,11 +135,14 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         if (requestingLocationUpdates.value) startLocationUpdates()
+        showSnackbar = true
     }
 
     override fun onPause() {
         super.onPause()
+        showSnackbar = false
         stopLocationUpdates()
+        showSnackbar = true
     }
 
     override fun onStop() {
@@ -172,8 +181,10 @@ class MainActivity : ComponentActivity() {
                         locationCallback,
                         Looper.getMainLooper()
                     )
-                    warningViewModel.setStartLocationSnackBarVisibility(true)
-                    warningViewModel.setStopLocationSnackBarVisibility(false)
+                    if (showSnackbar) {
+                        warningViewModel.setStartLocationSnackBarVisibility(true)
+                        warningViewModel.setStopLocationSnackBarVisibility(false)
+                    }
                 } else {
                     warningViewModel.setGPSAlertDialogVisibility(true)
                 }
@@ -193,8 +204,10 @@ class MainActivity : ComponentActivity() {
 
     private fun stopLocationUpdates() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
-        warningViewModel.setStopLocationSnackBarVisibility(true)
-        warningViewModel.setStartLocationSnackBarVisibility(false)
+        if (showSnackbar) {
+            warningViewModel.setStartLocationSnackBarVisibility(false)
+            warningViewModel.setStopLocationSnackBarVisibility(true)
+        }
     }
 
     private fun isOnline(connectivityManager: ConnectivityManager): Boolean {

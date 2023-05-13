@@ -25,6 +25,7 @@ class SettingsRepository(private val context: Context) {
         private val USER_IMAGE = stringPreferencesKey("user_image")
         private val THEME = stringPreferencesKey("theme")
         private val PUSH_NOTIFICATIONS = stringPreferencesKey("push_notifications")
+        private val LOCATION_UPDATES = stringPreferencesKey("location_updates")
     }
 
     val preferenceFlow: Flow<Map<String, String>> = context.dataStore.data
@@ -43,6 +44,7 @@ class SettingsRepository(private val context: Context) {
             prefMap[USER_IMAGE.toString()] = preferences[USER_IMAGE]?: ""
             prefMap[THEME.toString()] = preferences[THEME]?: SYSTEM_THEME
             prefMap[PUSH_NOTIFICATIONS.toString()] = preferences[PUSH_NOTIFICATIONS]?: ALL_NOTIFICATIONS
+            prefMap[LOCATION_UPDATES.toString()] = preferences[LOCATION_UPDATES]?: "false"
             prefMap
         }
 
