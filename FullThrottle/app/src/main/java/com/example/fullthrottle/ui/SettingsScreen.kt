@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.MainActivity.Companion.checkGPS
+import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.POSTS_NOTIFICATIONS
@@ -16,6 +17,12 @@ import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.LIGHT_THEME
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.Query
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.values
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
