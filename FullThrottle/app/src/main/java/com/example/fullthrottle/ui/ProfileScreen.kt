@@ -12,11 +12,11 @@ import com.example.fullthrottle.TopAppBarFunction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun ProfileScreen() {
     val context = LocalContext.current
     Column(
 
     ) {
-        Text(text = "home")
+        Text(text = "profile")
     }
 }

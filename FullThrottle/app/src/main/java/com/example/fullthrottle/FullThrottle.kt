@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,10 +24,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.fullthrottle.ui.ConnectivitySnackBarComposable
+import com.example.fullthrottle.ui.*
 import com.example.fullthrottle.ui.GPSAlertDialogComposable
 import com.example.fullthrottle.ui.PermissionSnackBarComposable
-import com.example.fullthrottle.ui.SettingsScreen
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
 import dagger.hilt.android.HiltAndroidApp;
@@ -37,6 +36,7 @@ sealed class AppScreen(val name: String) {
     object Login : AppScreen("Login")
     object Settings : AppScreen("Settings Screen")
     object Profile : AppScreen("Profile Screen")
+    object Search : AppScreen("Search Screen")
 }
 
 @HiltAndroidApp
@@ -106,6 +106,40 @@ fun TopAppBarFunction(
     )
 }
 
+@Composable
+fun BottomAppBarFunction(
+    currentScreen: String,
+    navController: NavHostController
+) {
+    NavigationBar() {
+        NavigationBarItem(
+            icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+            selected = currentScreen == AppScreen.Home.name,
+            onClick = { navController.navigate(AppScreen.Home.name) }
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Outlined.Place, contentDescription = null) },
+            selected = false,
+            onClick = { /*TODO*/ }
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
+            selected = false,
+            onClick = { /*TODO*/ }
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+            selected = false,
+            onClick = { /*TODO*/ }
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+            selected = currentScreen == AppScreen.Profile.name,
+            onClick = { navController.navigate(AppScreen.Profile.name) }
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationApp(
@@ -129,6 +163,12 @@ fun NavigationApp(
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
                 onSettingsButtonClicked = { navController.navigate(AppScreen.Settings.name) }
+            )
+        },
+        bottomBar = {
+            BottomAppBarFunction(
+                currentScreen,
+                navController
             )
         }
     ) { innerPadding ->
@@ -179,15 +219,26 @@ private fun NavigationGraph(
         modifier = modifier.padding(innerPadding)
     ) {
         composable(route = AppScreen.Home.name) {
-            /*HomeScreen(
-                onAddButtonClicked = {
+            HomeScreen(
+                /*onAddButtonClicked = {
                     navController.navigate(AppScreen.Add.name)
                 },
                 onItemClicked = {
                     navController.navigate(AppScreen.Details.name)
                 },
-                placesViewModel = placesViewModel
-            )*/
+                placesViewModel = placesViewModel*/
+            )
+        }
+        composable(route = AppScreen.Profile.name) {
+            ProfileScreen(
+                /*onAddButtonClicked = {
+                    navController.navigate(AppScreen.Add.name)
+                },
+                onItemClicked = {
+                    navController.navigate(AppScreen.Details.name)
+                },
+                placesViewModel = placesViewModel*/
+            )
         }
         /*composable(route = AppScreen.Add.name) {
             AddScreen(
