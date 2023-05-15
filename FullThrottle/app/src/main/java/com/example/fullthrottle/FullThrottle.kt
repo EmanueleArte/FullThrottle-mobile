@@ -33,10 +33,12 @@ import dagger.hilt.android.HiltAndroidApp;
 
 sealed class AppScreen(val name: String) {
     object Home : AppScreen("Home")
+    object Map : AppScreen("Map Screen")
+    object NewPost : AppScreen("New Post Screen")
+    object Search : AppScreen("Search Screen")
+    object Profile : AppScreen("Profile Screen")
     object Login : AppScreen("Login")
     object Settings : AppScreen("Settings Screen")
-    object Profile : AppScreen("Profile Screen")
-    object Search : AppScreen("Search Screen")
 }
 
 @HiltAndroidApp
@@ -119,18 +121,18 @@ fun BottomAppBarFunction(
         )
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Place, contentDescription = null) },
-            selected = false,
-            onClick = { /*TODO*/ }
+            selected = currentScreen == AppScreen.Map.name,
+            onClick = { navController.navigate(AppScreen.Map.name) }
         )
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
-            selected = false,
-            onClick = { /*TODO*/ }
+            selected = currentScreen == AppScreen.NewPost.name,
+            onClick = { navController.navigate(AppScreen.NewPost.name) }
         )
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-            selected = false,
-            onClick = { /*TODO*/ }
+            selected = currentScreen == AppScreen.Search.name,
+            onClick = { navController.navigate(AppScreen.Search.name) }
         )
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
@@ -229,15 +231,20 @@ private fun NavigationGraph(
                 placesViewModel = placesViewModel*/
             )
         }
+        composable(route = AppScreen.Map.name) {
+            MapScreen(
+            )
+        }
+        composable(route = AppScreen.NewPost.name) {
+            NewPostScreen(
+            )
+        }
+        composable(route = AppScreen.Search.name) {
+            SearchScreen(
+            )
+        }
         composable(route = AppScreen.Profile.name) {
             ProfileScreen(
-                /*onAddButtonClicked = {
-                    navController.navigate(AppScreen.Add.name)
-                },
-                onItemClicked = {
-                    navController.navigate(AppScreen.Details.name)
-                },
-                placesViewModel = placesViewModel*/
             )
         }
         /*composable(route = AppScreen.Add.name) {
