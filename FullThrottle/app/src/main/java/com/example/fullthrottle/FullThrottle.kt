@@ -1,6 +1,6 @@
-package com.example.fullthrottle;
+package com.example.fullthrottle
 
-import android.app.Application;
+import android.app.Application
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -29,7 +29,7 @@ import com.example.fullthrottle.ui.GPSAlertDialogComposable
 import com.example.fullthrottle.ui.PermissionSnackBarComposable
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
-import dagger.hilt.android.HiltAndroidApp;
+import dagger.hilt.android.HiltAndroidApp
 
 sealed class AppScreen(val name: String) {
     object Home : AppScreen("Home")
@@ -113,7 +113,7 @@ fun BottomAppBarFunction(
     currentScreen: String,
     navController: NavHostController
 ) {
-    NavigationBar() {
+    NavigationBar {
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
             selected = currentScreen == AppScreen.Home.name,
