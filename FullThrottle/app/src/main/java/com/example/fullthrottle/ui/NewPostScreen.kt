@@ -11,11 +11,11 @@ import com.example.fullthrottle.BottomAppBarFunction
 import com.example.fullthrottle.TopAppBarFunction
 
 @Composable
-fun HomeScreen() {
+fun NewPostScreen() {
     val context = LocalContext.current
     Column(
 
     ) {
-        Text(text = "home")
+        Text(text = "new post")
     }
 }

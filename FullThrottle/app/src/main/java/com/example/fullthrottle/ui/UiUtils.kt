@@ -38,55 +38,6 @@ fun SimpleButton(value: String, onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopBar() {
-    CenterAlignedTopAppBar(
-        title = {
-            Image(
-                painter = painterResource(id = R.drawable.fullthrottle_logo_light),
-                contentDescription = "app logo",
-                modifier = Modifier
-                    .requiredHeight(50.dp),
-                contentScale = ContentScale.Fit
-            )
-        },
-        navigationIcon = { Icon(Icons.Outlined.ArrowBack, contentDescription = null) },
-        actions = { Icon(Icons.Outlined.Notifications, contentDescription = null) }
-    )
-}
-
-@Composable
-fun BottomBar() {
-    NavigationBar() {
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
-            selected = true,
-            onClick = { /*TODO*/ }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Place, contentDescription = null) },
-            selected = false,
-            onClick = { /*TODO*/ }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
-            selected = false,
-            onClick = { /*TODO*/ }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-            selected = false,
-            onClick = { /*TODO*/ }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-            selected = false,
-            onClick = { /*TODO*/ }
-        )
-    }
-}
-
 @Composable
 fun SimpleTextButton(value: String, onClick: () -> Unit) {
     TextButton(

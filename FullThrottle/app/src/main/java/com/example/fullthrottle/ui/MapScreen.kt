@@ -11,11 +11,11 @@ import com.example.fullthrottle.BottomAppBarFunction
 import com.example.fullthrottle.TopAppBarFunction
 
 @Composable
-fun HomeScreen() {
+fun MapScreen() {
     val context = LocalContext.current
     Column(
 
     ) {
-        Text(text = "home")
+        Text(text = "map")
     }
 }
