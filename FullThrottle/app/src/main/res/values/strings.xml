@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">FullThrottle</string>
+
+    <string name="not_registered_yet">Non hai ancora un account?</string>
+    <string name="register">Registrati</string>
+    <string name="login_error">Username o password errati/mancanti</string>
+    <string name="show_pw">Mostra password</string>
+    <string name="hide_pw">Nascondi password</string>
 </resources>

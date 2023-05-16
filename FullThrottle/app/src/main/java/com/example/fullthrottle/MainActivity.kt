@@ -2,6 +2,7 @@ package com.example.fullthrottle
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.ConnectivityManager
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.LocationDetails
+import com.example.fullthrottle.ui.LockScreenOrientation
 import com.example.fullthrottle.ui.theme.FullThrottleTheme
 import com.example.fullthrottle.viewModel.WarningViewModel
 import com.google.android.gms.location.*
@@ -113,6 +115,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     //LoginScreen()
                     //SettingsScreen()
+                    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
                     NavigationApp(
                         warningViewModel = warningViewModel,
