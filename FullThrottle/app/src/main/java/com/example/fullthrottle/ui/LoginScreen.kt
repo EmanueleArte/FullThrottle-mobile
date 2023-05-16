@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -13,12 +14,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.userLogin
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
+import com.example.fullthrottle.viewModel.SettingsViewModel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Unconfined
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    settingsViewModel: SettingsViewModel,
+    navigateToHomeScreen: () ->Unit
+    ) {
     val context = LocalContext.current
     Scaffold { paddingValues ->
         Column(
@@ -47,22 +54,30 @@ fun LoginScreen() {
 
             Spacer(modifier = Modifier.size(10.dp))
 
-            var loginError by remember { mutableStateOf(false) }
+            var loginError by rememberSaveable { mutableStateOf(false) }
+            var loginClick by rememberSaveable { mutableStateOf(false) }
+
+            val coroutineScope = rememberCoroutineScope()
 
             SimpleButton(
                 value = "Login",
                 onClick = {
-                    GlobalScope.launch {
-                        loginError = !userLogin(username, password)
+                    coroutineScope.async {
+                        loginError = !userLogin(username, password, settingsViewModel)
+                        loginClick = true
+                    }.invokeOnCompletion {
+                        if (!loginError && loginClick) {
+                            navigateToHomeScreen()
+                        }
                     }
                 }
             )
 
-            if (loginError) {
+            if (loginError && loginClick) {
                 Spacer(modifier = Modifier.size(5.dp))
 
                 Text(
-                    text = loginError.toString() + stringResource(id = R.string.login_error),
+                    text = stringResource(id = R.string.login_error),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     style = MaterialTheme.typography.bodyMedium,
                 )

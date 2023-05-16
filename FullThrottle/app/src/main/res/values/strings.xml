@@ -6,4 +6,10 @@
     <string name="login_error">Username o password errati/mancanti</string>
     <string name="show_pw">Mostra password</string>
     <string name="hide_pw">Nascondi password</string>
+    <string name="system_theme">Predefinito di sistema</string>
+    <string name="dark_theme">Scuro</string>
+    <string name="light_theme">Chiaro</string>
+    <string name="all_notifications">Tutte</string>
+    <string name="posts_notifications">Solo riguardanti i post</string>
+    <string name="followers_notifications">Solo riguardanti i followers</string>
 </resources>

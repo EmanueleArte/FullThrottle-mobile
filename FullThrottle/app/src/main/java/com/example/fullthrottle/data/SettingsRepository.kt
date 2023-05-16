@@ -4,6 +4,12 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
+import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
+import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 
@@ -20,12 +26,12 @@ class SettingsRepository(private val context: Context) {
     //object declaration inside a class
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings_preferences")
-        private val USER_ID = stringPreferencesKey("user_id")
-        private val USERNAME = stringPreferencesKey("username")
-        private val USER_IMAGE = stringPreferencesKey("user_image")
-        private val THEME = stringPreferencesKey("theme")
-        private val PUSH_NOTIFICATIONS = stringPreferencesKey("push_notifications")
-        private val LOCATION_UPDATES = stringPreferencesKey("location_updates")
+        private val USER_ID = stringPreferencesKey(USER_ID_KEY)
+        private val USERNAME = stringPreferencesKey(USERNAME_KEY)
+        private val USER_IMAGE = stringPreferencesKey(USER_IMAGE_KEY)
+        private val THEME = stringPreferencesKey(THEME_KEY)
+        private val PUSH_NOTIFICATIONS = stringPreferencesKey(PUSH_NOTIFICATIONS_KEY)
+        private val LOCATION_UPDATES = stringPreferencesKey(LOCATION_UPDATES_KEY)
     }
 
     val preferenceFlow: Flow<Map<String, String>> = context.dataStore.data

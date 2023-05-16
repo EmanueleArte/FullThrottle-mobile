@@ -7,9 +7,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.MainActivity.Companion.checkGPS
+import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper
+import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
+import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
+import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.POSTS_NOTIFICATIONS
@@ -35,15 +40,15 @@ fun SettingsScreen(
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
     val themesText = mapOf(
-        SYSTEM_THEME to "Predefinito di sistema",
-        DARK_THEME to "Scuro",
-        LIGHT_THEME to "Chiaro"
+        SYSTEM_THEME to stringResource(id = R.string.system_theme),
+        DARK_THEME to stringResource(id = R.string.dark_theme),
+        LIGHT_THEME to stringResource(id = R.string.light_theme)
     )
 
     val notificationsText = mapOf(
-        ALL_NOTIFICATIONS to "Tutte",
-        POSTS_NOTIFICATIONS to "Solo riguardanti i post",
-        FOLLOWERS_NOTIFICATIONS to "Solo riguardanti i followers",
+        ALL_NOTIFICATIONS to stringResource(id = R.string.all_notifications),
+        POSTS_NOTIFICATIONS to stringResource(id = R.string.posts_notifications),
+        FOLLOWERS_NOTIFICATIONS to stringResource(id = R.string.followers_notifications)
     )
 
     Scaffold { paddingValues ->
@@ -105,7 +110,7 @@ fun SettingsScreen(
                                         /*Toast.makeText(contextForToast, itemValue, Toast.LENGTH_SHORT)
                                             .show()*/
                                         expanded = false
-                                        settingsViewModel.saveData("theme", entry.key)
+                                        settingsViewModel.saveData(THEME_KEY, entry.key)
                                     },
                                     text = {
                                         Text(text = entry.value)
@@ -153,7 +158,7 @@ fun SettingsScreen(
                                         /*Toast.makeText(contextForToast, itemValue, Toast.LENGTH_SHORT)
                                             .show()*/
                                         expanded = false
-                                        settingsViewModel.saveData("push_notifications", entry.key)
+                                        settingsViewModel.saveData(PUSH_NOTIFICATIONS_KEY, entry.key)
                                     },
                                     text = {
                                         Text(text = entry.value)
@@ -180,12 +185,12 @@ fun SettingsScreen(
                             if (it) {
                                 methods["startLocationUpdates"]?.invoke().let {
                                     if (checkGPS(context)) {
-                                        settingsViewModel.saveData("location_updates", "true")
+                                        settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
                                     }
                                 }
                             } else {
                                 methods["stopLocationUpdates"]?.invoke().let {
-                                    settingsViewModel.saveData("location_updates", "false")
+                                    settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
                                 }
                             }
                         }

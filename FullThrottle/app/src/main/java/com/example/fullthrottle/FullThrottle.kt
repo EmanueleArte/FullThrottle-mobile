@@ -248,8 +248,8 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Login.name) {
-            LoginScreen(
-            )
+            val settingsViewModel = hiltViewModel<SettingsViewModel>()
+            LoginScreen(settingsViewModel) { navController.navigate(AppScreen.Home.name) }
         }
         /*composable(route = AppScreen.Add.name) {
             AddScreen(

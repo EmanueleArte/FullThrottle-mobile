@@ -1,8 +1,15 @@
 package com.example.fullthrottle.data
 
 import android.util.Log
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import at.favre.lib.crypto.bcrypt.BCrypt
+import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
@@ -17,7 +24,7 @@ object DBHelper {
     fun getUserRef(uid: String) {
         lateinit var res: String // TODO: return type
         ref
-            .child("utenti")
+            .child("users")
             .orderByKey()
             .equalTo(uid)
             .get()
@@ -29,21 +36,23 @@ object DBHelper {
         //return res
     }
 
-    suspend fun userLogin(username: String, password: String) = callbackFlow {
+    suspend fun userLogin(username: String, password: String, settingsViewModel: SettingsViewModel) = callbackFlow {
         var res = false
         database
-            .getReference("utenti")
-            .orderByChild("Username")
+            .getReference("users")
+            .orderByChild("username")
             .equalTo(username)
             .get()
             .addOnSuccessListener {
                 if (it.exists()) {
                     val user = it.children.first().getValue<User>()
                     //Log.d("User found", it.children.first().child("Mail").value.toString())
-                    Log.d("Pw correct", BCrypt.verifyer().verify(password.toCharArray(), user?.Password).verified.toString())
-                    if (BCrypt.verifyer().verify(password.toCharArray(), user?.Password).verified) {
+                    //Log.d("Pw correct", BCrypt.verifyer().verify(password.toCharArray(), user?.password).verified.toString())
+                    if (BCrypt.verifyer().verify(password.toCharArray(), user?.password).verified) {
                         res = true
-                        /* TODO: save username in datastore */
+                        settingsViewModel.saveData(USER_ID_KEY, user?.userId.toString())
+                        settingsViewModel.saveData(USERNAME_KEY, user?.username.toString())
+                        settingsViewModel.saveData(USER_IMAGE_KEY, user?.userImg.toString())
                     }
                 }
                 trySend(res)
