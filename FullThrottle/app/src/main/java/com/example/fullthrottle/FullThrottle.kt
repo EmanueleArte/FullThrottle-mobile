@@ -217,7 +217,7 @@ private fun NavigationGraph(
     //val placesViewModel = hiltViewModel<PlacesViewModel>()
     NavHost(
         navController = navController,
-        startDestination = AppScreen.Settings.name,
+        startDestination = AppScreen.Login.name,
         modifier = modifier.padding(innerPadding)
     ) {
         composable(route = AppScreen.Home.name) {
@@ -245,6 +245,10 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Profile.name) {
             ProfileScreen(
+            )
+        }
+        composable(route = AppScreen.Login.name) {
+            LoginScreen(
             )
         }
         /*composable(route = AppScreen.Add.name) {

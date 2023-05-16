@@ -66,6 +66,8 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1'
+
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
 
     def nav_version = "2.5.3"
@@ -101,6 +103,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-database-ktx'
+
+    implementation group: 'at.favre.lib', name: 'bcrypt', version: '0.10.2'
 }
 
 class RoomSchemaArgProvider implements CommandLineArgumentProvider {
