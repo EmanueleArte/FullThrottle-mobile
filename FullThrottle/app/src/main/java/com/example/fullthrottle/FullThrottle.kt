@@ -38,6 +38,7 @@ sealed class AppScreen(val name: String) {
     object Search : AppScreen("Search Screen")
     object Profile : AppScreen("Profile Screen")
     object Login : AppScreen("Login")
+    object Register : AppScreen("Register")
     object Settings : AppScreen("Settings Screen")
 }
 
@@ -249,7 +250,22 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Login.name) {
             val settingsViewModel = hiltViewModel<SettingsViewModel>()
-            LoginScreen(settingsViewModel) { navController.navigate(AppScreen.Home.name) }
+            LoginScreen(
+                settingsViewModel,
+                mapOf(
+                    "home" to { navController.navigate(AppScreen.Home.name) },
+                    "registration" to { navController.navigate(AppScreen.Register.name) }
+                )
+            )
+        }
+        composable(route = AppScreen.Register.name) {
+            val settingsViewModel = hiltViewModel<SettingsViewModel>()
+            RegisterScreen(
+                settingsViewModel,
+                mapOf(
+                    "home" to { navController.navigate(AppScreen.Home.name) }
+                )
+            )
         }
         /*composable(route = AppScreen.Add.name) {
             AddScreen(

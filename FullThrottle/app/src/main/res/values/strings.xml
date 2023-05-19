@@ -12,4 +12,12 @@
     <string name="all_notifications">Tutte</string>
     <string name="posts_notifications">Solo riguardanti i post</string>
     <string name="followers_notifications">Solo riguardanti i followers</string>
+    <string name="password_repetition">Ripeti password</string>
+    <string name="mail_regex">Mail non valida</string>
+    <string name="username_empty">Username vuoto non valido</string>
+    <string name="password_regex">La password deve essere lunga almeno 8 caratteri e contenere almeno una lettera maiuscola, una minuscola e un numero</string>
+    <string name="password_invalid">Requisiti password non rispettati</string>
+    <string name="passwords_not_matching">Le password non coincidono</string>
+    <string name="username_used">Username già in uso</string>
+    <string name="mail_used">Mail già in uso</string>
 </resources>

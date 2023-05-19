@@ -11,7 +11,5 @@ data class User(
     val followers: String? = null,
     val followed: String? = null,
     val userImg: String? = null,
-    val active: String? = null,
-    val token: String? = null,
     val informed: String? = null
     )
