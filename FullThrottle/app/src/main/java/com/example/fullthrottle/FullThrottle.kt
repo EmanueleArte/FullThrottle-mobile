@@ -212,7 +212,7 @@ private fun NavigationGraph(
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     var startDestination = AppScreen.Login.name
-    if (settings[USER_ID_KEY] != "") {
+    if (settings.isNotEmpty() && settings[USER_ID_KEY] != "") {
         startDestination = AppScreen.Home.name
     }
     NavHost(
