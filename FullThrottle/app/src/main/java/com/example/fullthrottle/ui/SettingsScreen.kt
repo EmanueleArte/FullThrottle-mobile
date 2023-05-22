@@ -1,5 +1,6 @@
 package com.example.fullthrottle.ui
 
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -11,10 +12,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.MainActivity.Companion.checkGPS
 import com.example.fullthrottle.R
+import com.example.fullthrottle.Utils.deleteMemorizedUserData
 import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
 import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.POSTS_NOTIFICATIONS
@@ -184,15 +187,32 @@ fun SettingsScreen(
                         onCheckedChange = {
                             if (it) {
                                 methods["startLocationUpdates"]?.invoke().let {
-                                    if (checkGPS(context)) {
-                                        settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
-                                    }
+                                    //if (checkGPS(context)) {
+                                    settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
+                                    //}
                                 }
                             } else {
                                 methods["stopLocationUpdates"]?.invoke().let {
                                     settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
                                 }
                             }
+                        }
+                    )
+                }
+
+                // Logout
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .fillMaxWidth()
+                ) {
+                    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+                    OutlineTextButton(
+                        value = "Logout",
+                        onClick = {
+                            deleteMemorizedUserData(settingsViewModel)
                         }
                     )
                 }

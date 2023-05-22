@@ -1,6 +1,11 @@
 package com.example.fullthrottle
 
 import android.text.TextUtils
+import com.example.fullthrottle.data.DataStoreConstants
+import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
+import com.example.fullthrottle.viewModel.SettingsViewModel
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -20,5 +25,11 @@ object Utils {
 
     fun isValidUsername(username: String): Boolean {
         return !TextUtils.isEmpty(username)
+    }
+
+    fun deleteMemorizedUserData(settingsViewModel: SettingsViewModel) {
+        settingsViewModel.saveData(USER_ID_KEY, "")
+        settingsViewModel.saveData(USERNAME_KEY, "")
+        settingsViewModel.saveData(USER_IMAGE_KEY, "")
     }
 }

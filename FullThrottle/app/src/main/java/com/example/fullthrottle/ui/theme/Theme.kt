@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.viewModel.SettingsViewModel
@@ -90,8 +91,8 @@ fun FullThrottleTheme(
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     var darkTheme = darkTheme
-    if (settings["theme"] != SYSTEM_THEME) {
-        darkTheme = settings["theme"] == DARK_THEME
+    if (settings[THEME_KEY] != SYSTEM_THEME) {
+        darkTheme = settings[THEME_KEY] == DARK_THEME
     }
     val colorScheme = when {
         /* dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {

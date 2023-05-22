@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -104,6 +105,16 @@ fun SimpleButton(value: String, onClick: () -> Unit) {
 @Composable
 fun SimpleTextButton(value: String, onClick: () -> Unit) {
     TextButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(CORNER_RADIUS)
+    ) {
+        Text(value)
+    }
+}
+
+@Composable
+fun OutlineTextButton(value: String, onClick: () -> Unit) {
+    OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS)
     ) {

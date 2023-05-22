@@ -1,5 +1,7 @@
 package com.example.fullthrottle.ui
 
+import android.service.autofill.FillEventHistory
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.userLogin
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default

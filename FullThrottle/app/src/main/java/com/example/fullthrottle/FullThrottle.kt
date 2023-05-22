@@ -1,6 +1,7 @@
 package com.example.fullthrottle
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -24,6 +26,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.fullthrottle.data.DataStoreConstants
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.ui.*
 import com.example.fullthrottle.ui.GPSAlertDialogComposable
 import com.example.fullthrottle.ui.PermissionSnackBarComposable
@@ -202,14 +206,18 @@ fun NavigationApp(
 private fun NavigationGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
-    //startLocationUpdates: () -> Unit,
     methods: Map<String, () -> Unit>,
     modifier: Modifier = Modifier
 ) {
-    //val placesViewModel = hiltViewModel<PlacesViewModel>()
+    val settingsViewModel = hiltViewModel<SettingsViewModel>()
+    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+    var startDestination = AppScreen.Login.name
+    if (settings[USER_ID_KEY] != "") {
+        startDestination = AppScreen.Home.name
+    }
     NavHost(
         navController = navController,
-        startDestination = AppScreen.Login.name,
+        startDestination = startDestination,
         modifier = modifier.padding(innerPadding)
     ) {
         composable(route = AppScreen.Home.name) {
@@ -240,7 +248,6 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Login.name) {
-            val settingsViewModel = hiltViewModel<SettingsViewModel>()
             LoginScreen(
                 settingsViewModel,
                 mapOf(
@@ -250,7 +257,6 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Register.name) {
-            val settingsViewModel = hiltViewModel<SettingsViewModel>()
             RegisterScreen(
                 settingsViewModel,
                 mapOf(
@@ -271,7 +277,6 @@ private fun NavigationGraph(
             DetailsScreen(placesViewModel = placesViewModel)
         }*/
         composable(route = AppScreen.Settings.name) {
-            val settingsViewModel = hiltViewModel<SettingsViewModel>()
             SettingsScreen(settingsViewModel, methods)
         }
     }

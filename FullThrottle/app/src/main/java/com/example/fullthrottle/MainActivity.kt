@@ -1,6 +1,7 @@
 package com.example.fullthrottle
 
 import android.Manifest
+import android.R
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -10,6 +11,9 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Looper
+import android.view.View
+import android.view.animation.AlphaAnimation
+import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -30,6 +34,7 @@ import com.google.android.gms.location.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -113,8 +118,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //LoginScreen()
-                    //SettingsScreen()
                     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
                     NavigationApp(

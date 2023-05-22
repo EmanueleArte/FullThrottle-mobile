@@ -122,7 +122,6 @@ object DBHelper {
                 informed = "1"
             )
             database.getReference("users").child(user.userId.toString()).setValue(user)
-
             settingsViewModel.saveData(USER_ID_KEY, user.userId.toString())
             settingsViewModel.saveData(USERNAME_KEY, user.username.toString())
             settingsViewModel.saveData(USER_IMAGE_KEY, user.userImg.toString())
