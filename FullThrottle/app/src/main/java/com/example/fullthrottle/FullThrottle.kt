@@ -48,15 +48,6 @@ class FullThrottle : Application() {
     //val database by lazy { PlacesDatabase.getDatabase(this) }
 }
 
-/*object DataStoreInstance {
-    @Volatile
-    var settingsViewModel: SettingsViewModel? = null
-}*/
-
-/*val settingsViewModel = hiltViewModel<SettingsViewModel>()
-val username by settingsViewModel.username.collectAsState(initial = emptyMap())
-*/
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarFunction(

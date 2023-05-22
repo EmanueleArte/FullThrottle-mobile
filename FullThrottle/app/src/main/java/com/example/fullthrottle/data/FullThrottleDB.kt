@@ -15,15 +15,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
-import okhttp3.internal.wait
 import java.util.*
 
 object DBHelper {
     private val database = Firebase.database
 
     suspend fun userLogin(username: String, password: String, settingsViewModel: SettingsViewModel) = callbackFlow {
+        var res = false
         database
             .getReference("users")
             .orderByChild("username")
@@ -36,11 +35,10 @@ object DBHelper {
                         settingsViewModel.saveData(USER_ID_KEY, user?.userId.toString())
                         settingsViewModel.saveData(USERNAME_KEY, user?.username.toString())
                         settingsViewModel.saveData(USER_IMAGE_KEY, user?.userImg.toString())
-                        trySend(true)
+                        res = true
                     }
-                } else {
-                    trySend(false)
                 }
+                trySend(res)
             }
             .addOnFailureListener{ error ->
                 Log.d("Error getting data", error.toString())
@@ -116,7 +114,7 @@ object DBHelper {
             val user = User(
                 userId = UUID.randomUUID().toString(),
                 username = username,
-                password = password,
+                password = BCrypt.with(BCrypt.Version.VERSION_2Y).hashToString(6, password.toCharArray()),
                 mail = mail,
                 followers = "0",
                 followed = "0",

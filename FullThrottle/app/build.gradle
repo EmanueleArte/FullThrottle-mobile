@@ -106,29 +106,3 @@ dependencies {
 
     implementation group: 'at.favre.lib', name: 'bcrypt', version: '0.10.2'
 }
-
-class RoomSchemaArgProvider implements CommandLineArgumentProvider {
-
-    @InputDirectory
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File schemaDir
-
-    RoomSchemaArgProvider(File schemaDir) {
-        this.schemaDir = schemaDir
-    }
-
-    @Override
-    Iterable<String> asArguments() {
-        // Note: If you're using KSP, you should change the line below to return
-        // ["room.schemaLocation=${schemaDir.path}"]
-        return ["room.schemaLocation=${schemaDir.path}"]
-    }
-}
-
-ksp {
-    arg(new RoomSchemaArgProvider(new File(projectDir, "schemas")))
-}
-
-kapt {
-    correctErrorTypes = true
-}

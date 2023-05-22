@@ -18,10 +18,4 @@ object DataModule {
     @Singleton
     @Provides
     fun provideSettingsRepository(@ApplicationContext context: Context) = SettingsRepository(context)
-
-    /*@Singleton
-    @Provides
-    fun providePlacesRepository(@ApplicationContext context: Context) =
-        PlacesRepository((context.applicationContext as TravelApp).database.itemDAO())
-     */
 }
