@@ -20,4 +20,10 @@
     <string name="passwords_not_matching">Le password non coincidono</string>
     <string name="username_used">Username già in uso</string>
     <string name="mail_used">Mail già in uso</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_map">Mappa</string>
+    <string name="nav_new_post">Crea post</string>
+    <string name="nav_search">Cerca</string>
+    <string name="nav_profile">Profilo</string>
 </resources>

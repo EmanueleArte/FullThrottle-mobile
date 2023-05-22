@@ -1,11 +1,15 @@
 package com.example.fullthrottle
 
 import android.app.Application
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -14,11 +18,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -26,7 +37,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.fullthrottle.data.DataStoreConstants
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.ui.*
 import com.example.fullthrottle.ui.GPSAlertDialogComposable
@@ -110,30 +120,40 @@ fun BottomAppBarFunction(
     navController: NavHostController
 ) {
     NavigationBar {
+        // Home
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
             selected = currentScreen == AppScreen.Home.name,
-            onClick = { navController.navigate(AppScreen.Home.name) }
+            onClick = { navController.navigate(AppScreen.Home.name) },
+            label = { Text(stringResource(id = R.string.nav_home)) }
         )
+        // Map
         NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Place, contentDescription = null) },
+            icon = { Icon(Icons.Outlined.Map, contentDescription = null) },
             selected = currentScreen == AppScreen.Map.name,
-            onClick = { navController.navigate(AppScreen.Map.name) }
+            onClick = { navController.navigate(AppScreen.Map.name) },
+            label = { Text(stringResource(id = R.string.nav_map)) }
         )
+        // New post
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
             selected = currentScreen == AppScreen.NewPost.name,
-            onClick = { navController.navigate(AppScreen.NewPost.name) }
+            onClick = { navController.navigate(AppScreen.NewPost.name) },
+            label = { Text(stringResource(id = R.string.nav_new_post)) }
         )
+        // Search
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Search, contentDescription = null) },
             selected = currentScreen == AppScreen.Search.name,
-            onClick = { navController.navigate(AppScreen.Search.name) }
+            onClick = { navController.navigate(AppScreen.Search.name) },
+            label = { Text(stringResource(id = R.string.nav_search)) }
         )
+        // Profile
         NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+            icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = null) },
             selected = currentScreen == AppScreen.Profile.name,
-            onClick = { navController.navigate(AppScreen.Profile.name) }
+            onClick = { navController.navigate(AppScreen.Profile.name) },
+            label = { Text(stringResource(id = R.string.nav_profile)) }
         )
     }
 }
