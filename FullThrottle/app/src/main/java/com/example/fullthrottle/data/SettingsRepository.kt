@@ -46,7 +46,7 @@ class SettingsRepository(private val context: Context) {
         .map { preferences ->
             val prefMap = mutableMapOf<String, String>()
             prefMap[USERNAME_KEY] = preferences[USERNAME]?: ""
-            prefMap[USER_ID_KEY] = preferences[USER_ID]?: 0.toString()
+            prefMap[USER_ID_KEY] = preferences[USER_ID]?: ""
             prefMap[USER_IMAGE_KEY] = preferences[USER_IMAGE]?: ""
             prefMap[THEME_KEY] = preferences[THEME]?: SYSTEM_THEME
             prefMap[PUSH_NOTIFICATIONS_KEY] = preferences[PUSH_NOTIFICATIONS]?: ALL_NOTIFICATIONS
