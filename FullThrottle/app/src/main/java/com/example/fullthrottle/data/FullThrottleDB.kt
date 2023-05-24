@@ -1,22 +1,10 @@
 package com.example.fullthrottle.data
 
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.remember
 import at.favre.lib.crypto.bcrypt.BCrypt
-import coil.compose.rememberAsyncImagePainter
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -28,7 +16,6 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
@@ -154,25 +141,9 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getImage(img: String) = callbackFlow {
-
-        /*var imageUrl by rememberSaveable { mutableStateOf<Uri>(Uri.EMPTY) }
-        var paint = rememberAsyncImagePainter(model = imageUrl)
-        val coroutineScope = rememberCoroutineScope()
-        coroutineScope.async {
-            imageUrl = DBHelper.imgProva()
-        }
-        if (imageUrl != Uri.EMPTY) {
-            Image(
-                painter = paint,
-                contentDescription = "",
-                modifier = Modifier.size(50.dp).clip(CircleShape),
-                contentScale = ContentScale.Fit
-            )
-        }*/
-
+    suspend fun getImage(imgUrl: String) = callbackFlow {
         storage.reference
-            .child(img)
+            .child(imgUrl)
             .downloadUrl
             .addOnSuccessListener { imgUri ->
                 trySend(imgUri)
@@ -181,4 +152,5 @@ object DBHelper {
             }
         awaitClose { }
     }.first()
+
 }

@@ -73,13 +73,15 @@ fun TopAppBarFunction(
 ) {
     CenterAlignedTopAppBar(
         title = {
-            Image(
-                painter = painterResource(id = R.drawable.fullthrottle_logo_light),
-                contentDescription = "app logo",
-                modifier = Modifier
-                    .requiredHeight(40.dp),
-                contentScale = ContentScale.Fit
-            )
+            if (currentScreen != AppScreen.Login.name && currentScreen != AppScreen.Register.name) {
+                Image(
+                    painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+                    contentDescription = "app logo",
+                    modifier = Modifier
+                        .requiredHeight(40.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
         },
         modifier = modifier,
         navigationIcon = {
@@ -119,42 +121,44 @@ fun BottomAppBarFunction(
     currentScreen: String,
     navController: NavHostController
 ) {
-    NavigationBar {
-        // Home
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
-            selected = currentScreen == AppScreen.Home.name,
-            onClick = { navController.navigate(AppScreen.Home.name) },
-            label = { Text(stringResource(id = R.string.nav_home)) }
-        )
-        // Map
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Map, contentDescription = null) },
-            selected = currentScreen == AppScreen.Map.name,
-            onClick = { navController.navigate(AppScreen.Map.name) },
-            label = { Text(stringResource(id = R.string.nav_map)) }
-        )
-        // New post
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
-            selected = currentScreen == AppScreen.NewPost.name,
-            onClick = { navController.navigate(AppScreen.NewPost.name) },
-            label = { Text(stringResource(id = R.string.nav_new_post)) }
-        )
-        // Search
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-            selected = currentScreen == AppScreen.Search.name,
-            onClick = { navController.navigate(AppScreen.Search.name) },
-            label = { Text(stringResource(id = R.string.nav_search)) }
-        )
-        // Profile
-        NavigationBarItem(
-            icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = null) },
-            selected = currentScreen == AppScreen.Profile.name,
-            onClick = { navController.navigate(AppScreen.Profile.name) },
-            label = { Text(stringResource(id = R.string.nav_profile)) }
-        )
+    if (currentScreen != AppScreen.Login.name && currentScreen != AppScreen.Register.name) {
+        NavigationBar {
+            // Home
+            NavigationBarItem(
+                icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+                selected = currentScreen == AppScreen.Home.name,
+                onClick = { navController.navigate(AppScreen.Home.name) },
+                //label = { Text(stringResource(id = R.string.nav_home)) }
+            )
+            // Map
+            NavigationBarItem(
+                icon = { Icon(Icons.Outlined.Map, contentDescription = null) },
+                selected = currentScreen == AppScreen.Map.name,
+                onClick = { navController.navigate(AppScreen.Map.name) },
+                //label = { Text(stringResource(id = R.string.nav_map)) }
+            )
+            // New post
+            NavigationBarItem(
+                icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
+                selected = currentScreen == AppScreen.NewPost.name,
+                onClick = { navController.navigate(AppScreen.NewPost.name) },
+                //label = { Text(stringResource(id = R.string.nav_new_post)) }
+            )
+            // Search
+            NavigationBarItem(
+                icon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                selected = currentScreen == AppScreen.Search.name,
+                onClick = { navController.navigate(AppScreen.Search.name) },
+                //label = { Text(stringResource(id = R.string.nav_search)) }
+            )
+            // Profile
+            NavigationBarItem(
+                icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = null) },
+                selected = currentScreen == AppScreen.Profile.name,
+                onClick = { navController.navigate(AppScreen.Profile.name) },
+                //label = { Text(stringResource(id = R.string.nav_profile)) }
+            )
+        }
     }
 }
 
@@ -264,8 +268,7 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Profile.name) {
-            ProfileScreen(
-            )
+            ProfileScreen(settingsViewModel)
         }
         composable(route = AppScreen.Login.name) {
             LoginScreen(

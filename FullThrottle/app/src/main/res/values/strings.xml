@@ -26,4 +26,7 @@
     <string name="nav_new_post">Crea post</string>
     <string name="nav_search">Cerca</string>
     <string name="nav_profile">Profilo</string>
+
+    <string name="followers_label">followers</string>
+    <string name="followeds_label">seguiti</string>
 </resources>

@@ -1,8 +1,10 @@
 package com.example.fullthrottle.ui
 
 import android.app.Activity
+import android.content.ClipDescription
 import android.content.Context
 import android.content.ContextWrapper
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,11 +22,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.example.fullthrottle.R
+import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
+import kotlinx.coroutines.async
 
 object UiConstants {
     val CORNER_RADIUS = 10.dp
@@ -120,4 +128,48 @@ fun OutlineTextButton(value: String, onClick: () -> Unit) {
     ) {
         Text(value)
     }
+}
+
+@Composable
+fun ShowImage(
+    imgUri: Uri,
+    contentDescription: String = "",
+    modifier: Modifier = Modifier,
+) {
+    val paint = if (imgUri != Uri.EMPTY)
+        rememberAsyncImagePainter(model = imgUri)
+    else
+        painterResource(id = R.drawable.standard)
+
+    Image(
+        painter = paint,
+        contentDescription = contentDescription,
+        modifier = modifier,//Modifier.size(50.dp).clip(CircleShape),
+        contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
+fun SimpleCenterText(
+    text: String,
+    modifier: Modifier = Modifier.requiredWidth(100.dp)
+) {
+    Text(
+        modifier = modifier,
+        text = text,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+fun BoldCenterText(
+    text: String,
+    modifier: Modifier = Modifier.requiredWidth(100.dp)
+) {
+    Text(
+        modifier = modifier,
+        text = text,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center
+    )
 }
