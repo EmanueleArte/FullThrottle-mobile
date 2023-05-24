@@ -1,15 +1,10 @@
 package com.example.fullthrottle
 
 import android.app.Application
-import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -18,14 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -125,38 +114,43 @@ fun BottomAppBarFunction(
         NavigationBar {
             // Home
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+                icon = { Icon(Icons.Outlined.Home, contentDescription = stringResource(id = R.string.nav_home)) },
                 selected = currentScreen == AppScreen.Home.name,
                 onClick = { navController.navigate(AppScreen.Home.name) },
-                //label = { Text(stringResource(id = R.string.nav_home)) }
+                label = { Text(stringResource(id = R.string.nav_home)) },
+                alwaysShowLabel = false
             )
             // Map
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.Map, contentDescription = null) },
+                icon = { Icon(Icons.Outlined.Map, contentDescription = stringResource(id = R.string.nav_map)) },
                 selected = currentScreen == AppScreen.Map.name,
                 onClick = { navController.navigate(AppScreen.Map.name) },
-                //label = { Text(stringResource(id = R.string.nav_map)) }
+                label = { Text(stringResource(id = R.string.nav_map)) },
+                alwaysShowLabel = false
             )
             // New post
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
+                icon = { Icon(Icons.Outlined.Add, contentDescription = stringResource(id = R.string.nav_new_post)) },
                 selected = currentScreen == AppScreen.NewPost.name,
                 onClick = { navController.navigate(AppScreen.NewPost.name) },
-                //label = { Text(stringResource(id = R.string.nav_new_post)) }
+                label = { Text(stringResource(id = R.string.nav_new_post)) },
+                alwaysShowLabel = false
             )
             // Search
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                icon = { Icon(Icons.Outlined.Search, contentDescription = stringResource(id = R.string.nav_search)) },
                 selected = currentScreen == AppScreen.Search.name,
                 onClick = { navController.navigate(AppScreen.Search.name) },
-                //label = { Text(stringResource(id = R.string.nav_search)) }
+                label = { Text(stringResource(id = R.string.nav_search)) },
+                alwaysShowLabel = false
             )
             // Profile
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = null) },
+                icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = stringResource(id = R.string.nav_profile)) },
                 selected = currentScreen == AppScreen.Profile.name,
                 onClick = { navController.navigate(AppScreen.Profile.name) },
-                //label = { Text(stringResource(id = R.string.nav_profile)) }
+                label = { Text(stringResource(id = R.string.nav_profile)) },
+                alwaysShowLabel = false
             )
         }
     }
