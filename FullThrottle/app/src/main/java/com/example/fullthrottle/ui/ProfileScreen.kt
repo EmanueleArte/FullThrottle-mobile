@@ -52,11 +52,10 @@ fun ProfileScreen(
             async {
                 user = getUserById(settings[USER_ID_KEY]!!) ?: User()
             }
-            var imageUrl = ""
             if (settings[USER_IMAGE_KEY].toString().isNotEmpty()) {
-                imageUrl = settings[USER_ID_KEY] + "/" + settings[USER_IMAGE_KEY]
+                val imageUrl = settings[USER_ID_KEY] + "/" + settings[USER_IMAGE_KEY]
+                imageUri = getImage(imageUrl)
             }
-            imageUri = getImage(imageUrl)
         }
     )
 
