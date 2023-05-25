@@ -152,7 +152,7 @@ object DBHelper {
                 if (motorbikes.exists()) {
                     trySend(motorbikes.children.map { it.getValue<Motorbike>() })
                 } else {
-                    trySend(null)
+                    trySend(emptyList<Motorbike>())
                 }
              }
             .addOnFailureListener{ error ->

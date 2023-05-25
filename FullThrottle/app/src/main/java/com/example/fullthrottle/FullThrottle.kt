@@ -159,6 +159,7 @@ fun BottomAppBarFunction(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationApp(
+    settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel,
     //startLocationUpdates: () -> Unit,
     methods: Map<String, () -> Unit>,
@@ -188,7 +189,7 @@ fun NavigationApp(
             )
         }
     ) { innerPadding ->
-        NavigationGraph(navController, innerPadding, methods)
+        NavigationGraph(settingsViewModel, navController, innerPadding, methods)
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
             PermissionSnackBarComposable(snackbarHostState, context, warningViewModel)
@@ -222,13 +223,14 @@ fun NavigationApp(
 
 @Composable
 private fun NavigationGraph(
+    settingsViewModel: SettingsViewModel,
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
     modifier: Modifier = Modifier
 ) {
-    val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+
     var startDestination = AppScreen.Login.name
     if (settings.isNotEmpty() && settings[USER_ID_KEY] != "") {
         startDestination = AppScreen.Home.name
