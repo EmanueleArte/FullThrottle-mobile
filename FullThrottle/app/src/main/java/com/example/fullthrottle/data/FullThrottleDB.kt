@@ -1,14 +1,12 @@
 package com.example.fullthrottle.data
 
-import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
+import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
@@ -20,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.util.*
 
@@ -177,4 +176,20 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun getRecentPosts(num: Int = 10) = callbackFlow {
+        database
+            .getReference("posts")
+            .get()
+            .addOnSuccessListener { posts ->
+                if (posts.exists()) {
+                    trySend(posts.children.map { post -> post.getValue<Post>() })
+                } else {
+                    trySend(emptyList<Post>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
 }

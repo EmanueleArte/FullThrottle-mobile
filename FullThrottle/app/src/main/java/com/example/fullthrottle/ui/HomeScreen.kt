@@ -1,15 +1,19 @@
 package com.example.fullthrottle.ui
 
+import android.annotation.SuppressLint
+import android.text.style.LineHeightSpan
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -22,15 +26,30 @@ import com.example.fullthrottle.BottomAppBarFunction
 import com.example.fullthrottle.R
 import com.example.fullthrottle.TopAppBarFunction
 import com.example.fullthrottle.data.DBHelper
+import com.example.fullthrottle.data.DBHelper.getRecentPosts
+import com.example.fullthrottle.data.DataStoreConstants
+import com.example.fullthrottle.data.entities.Motorbike
+import com.example.fullthrottle.data.entities.Post
+import kotlinx.coroutines.async
 
 @Composable
 fun HomeScreen() {
     val context = LocalContext.current
 
+    var posts by remember { mutableStateOf(emptyList<Post>()) }
+    LaunchedEffect(
+        key1 = "posts",
+        block = {
+            async {
+                posts = getRecentPosts() as List<Post>
+            }
+        }
+    )
+
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        items(4) {
+        items(posts) { post ->
             Card(
                 modifier = Modifier
                     .padding(10.dp)
@@ -51,13 +70,19 @@ fun HomeScreen() {
                         )
                         Column {
                             Text(
-                                text = "Rider $it",
+                                text = "Rider ${post.userId}",
                                 fontWeight = FontWeight.Bold
                             )
-                            Text(text = "20/20/2020")
+                            Text(text = "${post.publishDate}")
                         }
-                        Spacer(modifier = Modifier.fillMaxWidth())
-                        Icon(Icons.Filled.Place, contentDescription = "post location")
+                        Spacer(Modifier.weight(1f))
+                        Icon(
+                            Icons.Filled.Place,
+                            contentDescription = "post location",
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .requiredHeight(40.dp)
+                        )
                     }
                     Image(
                         painter = painterResource(id = R.drawable.fullthrottle_logo_light),
@@ -68,16 +93,16 @@ fun HomeScreen() {
 
                     )
                     Text(
-                        text = "Passo del muraglione",
+                        text = "${post.title}",
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Piace a 326 riders",
+                        text = "Piace a ${post.likesNumber} riders",
                         fontWeight = FontWeight.Thin
                     )
-                    Text(text = "Moto: KTM Duke 890")
-                    Text(text = "Lunghezza percorso: 8.3km")
-                    Text(text = "Questo passo è stupendo!")
+                    Text(text = "Moto: ")
+                    Text(text = "Lunghezza percorso: ${post.length}")
+                    Text(text = "${post.description}")
                 }
             }
         }
