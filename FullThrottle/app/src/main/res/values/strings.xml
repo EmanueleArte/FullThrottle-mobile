@@ -29,4 +29,6 @@
 
     <string name="followers_label">followers</string>
     <string name="followeds_label">seguiti</string>
+    <string name="my_motorbikes">Le mie moto:</string>
+    <string name="my_posts">I miei posts</string>
 </resources>

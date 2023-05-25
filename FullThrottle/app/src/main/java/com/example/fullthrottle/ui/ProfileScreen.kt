@@ -10,6 +10,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -22,9 +23,11 @@ import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.data.DBHelper.getImage
+import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
+import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.theme.md_theme_light_primary
 import com.example.fullthrottle.viewModel.SettingsViewModel
@@ -39,31 +42,40 @@ fun ProfileScreen(
     val followModifier = Modifier
         .requiredWidth(100.dp)
         .requiredHeight(100.dp)
+    val centerArrangement = Arrangement.Center
 
     var user by remember { mutableStateOf(User()) }
     var imageUri by rememberSaveable { mutableStateOf<Uri>(Uri.EMPTY) }
+    var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
     LaunchedEffect(
         key1 = "imageUri",
         block = {
             async {
                 user = getUserById(settings[USER_ID_KEY]!!) ?: User()
             }
-            var imageUrl = ""
-            if (settings[USER_IMAGE_KEY].toString().isNotEmpty()) {
-                imageUrl = settings[USER_ID_KEY] + "/" + settings[USER_IMAGE_KEY]
+            async {
+                motorbikes = getMotorbikesByUserId(settings[USER_ID_KEY]!!) as List<Motorbike>
+                println(motorbikes)
             }
-            imageUri = getImage(imageUrl)
+            if (settings[USER_IMAGE_KEY].toString().isNotEmpty()) {
+                val imageUrl = settings[USER_ID_KEY] + "/" + settings[USER_IMAGE_KEY]
+                imageUri = getImage(imageUrl)
+            }
         }
     )
 
-    Column {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .padding(vertical = 20.dp)
+                .fillMaxWidth()
         ) {
             Column(
                 modifier = followModifier,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = centerArrangement
             ) {
                 BoldCenterText(text = user.followers.toString())
                 SimpleCenterText(text = stringResource(id = R.string.followers_label))
@@ -72,7 +84,6 @@ fun ProfileScreen(
             ShowImage(
                 imgUri = imageUri,
                 modifier = Modifier
-                    .padding(5.dp)
                     .requiredHeight(100.dp)
                     .requiredWidth(100.dp)
                     .clip(CircleShape)
@@ -80,20 +91,55 @@ fun ProfileScreen(
 
             Column(
                 modifier = followModifier,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = centerArrangement
             ) {
                 BoldCenterText(text = user.followed.toString())
                 SimpleCenterText(text = stringResource(id = R.string.followeds_label))
             }
         }
-        Text(text = user.username.toString())
-        Text(text = "Mail: " + user.mail.toString())
-        Text(text = "Le mie moto:")
-        Text(text = "KTM Duke 890")
-        Text(text = "Yamaha R1 2022")
-        Text(
-            text = "Modifica account",
-            color = md_theme_light_primary
-        )
+
+        val leftArrangement = Arrangement.Start
+        val baseModifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 40.dp)
+        Column {
+            Row(
+                horizontalArrangement = leftArrangement,
+                modifier = baseModifier
+            ) {
+                Text(text = user.username.toString(), fontWeight = FontWeight.SemiBold)
+            }
+            Row(
+                horizontalArrangement = leftArrangement,
+                modifier = baseModifier
+            ) {
+                Text(text = "Mail: ", fontWeight = FontWeight.SemiBold)
+                Text(text = user.mail.toString())
+            }
+            Row(
+                horizontalArrangement = leftArrangement,
+                modifier = baseModifier
+            ) {
+                Text(text = stringResource(id = R.string.my_motorbikes), fontWeight = FontWeight.SemiBold)
+            }
+            motorbikes.forEach {
+                Row(
+                    horizontalArrangement = leftArrangement,
+                    modifier = baseModifier
+                ) {
+                    Text(text = it.brand + " " + it.model + " " + it.productionYear)
+                }
+            }
+        }
+        
+        Column {
+            Row(
+                horizontalArrangement = leftArrangement,
+                modifier = baseModifier
+            ) {
+                Text(text = stringResource(id = R.string.my_posts), fontWeight = FontWeight.Bold)
+            }
+        }
+
     }
 }

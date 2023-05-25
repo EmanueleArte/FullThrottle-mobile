@@ -12,4 +12,4 @@ data class User(
     val followed: String? = null,
     val userImg: String? = null,
     val informed: String? = null
-    )
+)

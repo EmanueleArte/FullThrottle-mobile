@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.example.fullthrottle.AppScreen
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS

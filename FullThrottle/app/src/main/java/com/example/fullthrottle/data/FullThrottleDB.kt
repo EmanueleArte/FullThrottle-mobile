@@ -10,6 +10,7 @@ import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.entities.Post
+import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.firebase.database.ktx.database
@@ -140,6 +141,25 @@ object DBHelper {
                 trySend(R.string.mail_used)
             }
         }
+        awaitClose { }
+    }.first()
+
+    suspend fun getMotorbikesByUserId(uid: String) = callbackFlow {
+        database
+            .getReference("motorbikes")
+            .orderByChild("userId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener() { motorbikes ->
+                if (motorbikes.exists()) {
+                    trySend(motorbikes.children.map { it.getValue<Motorbike>() })
+                } else {
+                    trySend(null)
+                }
+             }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
         awaitClose { }
     }.first()
 
