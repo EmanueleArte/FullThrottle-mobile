@@ -1,5 +1,7 @@
 package com.example.fullthrottle.ui
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,7 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -22,10 +24,20 @@ import com.example.fullthrottle.BottomAppBarFunction
 import com.example.fullthrottle.R
 import com.example.fullthrottle.TopAppBarFunction
 import com.example.fullthrottle.data.DBHelper
+import com.example.fullthrottle.data.DBHelper.getRecentPosts
+import com.example.fullthrottle.data.entities.Post
+import kotlinx.coroutines.async
 
 @Composable
 fun HomeScreen() {
     val context = LocalContext.current
+
+    var posts by remember{ mutableStateOf(emptyList<Post?>()) }
+    LaunchedEffect(key1 = "posts", block = { async {
+        val a = getRecentPosts()
+        //posts = getRecentPosts()
+        Log.d("test", a.toString())
+    } } )
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp)

@@ -29,10 +29,6 @@ import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.theme.md_theme_light_primary
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.future.future
-import okhttp3.internal.wait
 
 @Composable
 fun ProfileScreen(

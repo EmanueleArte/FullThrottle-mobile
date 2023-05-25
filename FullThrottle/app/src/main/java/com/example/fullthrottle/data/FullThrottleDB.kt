@@ -9,6 +9,7 @@ import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
+import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.firebase.database.ktx.database
@@ -19,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.util.*
 
@@ -153,4 +155,19 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun getRecentPosts(num: Int = 10) = callbackFlow {
+        database
+            .getReference("posts")
+            .orderByChild("publishDate")
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val posts = it.children.map { post -> post.getValue<Post>() }
+                    trySend(posts)
+                } else {
+                    trySend(null)
+                }
+            }
+        awaitClose { }
+    }.first()
 }
