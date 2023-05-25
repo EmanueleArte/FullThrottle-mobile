@@ -194,6 +194,7 @@ fun SettingsScreen(
                             } else {
                                 methods["stopLocationUpdates"]?.invoke().let {
                                     settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
+                                    methods["requestingLocationUpdatesFalse"]?.invoke()
                                 }
                             }
                         }

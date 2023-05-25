@@ -1,6 +1,7 @@
 package com.example.fullthrottle.ui.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -8,6 +9,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -85,20 +87,15 @@ private val DarkColorScheme = darkColorScheme(
 fun FullThrottleTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    // dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val settingsViewModel = hiltViewModel<SettingsViewModel>()
+    /*val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     var darkTheme = darkTheme
     if (settings[THEME_KEY] != SYSTEM_THEME) {
         darkTheme = settings[THEME_KEY] == DARK_THEME
-    }
+    }*/
     val colorScheme = when {
-        /* dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        } */
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

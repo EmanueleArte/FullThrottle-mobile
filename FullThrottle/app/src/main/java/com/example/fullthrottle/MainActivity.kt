@@ -19,16 +19,24 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.volley.RequestQueue
+import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.LocationDetails
+import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
+import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.ui.LockScreenOrientation
 import com.example.fullthrottle.ui.theme.FullThrottleTheme
+import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
 import com.google.android.gms.location.*
 import com.google.firebase.database.ktx.database
@@ -112,7 +120,14 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            FullThrottleTheme {
+            val settingsViewModel = hiltViewModel<SettingsViewModel>()
+            val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+            var darkTheme = isSystemInDarkTheme()
+            if (settings[THEME_KEY] != SYSTEM_THEME) {
+                darkTheme = settings[THEME_KEY] == DARK_THEME
+            }
+
+            FullThrottleTheme(darkTheme = darkTheme) {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -121,10 +136,12 @@ class MainActivity : ComponentActivity() {
                     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
                     NavigationApp(
+                        settingsViewModel = settingsViewModel,
                         warningViewModel = warningViewModel,
                         methods = mapOf(
                             "startLocationUpdates" to ::startLocationUpdates,
-                            "stopLocationUpdates" to ::stopLocationUpdates
+                            "stopLocationUpdates" to ::stopLocationUpdates,
+                            "requestingLocationUpdatesFalse" to { requestingLocationUpdates.value = false }
                         )
                     )
 
