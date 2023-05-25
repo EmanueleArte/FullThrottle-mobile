@@ -27,6 +27,10 @@ object DBHelper {
     private val database = Firebase.database
     private val storage = Firebase.storage
 
+    fun setPersistance(persistanceFlag: Boolean) {
+        database.setPersistenceEnabled(persistanceFlag)
+    }
+
     suspend fun userLogin(username: String, password: String, settingsViewModel: SettingsViewModel) = callbackFlow {
         var res = false
         database
