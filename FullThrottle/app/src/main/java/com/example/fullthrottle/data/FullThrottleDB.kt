@@ -1,9 +1,6 @@
 package com.example.fullthrottle.data
 
-import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
@@ -178,15 +175,16 @@ object DBHelper {
     suspend fun getRecentPosts(num: Int = 10) = callbackFlow {
         database
             .getReference("posts")
-            .orderByChild("publishDate")
             .get()
-            .addOnSuccessListener {
-                if (it.exists()) {
-                    val posts = it.children.map { post -> post.getValue<Post>() }
-                    trySend(posts)
+            .addOnSuccessListener { posts ->
+                if (posts.exists()) {
+                    trySend(posts.children.map { post -> post.getValue<Post>() })
                 } else {
-                    trySend(null)
+                    trySend(emptyList<Post>())
                 }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
             }
         awaitClose { }
     }.first()
