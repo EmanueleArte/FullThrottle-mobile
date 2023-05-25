@@ -28,6 +28,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.fullthrottle.Utils.deleteMemorizedUserData
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
+import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
 import com.example.fullthrottle.ui.GPSAlertDialogComposable
 import com.example.fullthrottle.ui.PermissionSnackBarComposable
@@ -44,6 +46,8 @@ sealed class AppScreen(val name: String) {
     object Login : AppScreen("Login")
     object Register : AppScreen("Register")
     object Settings : AppScreen("Settings Screen")
+    object Followers : AppScreen("Followers Screen")
+    object Followed : AppScreen("Followed Screen")
 }
 
 @HiltAndroidApp
@@ -265,7 +269,19 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Profile.name) {
-            ProfileScreen(settingsViewModel)
+            ProfileScreen(
+                settingsViewModel,
+                mapOf(
+                    "followers" to { navController.navigate(AppScreen.Followers.name) },
+                    "followed" to { navController.navigate(AppScreen.Followed.name) },
+                )
+            )
+        }
+        composable(route = AppScreen.Followers.name) {
+            FollowersScreen(FOLLOWERS_TAB)
+        }
+        composable(route = AppScreen.Followed.name) {
+            FollowersScreen(FOLLOWED_TAB)
         }
         composable(route = AppScreen.Login.name) {
             LoginScreen(

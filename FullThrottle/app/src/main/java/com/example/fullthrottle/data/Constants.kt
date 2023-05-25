@@ -1,6 +1,9 @@
 package com.example.fullthrottle.data
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.fullthrottle.R
 
 object ThemeConstants {
     val SYSTEM_THEME = "system"
@@ -21,4 +24,9 @@ object DataStoreConstants {
     val THEME_KEY = "theme"
     val PUSH_NOTIFICATIONS_KEY = "push_notifications"
     val LOCATION_UPDATES_KEY = "location_updates"
+}
+
+object TabConstants {
+    val FOLLOWERS_TAB = 0
+    val FOLLOWED_TAB = 1
 }

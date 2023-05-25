@@ -31,4 +31,7 @@
     <string name="followeds_label">seguiti</string>
     <string name="my_motorbikes">Le mie moto:</string>
     <string name="my_posts">I miei posts</string>
+
+    <string name="followers_tab_label">Followers</string>
+    <string name="followed_tab_label">Seguiti</string>
 </resources>
