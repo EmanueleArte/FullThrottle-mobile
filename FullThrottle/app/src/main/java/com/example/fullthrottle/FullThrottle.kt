@@ -28,6 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.fullthrottle.Utils.deleteMemorizedUserData
 import com.example.fullthrottle.data.DataStoreConstants
+import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
@@ -49,6 +50,7 @@ sealed class AppScreen(val name: String) {
     object Settings : AppScreen("Settings Screen")
     object Followers : AppScreen("Followers Screen")
     object Followed : AppScreen("Followed Screen")
+    object ProfileModification : AppScreen("Profile modification")
 }
 
 @HiltAndroidApp
@@ -155,7 +157,8 @@ fun BottomAppBarFunction(
                 icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = stringResource(id = R.string.nav_profile)) },
                 selected = currentScreen == AppScreen.Profile.name
                         || currentScreen == AppScreen.Followers.name
-                        || currentScreen == AppScreen.Settings.name,
+                        || currentScreen == AppScreen.Settings.name
+                        || currentScreen == AppScreen.ProfileModification.name,
                 onClick = { navController.navigate(AppScreen.Profile.name) },
                 label = { Text(stringResource(id = R.string.nav_profile)) },
                 alwaysShowLabel = false
@@ -277,8 +280,12 @@ private fun NavigationGraph(
                 mapOf(
                     "followers" to { navController.navigate(AppScreen.Followers.name) },
                     "followed" to { navController.navigate(AppScreen.Followed.name) },
+                    "profileModification" to { navController.navigate(AppScreen.ProfileModification.name) }
                 )
             )
+        }
+        composable(route = AppScreen.ProfileModification.name) {
+            ProfileModificationScreen(settings[USERNAME_KEY].orEmpty())
         }
         composable(route = AppScreen.Followers.name) {
             FollowersScreen(settings[USER_ID_KEY].toString(), FOLLOWERS_TAB)

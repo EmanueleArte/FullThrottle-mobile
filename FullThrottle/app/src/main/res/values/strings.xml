@@ -1,17 +1,21 @@
 <resources>
     <string name="app_name">FullThrottle</string>
 
-    <string name="not_registered_yet">Non hai ancora un account?</string>
-    <string name="register">Registrati</string>
-    <string name="login_error">Username o password errati/mancanti</string>
-    <string name="show_pw">Mostra password</string>
-    <string name="hide_pw">Nascondi password</string>
+    <string name="settings_title">Impostazioni</string>
+    <string name="profile_modification_title">Dettagli profilo</string>
+
     <string name="system_theme">Predefinito di sistema</string>
     <string name="dark_theme">Scuro</string>
     <string name="light_theme">Chiaro</string>
     <string name="all_notifications">Tutte</string>
     <string name="posts_notifications">Solo riguardanti i post</string>
     <string name="followers_notifications">Solo riguardanti i followers</string>
+
+    <string name="not_registered_yet">Non hai ancora un account?</string>
+    <string name="register">Registrati</string>
+    <string name="login_error">Username o password errati/mancanti</string>
+    <string name="show_pw">Mostra password</string>
+    <string name="hide_pw">Nascondi password</string>
     <string name="password_repetition">Ripeti password</string>
     <string name="mail_regex">Mail non valida</string>
     <string name="username_empty">Username vuoto non valido</string>
@@ -31,7 +35,8 @@
     <string name="followeds_label">seguiti</string>
     <string name="my_motorbikes">Le mie moto:</string>
     <string name="my_posts">I miei posts</string>
-
     <string name="followers_tab_label">Followers</string>
     <string name="followed_tab_label">Seguiti</string>
+    <string name="modify_profile">Modifica profilo</string>
+
 </resources>

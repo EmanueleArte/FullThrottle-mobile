@@ -33,78 +33,75 @@ import kotlinx.coroutines.*
 fun LoginScreen(
     settingsViewModel: SettingsViewModel,
     navigateTo: Map<String, () ->Unit>
-    ) {
+    )
+{
     val context = LocalContext.current
-    Scaffold { paddingValues ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .padding(50.dp)
+            .fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+            contentDescription = "app logo",
             modifier = Modifier
-                .padding(paddingValues)
-                .padding(50.dp)
-                .fillMaxSize()
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.fullthrottle_logo_light),
-                contentDescription = "app logo",
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Fit
-            )
+                .fillMaxWidth(),
+            contentScale = ContentScale.Fit
+        )
 
-            Spacer(modifier = Modifier.size(40.dp))
+        Spacer(modifier = Modifier.size(40.dp))
 
-            val username = OutLineTextField(label = "Username")
+        val username = OutLineTextField(label = "Username")
 
-            Spacer(modifier = Modifier.size(10.dp))
+        Spacer(modifier = Modifier.size(10.dp))
 
-            val password = OutLinePasswordField(label = "Password")
+        val password = OutLinePasswordField(label = "Password")
 
-            Spacer(modifier = Modifier.size(10.dp))
+        Spacer(modifier = Modifier.size(10.dp))
 
-            var loginError by rememberSaveable { mutableStateOf(false) }
+        var loginError by rememberSaveable { mutableStateOf(false) }
 
-            val coroutineScope = rememberCoroutineScope()
+        val coroutineScope = rememberCoroutineScope()
 
-            SimpleButton(
-                value = "Login",
-                onClick = {
-                    coroutineScope.async {
-                        loginError = !userLogin(username, password, settingsViewModel)
-                    }.invokeOnCompletion {
-                        if (!loginError) {
-                            navigateTo["home"]?.invoke()
-                        }
+        SimpleButton(
+            value = "Login",
+            onClick = {
+                coroutineScope.async {
+                    loginError = !userLogin(username, password, settingsViewModel)
+                }.invokeOnCompletion {
+                    if (!loginError) {
+                        navigateTo["home"]?.invoke()
                     }
                 }
-            )
-
-            if (loginError) {
-                Spacer(modifier = Modifier.size(5.dp))
-
-                Text(
-                    text = stringResource(id = R.string.login_error),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
             }
+        )
 
+        if (loginError) {
             Spacer(modifier = Modifier.size(5.dp))
 
             Text(
-                text = stringResource(id = R.string.not_registered_yet),
+                text = stringResource(id = R.string.login_error),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
             )
-
-            Spacer(modifier = Modifier.size(5.dp))
-
-            SimpleButton(
-                value = stringResource(id = R.string.register),
-                onClick = { navigateTo["registration"]?.invoke() }
-            )
-
         }
+
+        Spacer(modifier = Modifier.size(5.dp))
+
+        Text(
+            text = stringResource(id = R.string.not_registered_yet),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.size(5.dp))
+
+        SimpleButton(
+            value = stringResource(id = R.string.register),
+            onClick = { navigateTo["registration"]?.invoke() }
+        )
     }
 }

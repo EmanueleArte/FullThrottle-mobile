@@ -123,6 +123,17 @@ fun ProfileScreen(
                     Text(text = it.brand + " " + it.model + " " + it.productionYear)
                 }
             }
+            
+            Spacer(modifier = Modifier.size(10.dp))
+            
+            Row(
+                horizontalArrangement = leftArrangement,
+                modifier = baseModifier
+            ) {
+                OutlineTextButton(value = stringResource(id = R.string.modify_profile)) {
+                    navigateTo["profileModification"]?.invoke()
+                }
+            }
         }
         
         Column {

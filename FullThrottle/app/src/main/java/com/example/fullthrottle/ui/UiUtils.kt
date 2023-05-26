@@ -63,8 +63,8 @@ fun Context.findActivity(): Activity? = when (this) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutLineTextField(label: String): String {
-    var text by rememberSaveable { mutableStateOf("") }
+fun OutLineTextField(label: String, value: String = ""): String {
+    var text by rememberSaveable { mutableStateOf(value) }
     OutlinedTextField(
         shape = RoundedCornerShape(CORNER_RADIUS),
         value = text,
@@ -127,7 +127,9 @@ fun SimpleTextButton(value: String, onClick: () -> Unit) {
 fun OutlineTextButton(value: String, onClick: () -> Unit) {
     OutlinedButton(
         onClick = onClick,
-        shape = RoundedCornerShape(CORNER_RADIUS)
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        modifier = Modifier.height(30.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         Text(value)
     }
@@ -201,4 +203,20 @@ fun BoldCenterText(
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center
     )
+}
+
+@Composable
+fun SimpleTitle(text: String) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(vertical = 20.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium,
+        )
+    }
 }

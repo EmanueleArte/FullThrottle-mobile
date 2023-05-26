@@ -32,98 +32,94 @@ fun RegisterScreen(
     navigateTo: Map<String, () ->Unit>
 ) {
     val context = LocalContext.current
-    Scaffold { paddingValues ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .padding(50.dp)
+            .fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+            contentDescription = "app logo",
             modifier = Modifier
-                .padding(paddingValues)
-                .padding(50.dp)
-                .fillMaxSize()
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.fullthrottle_logo_light),
-                contentDescription = "app logo",
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Fit
-            )
+                .fillMaxWidth(),
+            contentScale = ContentScale.Fit
+        )
 
-            Spacer(modifier = Modifier.size(40.dp))
+        Spacer(modifier = Modifier.size(40.dp))
 
-            val username = OutLineTextField(label = "Username")
+        val username = OutLineTextField(label = "Username")
 
-            Spacer(modifier = Modifier.size(10.dp))
+        Spacer(modifier = Modifier.size(10.dp))
 
-            val mail = OutLineTextField(label = "Mail")
+        val mail = OutLineTextField(label = "Mail")
 
-            Spacer(modifier = Modifier.size(10.dp))
+        Spacer(modifier = Modifier.size(10.dp))
 
-            val password = OutLinePasswordField(label = "Password")
+        val password = OutLinePasswordField(label = "Password")
 
-            Spacer(modifier = Modifier.size(10.dp))
+        Spacer(modifier = Modifier.size(10.dp))
 
-            val passwordRep = OutLinePasswordField(label = stringResource(id = R.string.password_repetition))
+        val passwordRep = OutLinePasswordField(label = stringResource(id = R.string.password_repetition))
 
-            Spacer(modifier = Modifier.size(10.dp))
+        Spacer(modifier = Modifier.size(10.dp))
 
-            var registrationError by rememberSaveable { mutableStateOf(-1) }
+        var registrationError by rememberSaveable { mutableStateOf(-1) }
 
-            val coroutineScope = rememberCoroutineScope()
+        val coroutineScope = rememberCoroutineScope()
 
-            SimpleButton(
-                value = stringResource(id = R.string.register),
-                onClick = {
-                    isValidPassword(password).let { isValid ->
-                        registrationError = -1
-                        if (password != passwordRep) {
-                            registrationError = R.string.passwords_not_matching
-                        }
-                        if (!isValid) {
-                            registrationError = R.string.password_invalid
-                        }
+        SimpleButton(
+            value = stringResource(id = R.string.register),
+            onClick = {
+                isValidPassword(password).let { isValid ->
+                    registrationError = -1
+                    if (password != passwordRep) {
+                        registrationError = R.string.passwords_not_matching
                     }
-                    isValidMail(mail).let { isValid ->
-                        if (!isValid) {
-                            registrationError = R.string.mail_regex
-                        }
+                    if (!isValid) {
+                        registrationError = R.string.password_invalid
                     }
-                    isValidUsername(username).let { isValid ->
-                        if (!isValid) {
-                            registrationError = R.string.username_empty
-                        }
+                }
+                isValidMail(mail).let { isValid ->
+                    if (!isValid) {
+                        registrationError = R.string.mail_regex
                     }
-                    if (registrationError == -1) {
-                        coroutineScope.async {
-                            registrationError = DBHelper.userRegistration(username, mail, password, settingsViewModel)
-                        }.invokeOnCompletion {
-                            if (registrationError == -1) {
-                                navigateTo["home"]?.invoke()
-                            }
+                }
+                isValidUsername(username).let { isValid ->
+                    if (!isValid) {
+                        registrationError = R.string.username_empty
+                    }
+                }
+                if (registrationError == -1) {
+                    coroutineScope.async {
+                        registrationError = DBHelper.userRegistration(username, mail, password, settingsViewModel)
+                    }.invokeOnCompletion {
+                        if (registrationError == -1) {
+                            navigateTo["home"]?.invoke()
                         }
                     }
                 }
-            )
-
-            if (registrationError != -1) {
-                Spacer(modifier = Modifier.size(5.dp))
-
-                Text(
-                    text = stringResource(id = registrationError),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
             }
+        )
 
+        if (registrationError != -1) {
             Spacer(modifier = Modifier.size(5.dp))
 
             Text(
-                text = stringResource(id = R.string.password_regex),
+                text = stringResource(id = registrationError),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
             )
-
         }
+
+        Spacer(modifier = Modifier.size(5.dp))
+
+        Text(
+            text = stringResource(id = R.string.password_regex),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
     }
 }

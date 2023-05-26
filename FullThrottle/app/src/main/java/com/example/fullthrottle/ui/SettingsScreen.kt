@@ -54,169 +54,152 @@ fun SettingsScreen(
         FOLLOWERS_NOTIFICATIONS to stringResource(id = R.string.followers_notifications)
     )
 
-    Scaffold { paddingValues ->
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .fillMaxWidth()
+    ) {
+        SimpleTitle(text = stringResource(id = R.string.settings_title))
+
         Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxWidth()
+            verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
+            // Theme settings
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 20.dp)
                     .fillMaxWidth()
             ) {
-                Text(
-                    text = "Impostazioni",
-                    style = MaterialTheme.typography.titleMedium,
+                Text("Tema")
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                ) {
+                    var expanded by remember {
+                        mutableStateOf(false)
+                    }
+
+                    fun expand() {
+                        expanded = true
+                    }
+
+                    SimpleTextButton(
+                        value = themesText[settings["theme"]].toString(),
+                        onClick = { expand() }
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = {
+                            expanded = false
+                        }
+                    ) {
+                        themesText.forEach { entry ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    /*Toast.makeText(contextForToast, itemValue, Toast.LENGTH_SHORT)
+                                        .show()*/
+                                    expanded = false
+                                    settingsViewModel.saveData(THEME_KEY, entry.key)
+                                },
+                                text = {
+                                    Text(text = entry.value)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Notifications
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text("Notifiche push")
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                ) {
+                    var expanded by remember {
+                        mutableStateOf(false)
+                    }
+
+                    fun expand() {
+                        expanded = true
+                    }
+
+                    SimpleTextButton(
+                        value = notificationsText[settings["push_notifications"]].toString(),
+                        onClick = { expand() }
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = {
+                            expanded = false
+                        }
+                    ) {
+                        notificationsText.forEach { entry ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    /*Toast.makeText(contextForToast, itemValue, Toast.LENGTH_SHORT)
+                                        .show()*/
+                                    expanded = false
+                                    settingsViewModel.saveData(PUSH_NOTIFICATIONS_KEY, entry.key)
+                                },
+                                text = {
+                                    Text(text = entry.value)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Gps
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text("Utilizza posizione attuale")
+
+                Switch(
+                    checked = settings["location_updates"] == "true",
+                    onCheckedChange = {
+                        if (it) {
+                            methods["startLocationUpdates"]?.invoke().let {
+                                //if (checkGPS(context)) {
+                                settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
+                                //}
+                            }
+                        } else {
+                            methods["stopLocationUpdates"]?.invoke().let {
+                                settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
+                                methods["requestingLocationUpdatesFalse"]?.invoke()
+                            }
+                        }
+                    }
                 )
             }
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(0.dp)
+            // Logout
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                // Theme settings
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text("Tema")
-
-                    Box(
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        var expanded by remember {
-                            mutableStateOf(false)
-                        }
-
-                        fun expand() {
-                            expanded = true
-                        }
-
-                        SimpleTextButton(
-                            value = themesText[settings["theme"]].toString(),
-                            onClick = { expand() }
-                        )
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = {
-                                expanded = false
-                            }
-                        ) {
-                            themesText.forEach { entry ->
-                                DropdownMenuItem(
-                                    onClick = {
-                                        /*Toast.makeText(contextForToast, itemValue, Toast.LENGTH_SHORT)
-                                            .show()*/
-                                        expanded = false
-                                        settingsViewModel.saveData(THEME_KEY, entry.key)
-                                    },
-                                    text = {
-                                        Text(text = entry.value)
-                                    }
-                                )
-                            }
-                        }
+                val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+                OutlineTextButton(
+                    value = "Logout",
+                    onClick = {
+                        deleteMemorizedUserData(settingsViewModel)
                     }
-                }
-
-                // Notifications
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text("Notifiche push")
-
-                    Box(
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        var expanded by remember {
-                            mutableStateOf(false)
-                        }
-
-                        fun expand() {
-                            expanded = true
-                        }
-
-                        SimpleTextButton(
-                            value = notificationsText[settings["push_notifications"]].toString(),
-                            onClick = { expand() }
-                        )
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = {
-                                expanded = false
-                            }
-                        ) {
-                            notificationsText.forEach { entry ->
-                                DropdownMenuItem(
-                                    onClick = {
-                                        /*Toast.makeText(contextForToast, itemValue, Toast.LENGTH_SHORT)
-                                            .show()*/
-                                        expanded = false
-                                        settingsViewModel.saveData(PUSH_NOTIFICATIONS_KEY, entry.key)
-                                    },
-                                    text = {
-                                        Text(text = entry.value)
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Gps
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text("Utilizza posizione attuale")
-
-                    Switch(
-                        checked = settings["location_updates"] == "true",
-                        onCheckedChange = {
-                            if (it) {
-                                methods["startLocationUpdates"]?.invoke().let {
-                                    //if (checkGPS(context)) {
-                                    settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
-                                    //}
-                                }
-                            } else {
-                                methods["stopLocationUpdates"]?.invoke().let {
-                                    settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
-                                    methods["requestingLocationUpdatesFalse"]?.invoke()
-                                }
-                            }
-                        }
-                    )
-                }
-
-                // Logout
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .fillMaxWidth()
-                ) {
-                    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
-                    OutlineTextButton(
-                        value = "Logout",
-                        onClick = {
-                            deleteMemorizedUserData(settingsViewModel)
-                        }
-                    )
-                }
+                )
             }
         }
     }
