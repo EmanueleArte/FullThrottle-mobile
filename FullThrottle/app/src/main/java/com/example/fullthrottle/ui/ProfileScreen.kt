@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.outlined.*
@@ -35,7 +36,8 @@ import kotlinx.coroutines.*
 
 @Composable
 fun ProfileScreen(
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    navigateTo: Map<String, () -> Unit>,
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
@@ -74,7 +76,8 @@ fun ProfileScreen(
                 .fillMaxWidth()
         ) {
             Column(
-                modifier = followModifier,
+                modifier = followModifier
+                    .clickable { navigateTo["followers"]?.invoke() },
                 verticalArrangement = centerArrangement
             ) {
                 BoldCenterText(text = user.followers.toString())
@@ -90,7 +93,8 @@ fun ProfileScreen(
             )
 
             Column(
-                modifier = followModifier,
+                modifier = followModifier
+                        .clickable { navigateTo["followed"]?.invoke() },
                 verticalArrangement = centerArrangement
             ) {
                 BoldCenterText(text = user.followed.toString())
