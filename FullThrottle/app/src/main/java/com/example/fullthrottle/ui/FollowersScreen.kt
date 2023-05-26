@@ -58,10 +58,10 @@ fun UsersList(uid: String, currentTab: Int) {
         key1 = "followersQuery",
         block = {
             async {
-                if (currentTab == FOLLOWERS_TAB) {
-                    users = getFollowers(uid)
+                users = if (currentTab == FOLLOWERS_TAB) {
+                    getFollowers(uid)
                 } else {
-                    users = getFolloweds(uid)
+                    getFolloweds(uid)
                 }
                 users.forEach {
                     val imageUrl = it.userId + "/" + it.userImg
