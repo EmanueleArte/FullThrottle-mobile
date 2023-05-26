@@ -23,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
@@ -128,6 +130,32 @@ fun OutlineTextButton(value: String, onClick: () -> Unit) {
         shape = RoundedCornerShape(CORNER_RADIUS)
     ) {
         Text(value)
+    }
+}
+
+@Composable
+fun ItemTonalButton(
+    value: String,
+    onClick: () -> Unit,
+    imgUri: Uri
+) {
+    FilledTonalIconButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth()
+        ) {
+            ShowImage(imgUri = imgUri, modifier = Modifier
+                .padding(horizontal = 5.dp)
+                .clip(CircleShape))
+            Text(value)
+        }
     }
 }
 

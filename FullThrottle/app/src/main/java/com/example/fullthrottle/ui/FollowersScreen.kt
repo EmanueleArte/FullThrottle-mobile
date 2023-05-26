@@ -1,20 +1,30 @@
 package com.example.fullthrottle.ui
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
+import com.example.fullthrottle.data.DBHelper.getFolloweds
+import com.example.fullthrottle.data.DBHelper.getFollowers
+import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
+import com.example.fullthrottle.data.entities.User
+import kotlinx.coroutines.async
 
 @Composable
 fun FollowersScreen(
+    uid: String,
     currentTab: Int = FOLLOWERS_TAB
 ) {
     var tabIndex by remember { mutableStateOf(currentTab) }
@@ -34,17 +44,44 @@ fun FollowersScreen(
             }
         }
         when (tabIndex) {
-            FOLLOWERS_TAB -> UsersList(FOLLOWERS_TAB)
-            FOLLOWED_TAB -> UsersList(FOLLOWED_TAB)
+            FOLLOWERS_TAB -> UsersList(uid, FOLLOWERS_TAB)
+            FOLLOWED_TAB -> UsersList(uid, FOLLOWED_TAB)
         }
     }
 }
 
 @Composable
-fun UsersList(currentTab: Int) {
+fun UsersList(uid: String, currentTab: Int) {
+    var users by remember { mutableStateOf(emptyList<User>()) }
+    var imagesUris by remember { mutableStateOf(mutableListOf<Uri>()) }
+    LaunchedEffect(
+        key1 = "followersQuery",
+        block = {
+            async {
+                if (currentTab == FOLLOWERS_TAB) {
+                    users = getFollowers(uid)
+                } else {
+                    users = getFolloweds(uid)
+                }
+                users.forEach {
+                    val imageUrl = it.userId + "/" + it.userImg
+                    imagesUris.add(getImageUri(imageUrl))
+                }
+            }
+        }
+    )
 
-
-    LazyColumn() {
-
+    LazyColumn(
+        modifier = Modifier
+            .padding(vertical = 5.dp, horizontal = 10.dp)
+    ) {
+        users.forEachIndexed { index, element ->
+            item {
+                ItemTonalButton(value = element.username.toString(),
+                    onClick = { /*TODO*/ },
+                    imgUri = imagesUris.getOrElse(index) { Uri.EMPTY }
+                )
+            }
+        }
     }
 }

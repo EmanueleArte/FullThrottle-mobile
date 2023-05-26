@@ -1,5 +1,6 @@
 package com.example.fullthrottle.data
 
+import android.net.Uri
 import android.util.Log
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.fullthrottle.R
@@ -18,17 +19,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.util.*
 
 object DBHelper {
     private val database = Firebase.database
     private val storage = Firebase.storage
-
-    fun setPersistance(persistanceFlag: Boolean) {
-        database.setPersistenceEnabled(persistanceFlag)
-    }
 
     suspend fun userLogin(username: String, password: String, settingsViewModel: SettingsViewModel) = callbackFlow {
         var res = false
@@ -112,6 +108,80 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun getFollowers(uid: String) = callbackFlow {
+        database
+            .getReference("follows")
+            .orderByChild("followedId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val followers = mutableListOf<User>()
+                    it.children.map {  follow ->
+                        follow.child("followerId").value.toString()
+                    }.forEach { followerId ->
+                        database
+                            .getReference("users")
+                            .orderByKey()
+                            .equalTo(followerId)
+                            .get()
+                            .addOnSuccessListener { follower ->
+                                if (follower.exists()) {
+                                    followers.add(follower.children.first().getValue<User>() as User)
+                                }
+                                trySend(followers)
+                            }
+                            .addOnFailureListener { error ->
+                                Log.d("Error getting data", error.toString())
+                            }
+                    }
+                } else {
+                    trySend(emptyList<User>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    suspend fun getFolloweds(uid: String) = callbackFlow {
+        database
+            .getReference("follows")
+            .orderByChild("followerId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val followers = mutableListOf<User>()
+                    it.children.map {  follow ->
+                        follow.child("followedId").value.toString()
+                    }.forEach { followerId ->
+                        database
+                            .getReference("users")
+                            .orderByKey()
+                            .equalTo(followerId)
+                            .get()
+                            .addOnSuccessListener { followed ->
+                                if (followed.exists()) {
+                                    followers.add(followed.children.first().getValue<User>() as User)
+                                }
+                                trySend(followers)
+                            }
+                            .addOnFailureListener { error ->
+                                Log.d("Error getting data", error.toString())
+                            }
+                    }
+                } else {
+                    trySend(emptyList<User>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun userRegistration(username: String, mail: String, password: String, settingsViewModel: SettingsViewModel) = callbackFlow {
         var usernameUser: User?
         var mailUser: User?
@@ -164,7 +234,7 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getImage(imgUrl: String) = callbackFlow {
+    suspend fun getImageUri(imgUrl: String): Uri = callbackFlow {
         storage.reference
             .child(imgUrl)
             .downloadUrl

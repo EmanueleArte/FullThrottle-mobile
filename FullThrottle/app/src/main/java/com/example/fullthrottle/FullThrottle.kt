@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.fullthrottle.Utils.deleteMemorizedUserData
+import com.example.fullthrottle.data.DataStoreConstants
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
@@ -152,7 +153,9 @@ fun BottomAppBarFunction(
             // Profile
             NavigationBarItem(
                 icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = stringResource(id = R.string.nav_profile)) },
-                selected = currentScreen == AppScreen.Profile.name,
+                selected = currentScreen == AppScreen.Profile.name
+                        || currentScreen == AppScreen.Followers.name
+                        || currentScreen == AppScreen.Settings.name,
                 onClick = { navController.navigate(AppScreen.Profile.name) },
                 label = { Text(stringResource(id = R.string.nav_profile)) },
                 alwaysShowLabel = false
@@ -278,10 +281,10 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Followers.name) {
-            FollowersScreen(FOLLOWERS_TAB)
+            FollowersScreen(settings[USER_ID_KEY].toString(), FOLLOWERS_TAB)
         }
         composable(route = AppScreen.Followed.name) {
-            FollowersScreen(FOLLOWED_TAB)
+            FollowersScreen(settings[USER_ID_KEY].toString(), FOLLOWED_TAB)
         }
         composable(route = AppScreen.Login.name) {
             LoginScreen(

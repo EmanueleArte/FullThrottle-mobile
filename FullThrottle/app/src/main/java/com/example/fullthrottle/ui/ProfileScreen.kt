@@ -1,36 +1,26 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
-import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
-import com.example.fullthrottle.data.DBHelper
-import com.example.fullthrottle.data.DBHelper.getImage
+import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
-import com.example.fullthrottle.ui.theme.md_theme_light_primary
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.*
 
@@ -57,11 +47,10 @@ fun ProfileScreen(
             }
             async {
                 motorbikes = getMotorbikesByUserId(settings[USER_ID_KEY]!!) as List<Motorbike>
-                println(motorbikes)
             }
             if (settings[USER_IMAGE_KEY].toString().isNotEmpty()) {
                 val imageUrl = settings[USER_ID_KEY] + "/" + settings[USER_IMAGE_KEY]
-                imageUri = getImage(imageUrl)
+                imageUri = getImageUri(imageUrl)
             }
         }
     )
