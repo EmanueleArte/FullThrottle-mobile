@@ -1,6 +1,7 @@
 package com.example.fullthrottle.data
 
 import android.util.Log
+import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -156,6 +157,25 @@ object DBHelper {
                     trySend(emptyList<Motorbike>())
                 }
              }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    suspend fun getMotorbikeById(uid: String) = callbackFlow {
+        database
+            .getReference("motorbikes")
+            .orderByChild("motorbikeId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener() {
+                if (it.exists()) {
+                    trySend(it.children.first().getValue<Motorbike>())
+                } else {
+                    trySend(null)
+                }
+            }
             .addOnFailureListener{ error ->
                 Log.d("Error getting data", error.toString())
             }

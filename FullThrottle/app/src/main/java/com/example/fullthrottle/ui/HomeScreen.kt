@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,8 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
+import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getRecentPosts
 import com.example.fullthrottle.data.DBHelper.getUserById
+import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import kotlinx.coroutines.async
@@ -29,15 +34,16 @@ fun HomeScreen() {
     val context = LocalContext.current
 
     var posts by remember { mutableStateOf(emptyList<Post>()) }
-    val users by remember { mutableStateOf(mutableMapOf<String, User>()) }
+    var users by remember { mutableStateOf(emptyList<User>()) }
+    var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
     LaunchedEffect(
         key1 = "posts",
         block = {
             async {
-                posts = getRecentPosts() as List<Post>
-                posts.forEach{ post ->
-                    users[post.userId as String] = getUserById(post.userId as String) as User
-                }
+                val tPosts = getRecentPosts() as List<Post>
+                users = tPosts.map { post -> getUserById(post.userId as String) as User }
+                motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
+                posts = tPosts
             }
         }
     )
@@ -66,7 +72,7 @@ fun HomeScreen() {
                         )
                         Column {
                             Text(
-                                text = "${users[post.userId]?.username}",
+                                text = "${users[posts.indexOf(post)].username}",
                                 fontWeight = FontWeight.Bold
                             )
                             Text(text = "${post.publishDate}")
@@ -96,7 +102,7 @@ fun HomeScreen() {
                         text = "Piace a ${post.likesNumber} riders",
                         fontWeight = FontWeight.Thin
                     )
-                    Text(text = "Moto: ")
+                    Text(text = "Moto: ${motorbikes[posts.indexOf(post)]?.brand} ${motorbikes[posts.indexOf(post)]?.model}")
                     Text(text = "Lunghezza percorso: ${post.length}km")
                     Text(text = "${post.description}")
                 }
