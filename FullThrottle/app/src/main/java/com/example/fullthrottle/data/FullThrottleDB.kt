@@ -215,6 +215,25 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun getMotorbikeById(uid: String) = callbackFlow {
+        database
+            .getReference("motorbikes")
+            .orderByChild("motorbikeId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener() {
+                if (it.exists()) {
+                    trySend(it.children.first().getValue<Motorbike>())
+                } else {
+                    trySend(null)
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun getMotorbikesByUserId(uid: String) = callbackFlow {
         database
             .getReference("motorbikes")
