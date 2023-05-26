@@ -1,7 +1,6 @@
 package com.example.fullthrottle.data
 
 import android.util.Log
-import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -18,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.util.*
 
