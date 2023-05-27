@@ -106,19 +106,13 @@ fun RegisterScreen(
         if (registrationError != -1) {
             Spacer(modifier = Modifier.size(5.dp))
 
-            Text(
-                text = stringResource(id = registrationError),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            Text(text = stringResource(id = registrationError))
         }
 
         Spacer(modifier = Modifier.size(5.dp))
 
         Text(
             text = stringResource(id = R.string.password_regex),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
     }

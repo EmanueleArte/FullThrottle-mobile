@@ -39,21 +39,18 @@ fun ProfileScreen(
     var user by remember { mutableStateOf(User()) }
     var imageUri by rememberSaveable { mutableStateOf<Uri>(Uri.EMPTY) }
     var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
-    LaunchedEffect(
-        key1 = "imageUri",
-        block = {
-            async {
-                user = getUserById(settings[USER_ID_KEY]!!) ?: User()
-            }
-            async {
-                motorbikes = getMotorbikesByUserId(settings[USER_ID_KEY]!!) as List<Motorbike>
-            }
-            if (settings[USER_IMAGE_KEY].toString().isNotEmpty()) {
-                val imageUrl = settings[USER_ID_KEY] + "/" + settings[USER_IMAGE_KEY]
-                imageUri = getImageUri(imageUrl)
-            }
+    LaunchedEffect(key1 = "imageUri") {
+        async {
+            user = getUserById(settings[USER_ID_KEY]!!) ?: User()
         }
-    )
+        async {
+            motorbikes = getMotorbikesByUserId(settings[USER_ID_KEY]!!) as List<Motorbike>
+        }
+        if (settings[USER_IMAGE_KEY].toString().isNotEmpty()) {
+            val imageUrl = settings[USER_ID_KEY] + "/" + settings[USER_IMAGE_KEY]
+            imageUri = getImageUri(imageUrl)
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp)

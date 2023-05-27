@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ClipDescription
 import android.content.Context
 import android.content.ContextWrapper
+import android.icu.text.CaseMap.Title
 import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,7 +64,11 @@ fun Context.findActivity(): Activity? = when (this) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutLineTextField(label: String, value: String = ""): String {
+fun OutLineTextField(
+    label: String,
+    value: String = "",
+    modifier: Modifier = Modifier
+): String {
     var text by rememberSaveable { mutableStateOf(value) }
     OutlinedTextField(
         shape = RoundedCornerShape(CORNER_RADIUS),
@@ -71,14 +76,18 @@ fun OutLineTextField(label: String, value: String = ""): String {
         label = { Text(text = label) },
         onValueChange = {
             text = it
-        }
+        },
+        modifier = modifier
     )
     return text
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutLinePasswordField(label: String): String {
+fun OutLinePasswordField(
+    label: String,
+    modifier: Modifier = Modifier
+): String {
     var password by rememberSaveable { mutableStateOf("") }
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
     OutlinedTextField(
@@ -98,7 +107,8 @@ fun OutLinePasswordField(label: String): String {
                 val description = if (passwordHidden) stringResource(id = R.string.show_pw) else stringResource(id = R.string.hide_pw)
                 Icon(imageVector = visibilityIcon, contentDescription = description)
             }
-        }
+        },
+        modifier = modifier
     )
     return password
 }
@@ -219,4 +229,36 @@ fun SimpleTitle(text: String) {
             style = MaterialTheme.typography.titleMedium,
         )
     }
+}
+
+@Composable
+fun SimpleAlertDialog(
+    title: String,
+    text: String,
+    confirm: String,
+    dismiss: String,
+    openDialog: MutableState<Boolean>,
+    result: MutableState<Boolean>
+) {
+    AlertDialog(
+        onDismissRequest = { openDialog.value = false },
+        title = {
+            Text(text = title)
+        },
+        text = {
+            Text(text = text)
+        },
+        confirmButton = {
+            SimpleTextButton(value = confirm) {
+                result.value = true
+                openDialog.value = false
+            }
+        },
+        dismissButton = {
+            SimpleTextButton(value = dismiss) {
+                result.value = false
+                openDialog.value = false
+            }
+        }
+    )
 }

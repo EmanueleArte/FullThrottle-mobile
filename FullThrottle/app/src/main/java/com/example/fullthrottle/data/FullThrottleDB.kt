@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.fullthrottle.R
+import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
@@ -38,8 +39,9 @@ object DBHelper {
                     val user = it.children.first().getValue<User>()
                     if (BCrypt.verifyer().verify(password.toCharArray(), user?.password).verified) {
                         settingsViewModel.saveData(USER_ID_KEY, user?.userId.toString())
-                        settingsViewModel.saveData(USERNAME_KEY, user?.username.toString())
-                        settingsViewModel.saveData(USER_IMAGE_KEY, user?.userImg.toString())
+                        settingsViewModel.saveData(USERNAME_KEY, user?.username.orEmpty())
+                        settingsViewModel.saveData(USER_IMAGE_KEY, user?.userImg.orEmpty())
+                        settingsViewModel.saveData(MAIL_KEY, user?.mail.orEmpty())
                         res = true
                     }
                 }
@@ -201,9 +203,10 @@ object DBHelper {
                 informed = "1"
             )
             database.getReference("users").child(user.userId.toString()).setValue(user)
-            settingsViewModel.saveData(USER_ID_KEY, user.userId.toString())
-            settingsViewModel.saveData(USERNAME_KEY, user.username.toString())
-            settingsViewModel.saveData(USER_IMAGE_KEY, user.userImg.toString())
+            settingsViewModel.saveData(USER_ID_KEY, user.userId.orEmpty())
+            settingsViewModel.saveData(USERNAME_KEY, user.username.orEmpty())
+            settingsViewModel.saveData(USER_IMAGE_KEY, user.userImg.orEmpty())
+            settingsViewModel.saveData(MAIL_KEY, user.mail.orEmpty())
             trySend(-1)
         } else {
             if (usernameUser != null) {

@@ -39,4 +39,13 @@
     <string name="followed_tab_label">Seguiti</string>
     <string name="modify_profile">Modifica profilo</string>
 
+    <string name="save">Salva modifica</string>
+    <string name="confirm_title">Conferma la modifica</string>
+    <string name="confirm">Conferma</string>
+    <string name="dismiss">Rifiuta</string>
+    <string name="modify_username_text">Vuoi confermare il salvataggio del nuovo username?
+        Tale username sarà necessario per effettuare il login.</string>
+    <string name="modify_mail_text">Vuoi confermare il salvataggio della nuova mail?</string>
+    <string name="modify_password_text">Vuoi confermare il salvataggio della nuova password?
+        Tale password sarà necessaria per effettuare il login.</string>
 </resources>

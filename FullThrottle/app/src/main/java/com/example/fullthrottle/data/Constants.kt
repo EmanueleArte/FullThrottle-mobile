@@ -21,6 +21,7 @@ object DataStoreConstants {
     val USER_ID_KEY = "user_id"
     val USERNAME_KEY = "username"
     val USER_IMAGE_KEY = "user_image"
+    val MAIL_KEY = "mail"
     val THEME_KEY = "theme"
     val PUSH_NOTIFICATIONS_KEY = "push_notifications"
     val LOCATION_UPDATES_KEY = "location_updates"

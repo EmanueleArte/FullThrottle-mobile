@@ -54,22 +54,19 @@ fun FollowersScreen(
 fun UsersList(uid: String, currentTab: Int) {
     var users by remember { mutableStateOf(emptyList<User>()) }
     var imagesUris by remember { mutableStateOf(mutableListOf<Uri>()) }
-    LaunchedEffect(
-        key1 = "followersQuery",
-        block = {
-            async {
-                users = if (currentTab == FOLLOWERS_TAB) {
-                    getFollowers(uid)
-                } else {
-                    getFolloweds(uid)
-                }
-                users.forEach {
-                    val imageUrl = it.userId + "/" + it.userImg
-                    imagesUris.add(getImageUri(imageUrl))
-                }
+    LaunchedEffect(key1 = "followersQuery") {
+        async {
+            users = if (currentTab == FOLLOWERS_TAB) {
+                getFollowers(uid)
+            } else {
+                getFolloweds(uid)
+            }
+            users.forEach {
+                val imageUrl = it.userId + "/" + it.userImg
+                imagesUris.add(getImageUri(imageUrl))
             }
         }
-    )
+    }
 
     LazyColumn(
         modifier = Modifier

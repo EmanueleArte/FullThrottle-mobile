@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
+import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
@@ -29,6 +30,7 @@ class SettingsRepository(private val context: Context) {
         private val USER_ID = stringPreferencesKey(USER_ID_KEY)
         private val USERNAME = stringPreferencesKey(USERNAME_KEY)
         private val USER_IMAGE = stringPreferencesKey(USER_IMAGE_KEY)
+        private val MAIL = stringPreferencesKey(MAIL_KEY)
         private val THEME = stringPreferencesKey(THEME_KEY)
         private val PUSH_NOTIFICATIONS = stringPreferencesKey(PUSH_NOTIFICATIONS_KEY)
         private val LOCATION_UPDATES = stringPreferencesKey(LOCATION_UPDATES_KEY)
@@ -48,6 +50,7 @@ class SettingsRepository(private val context: Context) {
             prefMap[USERNAME_KEY] = preferences[USERNAME]?: ""
             prefMap[USER_ID_KEY] = preferences[USER_ID]?: ""
             prefMap[USER_IMAGE_KEY] = preferences[USER_IMAGE]?: ""
+            prefMap[MAIL_KEY] = preferences[MAIL]?: ""
             prefMap[THEME_KEY] = preferences[THEME]?: SYSTEM_THEME
             prefMap[PUSH_NOTIFICATIONS_KEY] = preferences[PUSH_NOTIFICATIONS]?: ALL_NOTIFICATIONS
             prefMap[LOCATION_UPDATES_KEY] = preferences[LOCATION_UPDATES]?: "false"

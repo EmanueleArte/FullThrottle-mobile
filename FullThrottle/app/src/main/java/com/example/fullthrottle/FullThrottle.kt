@@ -28,6 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.fullthrottle.Utils.deleteMemorizedUserData
 import com.example.fullthrottle.data.DataStoreConstants
+import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
@@ -285,7 +286,11 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.ProfileModification.name) {
-            ProfileModificationScreen(settings[USERNAME_KEY].orEmpty())
+
+            ProfileModificationScreen(
+                settings[USERNAME_KEY].orEmpty(),
+                settings[MAIL_KEY].orEmpty()
+            )
         }
         composable(route = AppScreen.Followers.name) {
             FollowersScreen(settings[USER_ID_KEY].toString(), FOLLOWERS_TAB)
