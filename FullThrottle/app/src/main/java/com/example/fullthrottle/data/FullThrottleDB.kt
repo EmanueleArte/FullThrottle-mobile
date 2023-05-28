@@ -257,14 +257,18 @@ object DBHelper {
     }.first()
 
     suspend fun getImageUri(imgUrl: String): Uri = callbackFlow {
-        storage.reference
-            .child(imgUrl)
-            .downloadUrl
-            .addOnSuccessListener { imgUri ->
-                trySend(imgUri)
-            }.addOnFailureListener { error ->
-                Log.d("Error getting image", error.toString())
-            }
+        if (imgUrl.last() == '/') {
+            trySend(Uri.EMPTY)
+        } else {
+            storage.reference
+                .child(imgUrl)
+                .downloadUrl
+                .addOnSuccessListener { imgUri ->
+                    trySend(imgUri)
+                }.addOnFailureListener { error ->
+                    Log.d("Error getting image", error.toString())
+                }
+        }
         awaitClose { }
     }.first()
 
