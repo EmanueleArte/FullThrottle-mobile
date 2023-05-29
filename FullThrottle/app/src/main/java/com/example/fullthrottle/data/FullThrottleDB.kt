@@ -8,6 +8,7 @@ import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
+import com.example.fullthrottle.data.entities.Comment
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
@@ -27,6 +28,7 @@ object DBHelper {
     private val database = Firebase.database
     private val storage = Firebase.storage
 
+    // USERS
     suspend fun userLogin(username: String, password: String, settingsViewModel: SettingsViewModel) = callbackFlow {
         var res = false
         database
@@ -218,56 +220,7 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getMotorbikeById(uid: String) = callbackFlow {
-        database
-            .getReference("motorbikes")
-            .orderByChild("motorbikeId")
-            .equalTo(uid)
-            .get()
-            .addOnSuccessListener() {
-                if (it.exists()) {
-                    trySend(it.children.first().getValue<Motorbike>())
-                } else {
-                    trySend(null)
-                }
-            }
-            .addOnFailureListener{ error ->
-                Log.d("Error getting data", error.toString())
-            }
-        awaitClose { }
-    }.first()
-
-    suspend fun getMotorbikesByUserId(uid: String) = callbackFlow {
-        database
-            .getReference("motorbikes")
-            .orderByChild("userId")
-            .equalTo(uid)
-            .get()
-            .addOnSuccessListener() { motorbikes ->
-                if (motorbikes.exists()) {
-                    trySend(motorbikes.children.map { it.getValue<Motorbike>() })
-                } else {
-                    trySend(emptyList<Motorbike>())
-                }
-             }
-            .addOnFailureListener{ error ->
-                Log.d("Error getting data", error.toString())
-            }
-        awaitClose { }
-    }.first()
-
-    suspend fun getImageUri(imgUrl: String): Uri = callbackFlow {
-        storage.reference
-            .child(imgUrl)
-            .downloadUrl
-            .addOnSuccessListener { imgUri ->
-                trySend(imgUri)
-            }.addOnFailureListener { error ->
-                Log.d("Error getting image", error.toString())
-            }
-        awaitClose { }
-    }.first()
-
+    // POSTS
     suspend fun getPostById(postId: String) = callbackFlow {
         database
             .getReference("posts")
@@ -300,6 +253,78 @@ object DBHelper {
             }
             .addOnFailureListener{ error ->
                 Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    // MOTORBIKES
+    suspend fun getMotorbikeById(uid: String) = callbackFlow {
+        database
+            .getReference("motorbikes")
+            .orderByChild("motorbikeId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener() {
+                if (it.exists()) {
+                    trySend(it.children.first().getValue<Motorbike>())
+                } else {
+                    trySend(null)
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    suspend fun getMotorbikesByUserId(uid: String) = callbackFlow {
+        database
+            .getReference("motorbikes")
+            .orderByChild("userId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener() { motorbikes ->
+                if (motorbikes.exists()) {
+                    trySend(motorbikes.children.map { it.getValue<Motorbike>() })
+                } else {
+                    trySend(emptyList<Motorbike>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    // COMMENTS
+    suspend fun getCommentsByPostId(postId: String) = callbackFlow {
+        database
+            .getReference("comments")
+            .orderByChild("postId")
+            .equalTo(postId)
+            .get()
+            .addOnSuccessListener { comments ->
+                if (comments.exists()) {
+                    trySend(comments.children.map { it.getValue<Comment>() })
+                } else {
+                    trySend(emptyList<Motorbike>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    // IMAGES
+    suspend fun getImageUri(imgUrl: String): Uri = callbackFlow {
+        storage.reference
+            .child(imgUrl)
+            .downloadUrl
+            .addOnSuccessListener { imgUri ->
+                trySend(imgUri)
+            }.addOnFailureListener { error ->
+                Log.d("Error getting image", error.toString())
             }
         awaitClose { }
     }.first()

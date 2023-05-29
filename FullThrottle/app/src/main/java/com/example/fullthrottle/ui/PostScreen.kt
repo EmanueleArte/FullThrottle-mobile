@@ -3,9 +3,12 @@ package com.example.fullthrottle.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -17,9 +20,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
-import com.example.fullthrottle.data.DBHelper
+import com.example.fullthrottle.data.DBHelper.getCommentsByPostId
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
+import com.example.fullthrottle.data.DBHelper.getPostById
 import com.example.fullthrottle.data.DBHelper.getUserById
+import com.example.fullthrottle.data.entities.Comment
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
@@ -34,71 +39,127 @@ fun PostScreen(
     var post by remember { mutableStateOf(Post()) }
     var user by remember { mutableStateOf(User()) }
     var motorbike by remember { mutableStateOf(Motorbike()) }
+    var comments by remember { mutableStateOf(emptyList<Comment>()) }
+    var commentsUsers by remember { mutableStateOf(emptyList<User>()) }
     LaunchedEffect(
         key1 = "posts",
         block = {
             async {
-                val res = DBHelper.getPostById(postId)
+                val res = getPostById(postId)
                 if(res != null) {
                     user = getUserById(res.userId as String) as User
                     motorbike = getMotorbikeById(res.motorbikeId as String) as Motorbike
                     post = res
                 }
             }
+            async {
+                val tComments = getCommentsByPostId(postId) as List<Comment>
+                commentsUsers = tComments.map { comment -> getUserById(comment.userId as String) as User }
+                comments = tComments
+            }
         }
     )
 
-    Column(
+    LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+                    contentDescription = "user image",
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .requiredHeight(40.dp)
+                        .requiredWidth(40.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                )
+                Column {
+                    Text(
+                        text = "${user.username}",
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(text = "${post.publishDate}")
+                }
+                Spacer(Modifier.weight(1f))
+                Icon(
+                    Icons.Filled.Place,
+                    contentDescription = "post location",
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .requiredHeight(40.dp)
+                )
+            }
+        }
+        item{
             Image(
                 painter = painterResource(id = R.drawable.fullthrottle_logo_light),
-                contentDescription = "user image",
+                contentDescription = "post image",
                 modifier = Modifier
-                    .padding(5.dp)
-                    .requiredHeight(40.dp)
-                    .requiredWidth(40.dp)
-                    .clip(CircleShape)
+                    .fillMaxWidth()
                     .background(Color.White)
-            )
-            Column {
-                Text(
-                    text = "${user.username}",
-                    fontWeight = FontWeight.Bold
-                )
-                Text(text = "${post.publishDate}")
-            }
-            Spacer(Modifier.weight(1f))
-            Icon(
-                Icons.Filled.Place,
-                contentDescription = "post location",
-                modifier = Modifier
-                    .padding(5.dp)
-                    .requiredHeight(40.dp)
+
             )
         }
-        Image(
-            painter = painterResource(id = R.drawable.fullthrottle_logo_light),
-            contentDescription = "post image",
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-
-        )
-        Text(
-            text = "${post.title}",
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Piace a ${post.likesNumber} riders",
-            fontWeight = FontWeight.Thin
-        )
-        Text(text = "Moto: ${motorbike.brand} ${motorbike.model}")
-        Text(text = "Lunghezza percorso: ${post.length}km")
-        Text(text = "${post.description}")
+        item {
+            Text(
+                text = "${post.title}",
+                fontWeight = FontWeight.Bold
+            )
+        }
+        item{
+            Text(
+                text = "Piace a ${post.likesNumber} riders",
+                fontWeight = FontWeight.Thin
+            )
+        }
+        item{
+            Text(text = "Moto: ${motorbike.brand} ${motorbike.model}")
+        }
+        item{
+            Text(text = "Lunghezza percorso: ${post.length}km")
+        }
+        item{
+            Text(text = "${post.description}")
+        }
+        item{
+            Text(
+                text = "Commenti",
+                fontWeight = FontWeight.Bold
+            )
+        }
+        items(comments) {comment ->
+            Card() {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+                        contentDescription = "comment user image",
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .requiredHeight(40.dp)
+                            .requiredWidth(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                    )
+                    Column() {
+                        Row {
+                            Text(
+                                text = "${commentsUsers[comments.indexOf(comment)].username}",
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(text = "${comment.publishDate}")
+                        }
+                        Text(text = comment.text as String)
+                    }
+                }
+            }
+        }
     }
 }
