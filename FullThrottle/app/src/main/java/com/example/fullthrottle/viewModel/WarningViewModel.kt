@@ -24,6 +24,13 @@ class WarningViewModel: ViewModel() {
     val stopLocationSnackBar
         get() = _stopLocationSnackBar
 
+    private var _simpleSnackBar = mutableStateOf(false)
+    private var _simpleSnackBarContent = mutableStateOf("")
+    val simpleSnackBarContent
+        get() = _simpleSnackBarContent
+    val showModificationDone
+        get() = _simpleSnackBar
+
     fun setPermissionSnackBarVisibility(visible: Boolean) {
         _showPermissionSnackBar.value = visible
     }
@@ -42,5 +49,13 @@ class WarningViewModel: ViewModel() {
 
     fun setStartLocationSnackBarVisibility(visible: Boolean) {
         _startLocationSnackBar.value = visible
+    }
+
+    fun setSimpleSnackBarVisibility(visible: Boolean) {
+        _simpleSnackBar.value = visible
+    }
+
+    fun setSimpleSnackBarContent(content: String) {
+        _simpleSnackBarContent.value = content
     }
 }

@@ -97,8 +97,6 @@ fun SettingsScreen(
                         themesText.forEach { entry ->
                             DropdownMenuItem(
                                 onClick = {
-                                    /*Toast.makeText(contextForToast, itemValue, Toast.LENGTH_SHORT)
-                                        .show()*/
                                     expanded = false
                                     settingsViewModel.saveData(THEME_KEY, entry.key)
                                 },
@@ -186,6 +184,8 @@ fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.size(10.dp))
+
             // Logout
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -193,7 +193,6 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
                 OutlineTextButton(
                     value = "Logout",
                     onClick = {

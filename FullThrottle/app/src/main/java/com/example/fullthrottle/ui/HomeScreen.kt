@@ -14,6 +14,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -36,20 +37,17 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
 
-    var posts by remember { mutableStateOf(emptyList<Post>()) }
-    var users by remember { mutableStateOf(emptyList<User>()) }
-    var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
-    LaunchedEffect(
-        key1 = "posts",
-        block = {
-            async {
-                val tPosts = getRecentPosts() as List<Post>
-                users = tPosts.map { post -> getUserById(post.userId as String) as User }
-                motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
-                posts = tPosts
-            }
+    var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
+    var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
+    var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
+    LaunchedEffect(key1 = "posts") {
+        async {
+            val tPosts = getRecentPosts() as List<Post>
+            users = tPosts.map { post -> getUserById(post.userId as String) as User }
+            motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
+            posts = tPosts
         }
-    )
+    }
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp)

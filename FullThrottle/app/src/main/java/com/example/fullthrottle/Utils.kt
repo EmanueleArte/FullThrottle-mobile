@@ -10,7 +10,6 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 object Utils {
-
     private const val PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}$"
 
     fun isValidPassword(password: String): Boolean {
