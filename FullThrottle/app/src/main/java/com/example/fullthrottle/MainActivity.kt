@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
@@ -129,6 +130,11 @@ class MainActivity : ComponentActivity() {
             if (settings[THEME_KEY] != SYSTEM_THEME) {
                 darkTheme = settings[THEME_KEY] == DARK_THEME
             }
+            val startDestination = if (settings[USER_ID_KEY] != "") {
+                AppScreen.Home.name
+            } else {
+                AppScreen.Login.name
+            }
 
             FullThrottleTheme(darkTheme = darkTheme) {
                 // A surface container using the 'background' color from the theme
@@ -141,6 +147,7 @@ class MainActivity : ComponentActivity() {
                     NavigationApp(
                         settingsViewModel = settingsViewModel,
                         warningViewModel = warningViewModel,
+                        startDestination = startDestination,
                         methods = mapOf(
                             "startLocationUpdates" to ::startLocationUpdates,
                             "stopLocationUpdates" to ::stopLocationUpdates,

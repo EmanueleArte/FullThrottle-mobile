@@ -43,6 +43,11 @@ import kotlinx.coroutines.async
 
 object UiConstants {
     val CORNER_RADIUS = 10.dp
+    val ANIMATION_DURATION = 100
+}
+
+object Logo {
+    var logoId = R.drawable.fullthrottle_logo_light
 }
 
 @Composable

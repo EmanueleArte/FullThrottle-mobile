@@ -14,8 +14,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
+import com.example.fullthrottle.data.LogosIds.LOGO_DARK
+import com.example.fullthrottle.data.LogosIds.LOGO_LIGHT
 import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
+import com.example.fullthrottle.ui.Logo.logoId
 import com.example.fullthrottle.viewModel.SettingsViewModel
 
 private val LightColorScheme = lightColorScheme(
@@ -86,15 +89,13 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun FullThrottleTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     content: @Composable () -> Unit
 ) {
-    /*val settingsViewModel = hiltViewModel<SettingsViewModel>()
-    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
-    var darkTheme = darkTheme
-    if (settings[THEME_KEY] != SYSTEM_THEME) {
-        darkTheme = settings[THEME_KEY] == DARK_THEME
-    }*/
+    logoId = when {
+        darkTheme -> LOGO_DARK
+        else -> LOGO_LIGHT
+    }
+
     val colorScheme = when {
         darkTheme -> DarkColorScheme
         else -> LightColorScheme

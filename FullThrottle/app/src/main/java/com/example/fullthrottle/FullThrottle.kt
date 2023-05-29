@@ -1,6 +1,11 @@
 package com.example.fullthrottle
 
 import android.app.Application
+import android.transition.Visibility
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -35,7 +40,9 @@ import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
 import com.example.fullthrottle.ui.GPSAlertDialogComposable
+import com.example.fullthrottle.ui.Logo.logoId
 import com.example.fullthrottle.ui.PermissionSnackBarComposable
+import com.example.fullthrottle.ui.UiConstants.ANIMATION_DURATION
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
 import dagger.hilt.android.HiltAndroidApp
@@ -69,49 +76,55 @@ fun TopAppBarFunction(
     modifier: Modifier = Modifier,
     onSettingsButtonClicked: () -> Unit
 ) {
-    CenterAlignedTopAppBar(
-        title = {
-            if (currentScreen != AppScreen.Login.name && currentScreen != AppScreen.Register.name) {
-                Image(
-                    painter = painterResource(id = R.drawable.fullthrottle_logo_light),
-                    contentDescription = "app logo",
-                    modifier = Modifier
-                        .requiredHeight(40.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        },
-        modifier = modifier,
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back button"
+    AnimatedVisibility(
+        visible = currentScreen != AppScreen.Login.name,
+        enter = slideInVertically(initialOffsetY = { -it }, animationSpec = tween(ANIMATION_DURATION)),
+        exit = slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(ANIMATION_DURATION))
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                if (currentScreen != AppScreen.Login.name && currentScreen != AppScreen.Register.name) {
+                    Image(
+                        painter = painterResource(id = logoId),
+                        contentDescription = "app logo",
+                        modifier = Modifier
+                            .requiredHeight(40.dp),
+                        contentScale = ContentScale.Fit
                     )
                 }
-            }
-        },
-        actions = {
-            if (currentScreen == AppScreen.Home.name) {
-                /* TODO Notifiche */
-                IconButton(onClick = { /* doSomething() */ }) {
-                    Icon(Icons.Filled.Search, contentDescription = "Search")
+            },
+            modifier = modifier,
+            navigationIcon = {
+                if (canNavigateBack) {
+                    IconButton(onClick = navigateUp) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back button"
+                        )
+                    }
                 }
-            }
-            if (currentScreen == AppScreen.Profile.name) {
-                IconButton(onClick = onSettingsButtonClicked) {
-                    Icon(
-                        Icons.Outlined.Settings,
-                        contentDescription = "Settings button"
-                    )
+            },
+            actions = {
+                if (currentScreen == AppScreen.Home.name) {
+                    /* TODO Notifiche */
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(Icons.Filled.Search, contentDescription = "Search")
+                    }
                 }
-            }
-        },
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+                if (currentScreen == AppScreen.Profile.name) {
+                    IconButton(onClick = onSettingsButtonClicked) {
+                        Icon(
+                            Icons.Outlined.Settings,
+                            contentDescription = "Settings button"
+                        )
+                    }
+                }
+            },
+            colors = TopAppBarDefaults.smallTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
         )
-    )
+    }
 }
 
 @Composable
@@ -119,11 +132,21 @@ fun BottomAppBarFunction(
     currentScreen: String,
     navController: NavHostController
 ) {
-    if (currentScreen != AppScreen.Login.name && currentScreen != AppScreen.Register.name) {
+    AnimatedVisibility(
+        visible = currentScreen != AppScreen.Login.name
+                && currentScreen != AppScreen.Register.name,
+        enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(ANIMATION_DURATION)),
+        exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(ANIMATION_DURATION))
+    ) {
         NavigationBar {
             // Home
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.Home, contentDescription = stringResource(id = R.string.nav_home)) },
+                icon = {
+                    Icon(
+                        Icons.Outlined.Home,
+                        contentDescription = stringResource(id = R.string.nav_home)
+                    )
+                },
                 selected = currentScreen == AppScreen.Home.name,
                 onClick = { navController.navigate(AppScreen.Home.name) },
                 label = { Text(stringResource(id = R.string.nav_home)) },
@@ -131,7 +154,12 @@ fun BottomAppBarFunction(
             )
             // Map
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.Map, contentDescription = stringResource(id = R.string.nav_map)) },
+                icon = {
+                    Icon(
+                        Icons.Outlined.Map,
+                        contentDescription = stringResource(id = R.string.nav_map)
+                    )
+                },
                 selected = currentScreen == AppScreen.Map.name,
                 onClick = { navController.navigate(AppScreen.Map.name) },
                 label = { Text(stringResource(id = R.string.nav_map)) },
@@ -139,7 +167,12 @@ fun BottomAppBarFunction(
             )
             // New post
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.Add, contentDescription = stringResource(id = R.string.nav_new_post)) },
+                icon = {
+                    Icon(
+                        Icons.Outlined.Add,
+                        contentDescription = stringResource(id = R.string.nav_new_post)
+                    )
+                },
                 selected = currentScreen == AppScreen.NewPost.name,
                 onClick = { navController.navigate(AppScreen.NewPost.name) },
                 label = { Text(stringResource(id = R.string.nav_new_post)) },
@@ -147,7 +180,12 @@ fun BottomAppBarFunction(
             )
             // Search
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.Search, contentDescription = stringResource(id = R.string.nav_search)) },
+                icon = {
+                    Icon(
+                        Icons.Outlined.Search,
+                        contentDescription = stringResource(id = R.string.nav_search)
+                    )
+                },
                 selected = currentScreen == AppScreen.Search.name,
                 onClick = { navController.navigate(AppScreen.Search.name) },
                 label = { Text(stringResource(id = R.string.nav_search)) },
@@ -155,7 +193,12 @@ fun BottomAppBarFunction(
             )
             // Profile
             NavigationBarItem(
-                icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = stringResource(id = R.string.nav_profile)) },
+                icon = {
+                    Icon(
+                        Icons.Outlined.AccountCircle,
+                        contentDescription = stringResource(id = R.string.nav_profile)
+                    )
+                },
                 selected = currentScreen == AppScreen.Profile.name
                         || currentScreen == AppScreen.Followers.name
                         || currentScreen == AppScreen.Settings.name
@@ -173,15 +216,14 @@ fun BottomAppBarFunction(
 fun NavigationApp(
     settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel,
-    //startLocationUpdates: () -> Unit,
+    startDestination: String = AppScreen.Login.name,
     methods: Map<String, () -> Unit>,
     navController: NavHostController = rememberNavController()
 ) {
-
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
-    val currentScreen = backStackEntry?.destination?.route ?: AppScreen.Home.name
+    val currentScreen = backStackEntry?.destination?.route ?: startDestination
 
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
@@ -201,7 +243,7 @@ fun NavigationApp(
             )
         }
     ) { innerPadding ->
-        NavigationGraph(settingsViewModel, warningViewModel, navController, innerPadding, methods)
+        NavigationGraph(settingsViewModel, warningViewModel, startDestination, navController, innerPadding, methods)
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
             PermissionSnackBarComposable(snackbarHostState, context, warningViewModel)
@@ -244,6 +286,7 @@ fun NavigationApp(
 private fun NavigationGraph(
     settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel,
+    startDestination: String = AppScreen.Login.name,
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
@@ -251,10 +294,11 @@ private fun NavigationGraph(
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
-    var startDestination = AppScreen.Login.name
-    if (settings.isNotEmpty() && settings[USER_ID_KEY] != "") {
-        startDestination = AppScreen.Home.name
-    }
+    /*if (settings[USER_ID_KEY] != "") {
+        navController.navigate(AppScreen.Home.name)
+    } else {
+        navController.navigate(AppScreen.Login.name)
+    }*/
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -313,7 +357,7 @@ private fun NavigationGraph(
                 settingsViewModel,
                 mapOf(
                     "home" to { navController.navigate(AppScreen.Home.name) },
-                    "registration" to { navController.navigate(AppScreen.Register.name) }
+                    "registration" to { navController.navigate(AppScreen.Register.name) },
                 )
             )
         }

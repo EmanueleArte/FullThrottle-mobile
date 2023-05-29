@@ -31,3 +31,8 @@ object TabConstants {
     val FOLLOWERS_TAB = 0
     val FOLLOWED_TAB = 1
 }
+
+object LogosIds {
+    val LOGO_LIGHT = R.drawable.fullthrottle_logo_light
+    val LOGO_DARK = R.drawable.fullthrottle_logo_dark
+}

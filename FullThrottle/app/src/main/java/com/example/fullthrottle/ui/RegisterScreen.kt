@@ -21,6 +21,7 @@ import com.example.fullthrottle.Utils.isValidMail
 import com.example.fullthrottle.Utils.isValidPassword
 import com.example.fullthrottle.Utils.isValidUsername
 import com.example.fullthrottle.data.DBHelper
+import com.example.fullthrottle.ui.Logo.logoId
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
 import java.util.*
@@ -40,7 +41,7 @@ fun RegisterScreen(
             .fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+            painter = painterResource(id = logoId),
             contentDescription = "app logo",
             modifier = Modifier
                 .fillMaxWidth(),

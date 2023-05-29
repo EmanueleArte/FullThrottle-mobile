@@ -23,8 +23,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.fullthrottle.AppScreen
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.userLogin
+import com.example.fullthrottle.data.DataStoreConstants
+import com.example.fullthrottle.ui.Logo.logoId
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.*
 
@@ -35,7 +38,6 @@ fun LoginScreen(
     navigateTo: Map<String, () ->Unit>
     )
 {
-    val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -44,7 +46,7 @@ fun LoginScreen(
             .fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+            painter = painterResource(id = logoId),
             contentDescription = "app logo",
             modifier = Modifier
                 .fillMaxWidth(),
