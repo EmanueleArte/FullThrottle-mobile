@@ -4,8 +4,10 @@ import android.app.Activity
 import android.content.ClipDescription
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.icu.text.CaseMap.Title
 import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,6 +38,7 @@ import com.example.fullthrottle.AppScreen
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
+import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.async
 
 object UiConstants {
@@ -235,10 +238,12 @@ fun SimpleTitle(text: String) {
 fun SimpleAlertDialog(
     title: String,
     text: String,
-    confirm: String,
-    dismiss: String,
+    confirm: String = stringResource(id = R.string.confirm),
+    dismiss: String = stringResource(id = R.string.dismiss),
     openDialog: MutableState<Boolean>,
-    result: MutableState<Boolean>
+    result: MutableState<Boolean>,
+    onConfirm: () -> Unit = {},
+    onDismiss: () -> Unit = {}
 ) {
     AlertDialog(
         onDismissRequest = { openDialog.value = false },
@@ -250,15 +255,37 @@ fun SimpleAlertDialog(
         },
         confirmButton = {
             SimpleTextButton(value = confirm) {
+                onConfirm()
                 result.value = true
                 openDialog.value = false
             }
         },
         dismissButton = {
             SimpleTextButton(value = dismiss) {
+                onDismiss()
                 result.value = false
                 openDialog.value = false
             }
         }
     )
+}
+
+@Composable
+fun SimpleSnackBarComposable(
+    snackbarHostState: SnackbarHostState,
+    warningViewModel: WarningViewModel,
+    message: String
+) {
+    LaunchedEffect(snackbarHostState) {
+        val result = snackbarHostState.showSnackbar(
+            message = message,
+            duration = SnackbarDuration.Short
+        )
+        when (result) {
+            SnackbarResult.ActionPerformed -> {}
+            SnackbarResult.Dismissed -> {
+                warningViewModel.setSimpleSnackBarVisibility(false)
+            }
+        }
+    }
 }

@@ -186,6 +186,8 @@ fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.size(10.dp))
+
             // Logout
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,

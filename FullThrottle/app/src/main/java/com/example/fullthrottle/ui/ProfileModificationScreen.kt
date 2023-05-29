@@ -1,41 +1,54 @@
 package com.example.fullthrottle.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.Utils.isValidMail
+import com.example.fullthrottle.Utils.isValidPassword
 import com.example.fullthrottle.Utils.isValidUsername
-import com.example.fullthrottle.data.DBHelper
+import com.example.fullthrottle.data.DBHelper.checkPassword
 import com.example.fullthrottle.data.DBHelper.getUserByMail
 import com.example.fullthrottle.data.DBHelper.getUserByUsername
-import com.example.fullthrottle.data.DataStoreConstants
-import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
-import com.example.fullthrottle.data.entities.Motorbike
+import com.example.fullthrottle.data.DBHelper.updateMail
+import com.example.fullthrottle.data.DBHelper.updatePassword
+import com.example.fullthrottle.data.DBHelper.updateUsername
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.*
 
 @Composable
 fun ProfileModificationScreen(
+    uid: String,
     currentUsername: String,
-    currentMail: String
+    currentMail: String,
+    settingsViewModel: SettingsViewModel,
+    warningViewModel: WarningViewModel
 ) {
-    //var currPw by rememberSaveable { mutableStateOf("") }
+    fun showSnackBar(message: String) {
+        warningViewModel.setSimpleSnackBarContent(message)
+        warningViewModel.setSimpleSnackBarVisibility(true)
+    }
 
-    var saveUsernameModify = remember { mutableStateOf(false) }
-    var saveMailModify = remember { mutableStateOf(false) }
-    var savePwModify = remember { mutableStateOf(false) }
+    val usernameSuccess = stringResource(id = R.string.modify_username_success)
+    val mailSuccess = stringResource(id = R.string.modify_mail_success)
+    val pwSuccess = stringResource(id = R.string.modify_password_success)
 
-    var openDialogUsername = remember { mutableStateOf(false) }
-    var openDialogMail = remember { mutableStateOf(false) }
-    var openDialogPw = remember { mutableStateOf(false) }
+    val saveUsernameModify = remember { mutableStateOf(false) }
+    val saveMailModify = remember { mutableStateOf(false) }
+    val savePwModify = remember { mutableStateOf(false) }
+
+    val openDialogUsername = remember { mutableStateOf(false) }
+    val openDialogMail = remember { mutableStateOf(false) }
+    val openDialogPw = remember { mutableStateOf(false) }
 
     var usernameError by remember { mutableStateOf(-1) }
     var mailError by remember { mutableStateOf(-1) }
@@ -43,104 +56,202 @@ fun ProfileModificationScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .fillMaxWidth()
     ) {
-        SimpleTitle(text = stringResource(id = R.string.profile_modification_title))
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            // Username change
-            val username = OutLineTextField(
-                label = "Username",
-                value = currentUsername,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.size(5.dp))
-
-            SimpleButton(value = stringResource(id = R.string.save)) {
-                usernameError = -1
-                openDialogUsername.value = true
-                var user: User? = null
-                coroutineScope.async {
-                    user = getUserByUsername(username)
-                }.invokeOnCompletion {
-                    if (user != null) {
-                        usernameError = R.string.username_used
-                    }
-                }
-            }
-            if (openDialogUsername.value) {
-                SimpleAlertDialog(
-                    title = stringResource(id = R.string.confirm_title),
-                    text = stringResource(id = R.string.modify_username_text),
-                    confirm = stringResource(id = R.string.confirm),
-                    dismiss = stringResource(id = R.string.dismiss),
-                    openDialog = openDialogUsername,
-                    result = saveUsernameModify
+        item {
+            SimpleTitle(text = stringResource(id = R.string.profile_modification_title))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                // Username change
+                val username = OutLineTextField(
+                    label = "Username",
+                    value = currentUsername,
+                    modifier = Modifier.fillMaxWidth()
                 )
-            }
-            if (saveUsernameModify.value) {
-                isValidUsername(username).let { isValid ->
-                    if (!isValid) {
-                        usernameError = R.string.username_empty
-                    }
-                }
-            }
-            if (usernameError != -1 && saveUsernameModify.value) {
+
                 Spacer(modifier = Modifier.size(5.dp))
 
-                Text(text = stringResource(id = usernameError))
-            }
-
-            Spacer(modifier = Modifier.size(5.dp))
-
-            // Mail change
-            val mail = OutLineTextField(
-                label = "Mail",
-                value = currentMail,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.size(5.dp))
-
-            SimpleButton(value = stringResource(id = R.string.save)) {
-                mailError = -1
-                openDialogMail.value = true
-                var user: User? = null
-                coroutineScope.async {
-                    user = getUserByMail(mail)
-                }.invokeOnCompletion {
-                    if (user != null) {
-                        mailError = R.string.mail_used
+                SimpleButton(value = stringResource(id = R.string.save) + " username") {
+                    usernameError = -1
+                    openDialogUsername.value = true
+                    var user: User? = null
+                    coroutineScope.async {
+                        user = getUserByUsername(username)
+                    }.invokeOnCompletion {
+                        if (user != null) {
+                            usernameError = R.string.username_used
+                        }
                     }
                 }
-            }
-            if (openDialogMail.value) {
-                SimpleAlertDialog(
-                    title = stringResource(id = R.string.confirm_title),
-                    text = stringResource(id = R.string.modify_mail_text),
-                    confirm = stringResource(id = R.string.confirm),
-                    dismiss = stringResource(id = R.string.dismiss),
-                    openDialog = openDialogMail,
-                    result = saveMailModify
+                if (openDialogUsername.value) {
+                    saveUsernameModify.value = false
+                    SimpleAlertDialog(
+                        title = stringResource(id = R.string.confirm_title),
+                        text = stringResource(id = R.string.modify_username_text),
+                        openDialog = openDialogUsername,
+                        result = saveUsernameModify,
+                        onConfirm = {
+                            isValidUsername(username).let { isValid ->
+                                if (!isValid) {
+                                    usernameError = R.string.username_empty
+                                } else if (usernameError == -1) {
+                                    coroutineScope.launch {
+                                        updateUsername(
+                                            uid = uid,
+                                            newUsername = username,
+                                            settingsViewModel = settingsViewModel
+                                        )
+                                    }
+                                    showSnackBar(usernameSuccess)
+                                }
+                            }
+                        }
+                    )
+                }
+                if (usernameError != -1 && saveUsernameModify.value) {
+                    Spacer(modifier = Modifier.size(5.dp))
+
+                    Text(text = stringResource(id = usernameError))
+                }
+
+                Spacer(modifier = Modifier.size(15.dp))
+
+                // Mail change
+                val mail = OutLineTextField(
+                    label = "Mail",
+                    value = currentMail,
+                    modifier = Modifier.fillMaxWidth()
                 )
-            }
-            if (saveMailModify.value) {
-                isValidMail(mail).let { isValid ->
-                    if (!isValid) {
-                        mailError = R.string.mail_regex
-                    }
-                }
-            }
-            if (mailError != -1 && saveMailModify.value) {
+
                 Spacer(modifier = Modifier.size(5.dp))
 
-                Text(text = stringResource(id = mailError))
+                SimpleButton(value = stringResource(id = R.string.save) + " mail") {
+                    mailError = -1
+                    openDialogMail.value = true
+                    var user: User? = null
+                    coroutineScope.async {
+                        user = getUserByMail(mail)
+                    }.invokeOnCompletion {
+                        if (user != null) {
+                            mailError = R.string.mail_used
+                        }
+                    }
+                }
+                if (openDialogMail.value) {
+                    saveMailModify.value = false
+                    SimpleAlertDialog(
+                        title = stringResource(id = R.string.confirm_title),
+                        text = stringResource(id = R.string.modify_mail_text),
+                        openDialog = openDialogMail,
+                        result = saveMailModify,
+                        onConfirm = {
+                            isValidMail(mail).let { isValid ->
+                                if (!isValid) {
+                                    mailError = R.string.mail_regex
+                                } else if (mailError == -1) {
+                                    coroutineScope.launch {
+                                        updateMail(
+                                            uid = uid,
+                                            newMail = mail,
+                                            settingsViewModel = settingsViewModel
+                                        )
+                                    }
+                                    showSnackBar(mailSuccess)
+                                }
+                            }
+                        }
+                    )
+                }
+                if (mailError != -1 && saveMailModify.value) {
+                    Spacer(modifier = Modifier.size(5.dp))
+
+                    Text(text = stringResource(id = mailError))
+                }
+
+                Spacer(modifier = Modifier.size(15.dp))
+
+                // Password change
+                val oldPassword = OutLinePasswordField(
+                    label = stringResource(id = R.string.old_password),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                val password = OutLinePasswordField(
+                    label = stringResource(id = R.string.new_password),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                val passwordRep = OutLinePasswordField(
+                    label = stringResource(id = R.string.password_repetition),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.size(5.dp))
+
+                SimpleButton(value = stringResource(id = R.string.save) + " password") {
+                    pwError = -1
+                    openDialogPw.value = true
+                    isValidPassword(password).let { isValid ->
+                        var pwCorrect = false
+                        if (isValid && password == passwordRep) {
+                            openDialogPw.value = true
+                            coroutineScope.async {
+                                pwCorrect = checkPassword(uid, oldPassword)
+                            }.invokeOnCompletion {
+                                if (!pwCorrect) {
+                                    pwError = R.string.password_incorrect
+                                }
+                            }
+                        } else {
+                            pwError = if (!isValid) {
+                                R.string.password_invalid
+                            } else {
+                                R.string.passwords_not_matching
+                            }
+                        }
+                    }
+                }
+                if (openDialogPw.value) {
+                    savePwModify.value = false
+                    SimpleAlertDialog(
+                        title = stringResource(id = R.string.confirm_title),
+                        text = stringResource(id = R.string.modify_password_text),
+                        openDialog = openDialogPw,
+                        result = savePwModify,
+                        onConfirm = {
+                            if (pwError == -1) {
+                                coroutineScope.launch {
+                                    updatePassword(
+                                        uid = uid,
+                                        newPassword = password
+                                    )
+                                }
+                                showSnackBar(pwSuccess)
+                            }
+                        }
+                    )
+                }
+                if (pwError != -1 && savePwModify.value) {
+                    Spacer(modifier = Modifier.size(5.dp))
+
+                    Text(text = stringResource(id = pwError))
+                }
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text(
+                    text = stringResource(id = R.string.password_regex),
+                )
+
+                Spacer(modifier = Modifier.size(10.dp))
             }
         }
     }

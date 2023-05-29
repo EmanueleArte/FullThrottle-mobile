@@ -27,7 +27,11 @@ object DBHelper {
     private val database = Firebase.database
     private val storage = Firebase.storage
 
-    suspend fun userLogin(username: String, password: String, settingsViewModel: SettingsViewModel) = callbackFlow {
+    suspend fun userLogin(
+        username: String,
+        password: String,
+        settingsViewModel: SettingsViewModel
+    ) = callbackFlow {
         var res = false
         database
             .getReference("users")
@@ -47,7 +51,7 @@ object DBHelper {
                 }
                 trySend(res)
             }
-            .addOnFailureListener{ error ->
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
@@ -66,7 +70,7 @@ object DBHelper {
                     trySend(null)
                 }
             }
-            .addOnFailureListener{ error ->
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
@@ -85,7 +89,7 @@ object DBHelper {
                     trySend(null)
                 }
             }
-            .addOnFailureListener{ error ->
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
@@ -104,7 +108,7 @@ object DBHelper {
                     trySend(null)
                 }
             }
-            .addOnFailureListener{ error ->
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
@@ -119,7 +123,7 @@ object DBHelper {
             .addOnSuccessListener {
                 if (it.exists()) {
                     val followers = mutableListOf<User>()
-                    it.children.map {  follow ->
+                    it.children.map { follow ->
                         follow.child("followerId").value.toString()
                     }.forEach { followerId ->
                         database
@@ -129,7 +133,9 @@ object DBHelper {
                             .get()
                             .addOnSuccessListener { follower ->
                                 if (follower.exists()) {
-                                    followers.add(follower.children.first().getValue<User>() as User)
+                                    followers.add(
+                                        follower.children.first().getValue<User>() as User
+                                    )
                                 }
                                 trySend(followers)
                             }
@@ -141,7 +147,7 @@ object DBHelper {
                     trySend(emptyList<User>())
                 }
             }
-            .addOnFailureListener{ error ->
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
@@ -156,7 +162,7 @@ object DBHelper {
             .addOnSuccessListener {
                 if (it.exists()) {
                     val followers = mutableListOf<User>()
-                    it.children.map {  follow ->
+                    it.children.map { follow ->
                         follow.child("followedId").value.toString()
                     }.forEach { followerId ->
                         database
@@ -166,7 +172,9 @@ object DBHelper {
                             .get()
                             .addOnSuccessListener { followed ->
                                 if (followed.exists()) {
-                                    followers.add(followed.children.first().getValue<User>() as User)
+                                    followers.add(
+                                        followed.children.first().getValue<User>() as User
+                                    )
                                 }
                                 trySend(followers)
                             }
@@ -178,13 +186,18 @@ object DBHelper {
                     trySend(emptyList<User>())
                 }
             }
-            .addOnFailureListener{ error ->
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
     }.first()
 
-    suspend fun userRegistration(username: String, mail: String, password: String, settingsViewModel: SettingsViewModel) = callbackFlow {
+    suspend fun userRegistration(
+        username: String,
+        mail: String,
+        password: String,
+        settingsViewModel: SettingsViewModel
+    ) = callbackFlow {
         var usernameUser: User?
         var mailUser: User?
         withContext(Dispatchers.Default) {
@@ -195,7 +208,8 @@ object DBHelper {
             val user = User(
                 userId = UUID.randomUUID().toString(),
                 username = username,
-                password = BCrypt.with(BCrypt.Version.VERSION_2Y).hashToString(6, password.toCharArray()),
+                password = BCrypt.with(BCrypt.Version.VERSION_2Y)
+                    .hashToString(6, password.toCharArray()),
                 mail = mail,
                 followers = "0",
                 followed = "0",
@@ -224,14 +238,14 @@ object DBHelper {
             .orderByChild("motorbikeId")
             .equalTo(uid)
             .get()
-            .addOnSuccessListener() {
+            .addOnSuccessListener {
                 if (it.exists()) {
                     trySend(it.children.first().getValue<Motorbike>())
                 } else {
                     trySend(null)
                 }
             }
-            .addOnFailureListener{ error ->
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
@@ -243,14 +257,14 @@ object DBHelper {
             .orderByChild("userId")
             .equalTo(uid)
             .get()
-            .addOnSuccessListener() { motorbikes ->
+            .addOnSuccessListener { motorbikes ->
                 if (motorbikes.exists()) {
                     trySend(motorbikes.children.map { it.getValue<Motorbike>() })
                 } else {
                     trySend(emptyList<Motorbike>())
                 }
-             }
-            .addOnFailureListener{ error ->
+            }
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
@@ -283,9 +297,94 @@ object DBHelper {
                     trySend(emptyList<Post>())
                 }
             }
-            .addOnFailureListener{ error ->
+            .addOnFailureListener { error ->
                 Log.d("Error getting data", error.toString())
             }
         awaitClose { }
     }.first()
+
+    fun updateUsername(
+        uid: String,
+        newUsername: String,
+        settingsViewModel: SettingsViewModel
+    ) {
+        if (newUsername != "") {
+            database
+                .getReference("users")
+                .child(uid)
+                .child("username")
+                .setValue(newUsername)
+                .addOnSuccessListener {
+                    settingsViewModel.saveData(USERNAME_KEY, newUsername)
+                }
+                .addOnFailureListener { error ->
+                    Log.d("Error updating username", error.toString())
+                }
+        }
+    }
+
+    fun updateMail(
+        uid: String,
+        newMail: String,
+        settingsViewModel: SettingsViewModel
+    ) {
+        if (newMail != "") {
+            database
+                .getReference("users")
+                .child(uid)
+                .child("mail")
+                .setValue(newMail)
+                .addOnSuccessListener {
+                    settingsViewModel.saveData(MAIL_KEY, newMail)
+                }
+                .addOnFailureListener { error ->
+                    Log.d("Error updating mail", error.toString())
+                }
+        }
+    }
+
+    suspend fun checkPassword(
+        uid: String,
+        password: String,
+    ) = callbackFlow {
+        var res = false
+        database
+            .getReference("users")
+            .orderByChild("userId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val user = it.children.first().getValue<User>()
+                    if (BCrypt.verifyer().verify(password.toCharArray(), user?.password).verified) {
+                        res = true
+                    }
+                }
+                trySend(res)
+            }
+            .addOnFailureListener { error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    fun updatePassword(
+        uid: String,
+        newPassword: String,
+    ) {
+        if (newPassword != "") {
+            database
+                .getReference("users")
+                .child(uid)
+                .child("password")
+                .setValue(
+                    BCrypt.with(BCrypt.Version.VERSION_2Y)
+                        .hashToString(6, newPassword.toCharArray())
+                )
+                .addOnFailureListener { error ->
+                    Log.d("Error updating password", error.toString())
+                }
+        }
+    }
+
 }

@@ -201,7 +201,7 @@ fun NavigationApp(
             )
         }
     ) { innerPadding ->
-        NavigationGraph(settingsViewModel, navController, innerPadding, methods)
+        NavigationGraph(settingsViewModel, warningViewModel, navController, innerPadding, methods)
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
             PermissionSnackBarComposable(snackbarHostState, context, warningViewModel)
@@ -230,12 +230,20 @@ fun NavigationApp(
                 "Aggiornamenti sulla posizione attuale abilitati"
             )
         }
+        if (warningViewModel.showModificationDone.value) {
+            SimpleSnackBarComposable(
+                snackbarHostState,
+                warningViewModel,
+                warningViewModel.simpleSnackBarContent.value
+            )
+        }
     }
 }
 
 @Composable
 private fun NavigationGraph(
     settingsViewModel: SettingsViewModel,
+    warningViewModel: WarningViewModel,
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
@@ -286,10 +294,12 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.ProfileModification.name) {
-
             ProfileModificationScreen(
+                settings[USER_ID_KEY].toString(),
                 settings[USERNAME_KEY].orEmpty(),
-                settings[MAIL_KEY].orEmpty()
+                settings[MAIL_KEY].orEmpty(),
+                settingsViewModel,
+                warningViewModel
             )
         }
         composable(route = AppScreen.Followers.name) {

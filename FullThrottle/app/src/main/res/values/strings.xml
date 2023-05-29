@@ -17,11 +17,14 @@
     <string name="show_pw">Mostra password</string>
     <string name="hide_pw">Nascondi password</string>
     <string name="password_repetition">Ripeti password</string>
+    <string name="old_password">Password attuale</string>
+    <string name="new_password">Nuova password</string>
     <string name="mail_regex">Mail non valida</string>
     <string name="username_empty">Username vuoto non valido</string>
     <string name="password_regex">La password deve essere lunga almeno 8 caratteri e contenere almeno una lettera maiuscola, una minuscola e un numero</string>
     <string name="password_invalid">Requisiti password non rispettati</string>
     <string name="passwords_not_matching">Le password non coincidono</string>
+    <string name="password_incorrect">Password attuale errata</string>
     <string name="username_used">Username già in uso</string>
     <string name="mail_used">Mail già in uso</string>
 
@@ -48,4 +51,8 @@
     <string name="modify_mail_text">Vuoi confermare il salvataggio della nuova mail?</string>
     <string name="modify_password_text">Vuoi confermare il salvataggio della nuova password?
         Tale password sarà necessaria per effettuare il login.</string>
+
+    <string name="modify_username_success">Username modificato con successo</string>
+    <string name="modify_mail_success">Mail modificata con successo</string>
+    <string name="modify_password_success">Password modificata con successo</string>
 </resources>

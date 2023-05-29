@@ -144,7 +144,7 @@ class MainActivity : ComponentActivity() {
                         methods = mapOf(
                             "startLocationUpdates" to ::startLocationUpdates,
                             "stopLocationUpdates" to ::stopLocationUpdates,
-                            "requestingLocationUpdatesFalse" to { requestingLocationUpdates.value = false }
+                            "requestingLocationUpdatesFalse" to { requestingLocationUpdates.value = false },
                         )
                     )
 
@@ -155,6 +155,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    fun showSnackBar(content: String) {
+        warningViewModel.setSimpleSnackBarContent(content)
+        warningViewModel.setSimpleSnackBarVisibility(true)
     }
 
     override fun onResume() {
