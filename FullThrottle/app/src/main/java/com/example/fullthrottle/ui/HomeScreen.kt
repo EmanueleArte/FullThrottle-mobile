@@ -40,17 +40,14 @@ fun HomeScreen(
     var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
     var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
     var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
-    LaunchedEffect(
-        key1 = "posts",
-        block = {
-            async {
-                val tPosts = getRecentPosts() as List<Post>
-                users = tPosts.map { post -> getUserById(post.userId as String) as User }
-                motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
-                posts = tPosts
-            }
+    LaunchedEffect(key1 = "posts") {
+        async {
+            val tPosts = getRecentPosts() as List<Post>
+            users = tPosts.map { post -> getUserById(post.userId as String) as User }
+            motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
+            posts = tPosts
         }
-    )
+    }
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp)
