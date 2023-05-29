@@ -10,38 +10,31 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.fullthrottle.Utils.deleteMemorizedUserData
-import com.example.fullthrottle.data.DataStoreConstants
 import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
-import com.example.fullthrottle.ui.GPSAlertDialogComposable
-import com.example.fullthrottle.ui.PermissionSnackBarComposable
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
 import dagger.hilt.android.HiltAndroidApp
 
 sealed class AppScreen(val name: String) {
     object Home : AppScreen("Home")
+    object Post : AppScreen("post")
     object Map : AppScreen("Map Screen")
     object NewPost : AppScreen("New Post Screen")
     object Search : AppScreen("Search Screen")
@@ -243,6 +236,10 @@ private fun NavigationGraph(
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
+    var postId by remember {
+        mutableStateOf(String())
+    }
+
     var startDestination = AppScreen.Login.name
     if (settings.isNotEmpty() && settings[USER_ID_KEY] != "") {
         startDestination = AppScreen.Home.name
@@ -254,13 +251,15 @@ private fun NavigationGraph(
     ) {
         composable(route = AppScreen.Home.name) {
             HomeScreen(
-                /*onAddButtonClicked = {
-                    navController.navigate(AppScreen.Add.name)
-                },
-                onItemClicked = {
-                    navController.navigate(AppScreen.Details.name)
-                },
-                placesViewModel = placesViewModel*/
+                fun (id : String) {
+                    postId = id
+                    navController.navigate(AppScreen.Post.name)
+                }
+            )
+        }
+        composable(route = AppScreen.Post.name) {
+            PostScreen(
+                postId
             )
         }
         composable(route = AppScreen.Map.name) {

@@ -268,6 +268,25 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun getPostById(postId: String) = callbackFlow {
+        database
+            .getReference("posts")
+            .orderByChild("postId")
+            .equalTo(postId)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    trySend(it.children.first().getValue<Post>())
+                } else {
+                    trySend(null)
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun getRecentPosts(num: Int = 10) = callbackFlow {
         database
             .getReference("posts")
