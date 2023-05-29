@@ -2,6 +2,7 @@ package com.example.fullthrottle.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +32,9 @@ import com.example.fullthrottle.data.entities.User
 import kotlinx.coroutines.async
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    goToPost: (String) -> Unit
+) {
     val context = LocalContext.current
 
     var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
@@ -56,7 +59,10 @@ fun HomeScreen() {
             Card(
                 modifier = Modifier
                     .padding(10.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clickable {
+                        goToPost(post.postId as String)
+                               },
                 elevation = CardDefaults.cardElevation(10.dp)
             ) {
                 Column {
