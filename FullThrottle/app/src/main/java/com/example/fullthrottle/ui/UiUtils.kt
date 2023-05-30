@@ -4,6 +4,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.net.Uri
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.InfiniteTransition
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +29,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -28,12 +40,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.fullthrottle.R
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.viewModel.WarningViewModel
+import androidx.annotation.IntRange
 
 object UiConstants {
     val CORNER_RADIUS = 10.dp
@@ -304,6 +318,120 @@ fun SimpleSnackBarComposable(
             SnackbarResult.Dismissed -> {
                 warningViewModel.setSimpleSnackBarVisibility(false)
             }
+        }
+    }
+}
+
+@Composable
+internal fun InfiniteTransition.fractionTransition(
+    initialValue: Float,
+    targetValue: Float,
+    @IntRange(from = 1, to = 4) fraction: Int = 1,
+    durationMillis: Int,
+    delayMillis: Int = 0,
+    offsetMillis: Int = 0,
+    repeatMode: RepeatMode = RepeatMode.Restart,
+    easing: Easing = FastOutSlowInEasing
+): State<Float> {
+    return animateFloat(
+        initialValue = initialValue,
+        targetValue = targetValue,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                this.durationMillis = durationMillis
+                this.delayMillis = delayMillis
+                initialValue at 0 with easing
+                when(fraction){
+                    1 ->{
+                        targetValue at durationMillis with easing
+                    }
+                    2 ->{
+                        targetValue / fraction at durationMillis / fraction with easing
+                        targetValue at durationMillis with easing
+                    }
+                    3 ->{
+                        targetValue / fraction at durationMillis / fraction with easing
+                        targetValue / fraction * 2 at durationMillis / fraction * 2 with easing
+                        targetValue at durationMillis with easing
+                    }
+                    4 ->{
+                        targetValue / fraction at durationMillis / fraction with easing
+                        targetValue / fraction * 2 at durationMillis / fraction * 2 with easing
+                        targetValue / fraction * 3 at durationMillis / fraction * 3 with easing
+                        targetValue at durationMillis with easing
+                    }
+                }
+            },
+            repeatMode,
+            StartOffset(offsetMillis)
+        )
+    )
+}
+
+val EaseInOut = CubicBezierEasing(0.42f, 0f, 0.58f, 1f)
+
+@Composable
+fun ThreeBounce(
+    modifier: Modifier = Modifier,
+    durationMillis: Int = 1400,
+    delayBetweenDotsMillis: Int = 160,
+    size: DpSize = DpSize(40.dp, 40.dp),
+    color: Color = MaterialTheme.colorScheme.primary,
+    shape: Shape = CircleShape
+) {
+    val transition = rememberInfiniteTransition()
+
+    val sizeMultiplier1 = transition.fractionTransition(
+        initialValue = 0f,
+        targetValue = 1f,
+        fraction = 1,
+        durationMillis = durationMillis / 2,
+        repeatMode = RepeatMode.Reverse
+    )
+    val sizeMultiplier2 = transition.fractionTransition(
+        initialValue = 0f,
+        targetValue = 1f,
+        fraction = 1,
+        durationMillis = durationMillis / 2,
+        offsetMillis = delayBetweenDotsMillis,
+        repeatMode = RepeatMode.Reverse
+    )
+    val sizeMultiplier3 = transition.fractionTransition(
+        initialValue = 0f,
+        targetValue = 1f,
+        fraction = 1,
+        durationMillis = durationMillis / 2,
+        offsetMillis = delayBetweenDotsMillis * 2,
+        repeatMode = RepeatMode.Reverse
+    )
+
+    Row(
+        modifier = modifier.size(size),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier.size(size * 3 / 11), contentAlignment = Alignment.Center) {
+            Surface(
+                modifier = Modifier.size(size * 3 / 11 * sizeMultiplier1.value),
+                shape = shape,
+                color = color
+            ) {}
+        }
+        Spacer(modifier = Modifier.width(size.width / 1 / 11))
+        Box(modifier = Modifier.size(size * 3 / 11), contentAlignment = Alignment.Center) {
+            Surface(
+                modifier = Modifier.size(size * 3 / 11 * sizeMultiplier2.value),
+                shape = shape,
+                color = color
+            ) {}
+        }
+        Spacer(modifier = Modifier.width(size.width / 1 / 11))
+        Box(modifier = Modifier.size(size * 3 / 11), contentAlignment = Alignment.Center) {
+            Surface(
+                modifier = Modifier.size(size * 3 / 11 * sizeMultiplier3.value),
+                shape = shape,
+                color = color
+            ) {}
         }
     }
 }
