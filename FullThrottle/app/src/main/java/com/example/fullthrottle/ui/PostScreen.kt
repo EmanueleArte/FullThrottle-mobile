@@ -45,6 +45,7 @@ fun PostScreen(
     var imageUri by remember { mutableStateOf(Uri.EMPTY) }
     var comments by remember { mutableStateOf(emptyList<Comment>()) }
     var commentsUsers by remember { mutableStateOf(emptyList<User>()) }
+
     LaunchedEffect(
         key1 = "posts",
         block = {
@@ -59,7 +60,7 @@ fun PostScreen(
                 }
             }
             async {
-                val tComments = getCommentsByPostId(postId) as List<Comment>
+                val tComments = getCommentsByPostId(postId)
                 commentsUsers = tComments.map { comment -> getUserById(comment.userId as String) as User }
                 comments = tComments
             }
@@ -138,7 +139,7 @@ fun PostScreen(
             )
         }
         items(comments) {comment ->
-            Card() {
+            Card {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -153,7 +154,7 @@ fun PostScreen(
                             .clip(CircleShape)
                             .background(Color.White)
                     )
-                    Column() {
+                    Column {
                         Row {
                             Text(
                                 text = "${commentsUsers[comments.indexOf(comment)].username}",

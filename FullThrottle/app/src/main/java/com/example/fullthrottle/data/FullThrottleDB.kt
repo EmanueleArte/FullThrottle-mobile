@@ -29,37 +29,7 @@ object DBHelper {
     private val storage = Firebase.storage
 
     // USERS
-    suspend fun userLogin(
-        username: String,
-        password: String,
-        settingsViewModel: SettingsViewModel
-    ) = callbackFlow {
-        var res = false
-        database
-            .getReference("users")
-            .orderByChild("username")
-            .equalTo(username)
-            .get()
-            .addOnSuccessListener {
-                if (it.exists()) {
-                    val user = it.children.first().getValue<User>()
-                    if (BCrypt.verifyer().verify(password.toCharArray(), user?.password).verified) {
-                        settingsViewModel.saveData(USER_ID_KEY, user?.userId.toString())
-                        settingsViewModel.saveData(USERNAME_KEY, user?.username.orEmpty())
-                        settingsViewModel.saveData(USER_IMAGE_KEY, user?.userImg.orEmpty())
-                        settingsViewModel.saveData(MAIL_KEY, user?.mail.orEmpty())
-                        res = true
-                    }
-                }
-                trySend(res)
-            }
-            .addOnFailureListener { error ->
-                Log.d("Error getting data", error.toString())
-            }
-        awaitClose { }
-    }.first()
-
-    suspend fun getUserByUsername(username: String) = callbackFlow {
+    suspend fun getUserByUsername(username: String): User? = callbackFlow {
         database
             .getReference("users")
             .orderByChild("username")
@@ -78,7 +48,7 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getUserByMail(mail: String) = callbackFlow {
+    suspend fun getUserByMail(mail: String): User? = callbackFlow {
         database
             .getReference("users")
             .orderByChild("mail")
@@ -97,7 +67,7 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getUserById(uid: String) = callbackFlow {
+    suspend fun getUserById(uid: String): User? = callbackFlow {
         database
             .getReference("users")
             .orderByKey()
@@ -116,7 +86,7 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getFollowers(uid: String) = callbackFlow {
+    suspend fun getFollowers(uid: String): List<User> = callbackFlow {
         database
             .getReference("follows")
             .orderByChild("followedId")
@@ -155,7 +125,7 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getFolloweds(uid: String) = callbackFlow {
+    suspend fun getFolloweds(uid: String): List<User> = callbackFlow {
         database
             .getReference("follows")
             .orderByChild("followerId")
@@ -194,12 +164,42 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun userLogin(
+        username: String,
+        password: String,
+        settingsViewModel: SettingsViewModel
+    ): Boolean = callbackFlow {
+        var res = false
+        database
+            .getReference("users")
+            .orderByChild("username")
+            .equalTo(username)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val user = it.children.first().getValue<User>()
+                    if (BCrypt.verifyer().verify(password.toCharArray(), user?.password).verified) {
+                        settingsViewModel.saveData(USER_ID_KEY, user?.userId.toString())
+                        settingsViewModel.saveData(USERNAME_KEY, user?.username.orEmpty())
+                        settingsViewModel.saveData(USER_IMAGE_KEY, user?.userImg.orEmpty())
+                        settingsViewModel.saveData(MAIL_KEY, user?.mail.orEmpty())
+                        res = true
+                    }
+                }
+                trySend(res)
+            }
+            .addOnFailureListener { error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun userRegistration(
         username: String,
         mail: String,
         password: String,
         settingsViewModel: SettingsViewModel
-    ) = callbackFlow {
+    ): Int = callbackFlow {
         var usernameUser: User?
         var mailUser: User?
         withContext(Dispatchers.Default) {
@@ -235,7 +235,7 @@ object DBHelper {
     }.first()
 
     // POSTS
-    suspend fun getPostById(postId: String) = callbackFlow {
+    suspend fun getPostById(postId: String): Post? = callbackFlow {
         database
             .getReference("posts")
             .orderByChild("postId")
@@ -272,7 +272,7 @@ object DBHelper {
     }.first()
 
     // MOTORBIKES
-    suspend fun getMotorbikeById(uid: String) = callbackFlow {
+    suspend fun getMotorbikeById(uid: String): Motorbike? = callbackFlow {
         database
             .getReference("motorbikes")
             .orderByChild("motorbikeId")
@@ -291,7 +291,7 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getMotorbikesByUserId(uid: String) = callbackFlow {
+    suspend fun getMotorbikesByUserId(uid: String): List<Motorbike> = callbackFlow {
         database
             .getReference("motorbikes")
             .orderByChild("userId")
@@ -299,7 +299,7 @@ object DBHelper {
             .get()
             .addOnSuccessListener { motorbikes ->
                 if (motorbikes.exists()) {
-                    trySend(motorbikes.children.map { it.getValue<Motorbike>() })
+                    trySend(motorbikes.children.map { it.getValue<Motorbike>() as Motorbike })
                 } else {
                     trySend(emptyList<Motorbike>())
                 }
@@ -310,7 +310,7 @@ object DBHelper {
     }.first()
 
     // COMMENTS
-    suspend fun getCommentsByPostId(postId: String) = callbackFlow {
+    suspend fun getCommentsByPostId(postId: String): List<Comment> = callbackFlow {
         database
             .getReference("comments")
             .orderByChild("postId")
@@ -318,7 +318,7 @@ object DBHelper {
             .get()
             .addOnSuccessListener { comments ->
                 if (comments.exists()) {
-                    trySend(comments.children.map { it.getValue<Comment>() })
+                    trySend(comments.children.map { it.getValue<Comment>() as Comment })
                 } else {
                     trySend(emptyList<Comment>())
                 }
@@ -342,6 +342,7 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    // USER DATA
     fun updateUsername(
         uid: String,
         newUsername: String,
@@ -385,7 +386,7 @@ object DBHelper {
     suspend fun checkPassword(
         uid: String,
         password: String,
-    ) = callbackFlow {
+    ): Boolean = callbackFlow {
         var res = false
         database
             .getReference("users")
