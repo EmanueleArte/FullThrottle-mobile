@@ -1,6 +1,8 @@
 package com.example.fullthrottle
 
 import android.app.Application
+import android.service.autofill.FillEventHistory
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -20,12 +22,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.substring
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.fullthrottle.Utils.manageNavigateBack
 import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -243,10 +247,6 @@ fun NavigationApp(
         mutableListOf<String>()
     }
 
-    var userId = remember {
-        mutableStateOf(String())
-    }
-
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -254,9 +254,8 @@ fun NavigationApp(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = {
-                    val lastScreen = currentScreen
                     navController.navigateUp()
-
+                    manageNavigateBack(userIdHistory = userIdHistory, currentScreen = currentScreen)
                 },
                 onSettingsButtonClicked = { navController.navigate(AppScreen.Settings.name) }
             )
@@ -266,12 +265,16 @@ fun NavigationApp(
                 currentScreen,
                 navController
             ) {
-                userId.value = settings[USER_ID_KEY].orEmpty()
+                //userId.value = settings[USER_ID_KEY].orEmpty()
+                userIdHistory.removeAll(userIdHistory)
+                userIdHistory.add(settings[USER_ID_KEY].orEmpty())
                 navController.navigate(AppScreen.Profile.name)
             }
         }
     ) { innerPadding ->
-        NavigationGraph(settingsViewModel, warningViewModel, startDestination, navController, innerPadding, methods, userId = userId)
+        NavigationGraph(settingsViewModel, warningViewModel, startDestination, navController, innerPadding, methods,
+            userIdHistory = userIdHistory
+        )
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
             PermissionSnackBarComposable(snackbarHostState, context, warningViewModel)
@@ -319,7 +322,8 @@ private fun NavigationGraph(
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
     modifier: Modifier = Modifier,
-    userId: MutableState<String>
+    userIdHistory: MutableList<String>
+    //userId: MutableState<String>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
@@ -365,7 +369,8 @@ private fun NavigationGraph(
                     "followed" to { navController.navigate(AppScreen.Followeds.name) },
                     "profileModification" to { navController.navigate(AppScreen.ProfileModification.name) }
                 ),
-                userId.value
+                userIdHistory.last()
+                //userId.value
             )
         }
         composable(route = AppScreen.ProfileModification.name) {
@@ -378,17 +383,19 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Followers.name) {
-            FollowersScreen(userId.value, FOLLOWERS_TAB,
+            FollowersScreen(userIdHistory.last()/*userId.value*/, FOLLOWERS_TAB,
                 fun (uid: String) {
-                    userId.value = uid
+                    userIdHistory.add(uid)
+                    //userId.value = uid
                     navController.navigate(AppScreen.Profile.name)
                 }
             )
         }
         composable(route = AppScreen.Followeds.name) {
-            FollowersScreen(userId.value, FOLLOWED_TAB,
+            FollowersScreen(userIdHistory.last()/*userId.value*/, FOLLOWED_TAB,
                 fun (uid: String) {
-                    userId.value = uid
+                    userIdHistory.add(uid)
+                    //userId.value = uid
                     navController.navigate(AppScreen.Profile.name)
                 }
             )
