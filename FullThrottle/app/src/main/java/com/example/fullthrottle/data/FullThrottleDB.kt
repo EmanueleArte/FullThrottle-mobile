@@ -254,13 +254,13 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getRecentPosts() = callbackFlow {
+    suspend fun getRecentPosts(): List<Post> = callbackFlow {
         database
             .getReference("posts")
             .get()
             .addOnSuccessListener { posts ->
                 if (posts.exists()) {
-                    trySend(posts.children.map { post -> post.getValue<Post>() })
+                    trySend(posts.children.map { post -> post.getValue<Post>() as Post })
                 } else {
                     trySend(emptyList<Post>())
                 }

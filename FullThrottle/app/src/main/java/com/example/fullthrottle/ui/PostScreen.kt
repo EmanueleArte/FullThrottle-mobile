@@ -1,5 +1,6 @@
 package com.example.fullthrottle.ui
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,8 +20,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getCommentsByPostId
+import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getPostById
 import com.example.fullthrottle.data.DBHelper.getUserById
@@ -39,6 +42,7 @@ fun PostScreen(
     var post by remember { mutableStateOf(Post()) }
     var user by remember { mutableStateOf(User()) }
     var motorbike by remember { mutableStateOf(Motorbike()) }
+    var imageUri by remember { mutableStateOf(Uri.EMPTY) }
     var comments by remember { mutableStateOf(emptyList<Comment>()) }
     var commentsUsers by remember { mutableStateOf(emptyList<User>()) }
     LaunchedEffect(
@@ -49,6 +53,8 @@ fun PostScreen(
                 if(res != null) {
                     user = getUserById(res.userId as String) as User
                     motorbike = getMotorbikeById(res.motorbikeId as String) as Motorbike
+                    imageUri = getImageUri(res.userId + "/" + res.postImg)
+                    println(imageUri)
                     post = res
                 }
             }
@@ -96,13 +102,12 @@ fun PostScreen(
             }
         }
         item{
-            Image(
-                painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+            AsyncImage(
+                model = imageUri,
                 contentDescription = "post image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White)
-
             )
         }
         item {

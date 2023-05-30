@@ -1,7 +1,6 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getRecentPosts
@@ -46,7 +45,7 @@ fun HomeScreen(
 
     LaunchedEffect(key1 = "posts") {
         async {
-            val tPosts = getRecentPosts() as List<Post>
+            val tPosts = getRecentPosts()
             users = tPosts.map { post -> getUserById(post.userId as String) as User }
             motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
             postImagesUris = tPosts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
@@ -101,11 +100,11 @@ fun HomeScreen(
                                 .requiredHeight(40.dp)
                         )
                     }
-                    Image(
-                        painter = rememberAsyncImagePainter(model = postImagesUris[posts.indexOf(post)]),
+                    AsyncImage(
+                        model = postImagesUris[posts.indexOf(post)],
                         contentDescription = "post image",
                         modifier = Modifier
-                            .requiredWidth(200.dp)
+                            .fillMaxWidth()
                     )
                     Text(
                         text = "${post.title}",
@@ -115,7 +114,7 @@ fun HomeScreen(
                         text = "Piace a ${post.likesNumber} riders",
                         fontWeight = FontWeight.Thin
                     )
-                    Text(text = "Moto: ${motorbikes[posts.indexOf(post)]?.brand} ${motorbikes[posts.indexOf(post)]?.model}")
+                    Text(text = "Moto: ${motorbikes[posts.indexOf(post)].brand} ${motorbikes[posts.indexOf(post)].model}")
                     Text(text = "Lunghezza percorso: ${post.length}km")
                     Text(text = "${post.description}")
                 }
