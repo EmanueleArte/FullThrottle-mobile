@@ -100,8 +100,8 @@ fun HomeScreen(
                                 .requiredHeight(40.dp)
                         )
                     }
-                    AsyncImage(
-                        model = postImagesUris[posts.indexOf(post)],
+                    ShowAsyncImage(
+                        imgUri = postImagesUris[posts.indexOf(post)],
                         contentDescription = "post image",
                         modifier = Modifier
                             .fillMaxWidth()
