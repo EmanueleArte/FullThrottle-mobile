@@ -70,7 +70,7 @@ fun ProfileScreen(
                 SimpleCenterText(text = stringResource(id = R.string.followers_label))
             }
 
-            ShowImage(
+            ProfileImage(
                 imgUri = imageUri,
                 modifier = Modifier
                     .requiredHeight(100.dp)

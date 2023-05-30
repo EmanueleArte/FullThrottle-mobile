@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getCommentsByPostId
 import com.example.fullthrottle.data.DBHelper.getImageUri
@@ -103,8 +102,8 @@ fun PostScreen(
             }
         }
         item{
-            AsyncImage(
-                model = imageUri,
+            PostImage(
+                imgUri = imageUri,
                 contentDescription = "post image",
                 modifier = Modifier
                     .fillMaxWidth()

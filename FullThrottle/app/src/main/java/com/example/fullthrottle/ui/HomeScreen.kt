@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getRecentPosts
@@ -74,7 +73,7 @@ fun HomeScreen(
             ) {
                 Column {
                     Row {
-                        ShowImage(
+                        ProfileImage(
                             imgUri = userImagesUris[posts.indexOf(post)],
                             contentDescription = "user image",
                             modifier = Modifier
@@ -100,7 +99,7 @@ fun HomeScreen(
                                 .requiredHeight(40.dp)
                         )
                     }
-                    ShowAsyncImage(
+                    PostImage(
                         imgUri = postImagesUris[posts.indexOf(post)],
                         contentDescription = "post image",
                         modifier = Modifier

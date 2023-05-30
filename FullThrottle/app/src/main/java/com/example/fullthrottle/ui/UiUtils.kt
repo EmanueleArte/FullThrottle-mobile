@@ -1,14 +1,12 @@
 package com.example.fullthrottle.ui
 
 import android.app.Activity
-import android.content.ClipDescription
 import android.content.Context
 import android.content.ContextWrapper
-import android.content.Intent
-import android.icu.text.CaseMap.Title
 import android.net.Uri
-import android.provider.Settings
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -18,29 +16,24 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
-import com.example.fullthrottle.AppScreen
 import com.example.fullthrottle.R
-import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.viewModel.WarningViewModel
-import kotlinx.coroutines.async
 
 object UiConstants {
     val CORNER_RADIUS = 10.dp
@@ -172,7 +165,7 @@ fun ItemTonalButton(
                 .padding(5.dp)
                 .fillMaxWidth()
         ) {
-            ShowImage(imgUri = imgUri, modifier = Modifier
+            ProfileImage(imgUri = imgUri, modifier = Modifier
                 .padding(horizontal = 5.dp)
                 .clip(CircleShape))
             Text(value)
@@ -181,7 +174,7 @@ fun ItemTonalButton(
 }
 
 @Composable
-fun ShowImage(
+fun ProfileImage(
     imgUri: Uri,
     contentDescription: String = "",
     modifier: Modifier = Modifier,
@@ -200,7 +193,7 @@ fun ShowImage(
 }
 
 @Composable
-fun ShowAsyncImage(
+fun PostImage(
     imgUri: Uri,
     contentDescription: String = "",
     modifier: Modifier = Modifier,
