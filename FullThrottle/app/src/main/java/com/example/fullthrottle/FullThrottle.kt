@@ -51,7 +51,7 @@ sealed class AppScreen(val name: String) {
     object Register : AppScreen("Register")
     object Settings : AppScreen("Settings Screen")
     object Followers : AppScreen("Followers Screen")
-    object Followed : AppScreen("Followed Screen")
+    object Followeds : AppScreen("Followed Screen")
     object ProfileModification : AppScreen("Profile modification")
 }
 
@@ -124,7 +124,8 @@ fun TopAppBarFunction(
 @Composable
 fun BottomAppBarFunction(
     currentScreen: String,
-    navController: NavHostController
+    navController: NavHostController,
+    goToMyProfile: () -> Unit
 ) {
     AnimatedVisibility(
         visible = currentScreen != AppScreen.Login.name
@@ -142,7 +143,10 @@ fun BottomAppBarFunction(
                     )
                 },
                 selected = currentScreen == AppScreen.Home.name,
-                onClick = { navController.navigate(AppScreen.Home.name) },
+                onClick = {
+                    navController.backQueue.clear()
+                    navController.navigate(AppScreen.Home.name)
+                },
                 label = { Text(stringResource(id = R.string.nav_home)) },
                 alwaysShowLabel = false
             )
@@ -155,7 +159,10 @@ fun BottomAppBarFunction(
                     )
                 },
                 selected = currentScreen == AppScreen.Map.name,
-                onClick = { navController.navigate(AppScreen.Map.name) },
+                onClick = {
+                    navController.backQueue.clear()
+                    navController.navigate(AppScreen.Map.name)
+                },
                 label = { Text(stringResource(id = R.string.nav_map)) },
                 alwaysShowLabel = false
             )
@@ -168,7 +175,10 @@ fun BottomAppBarFunction(
                     )
                 },
                 selected = currentScreen == AppScreen.NewPost.name,
-                onClick = { navController.navigate(AppScreen.NewPost.name) },
+                onClick = {
+                    navController.backQueue.clear()
+                    navController.navigate(AppScreen.NewPost.name)
+                },
                 label = { Text(stringResource(id = R.string.nav_new_post)) },
                 alwaysShowLabel = false
             )
@@ -181,7 +191,10 @@ fun BottomAppBarFunction(
                     )
                 },
                 selected = currentScreen == AppScreen.Search.name,
-                onClick = { navController.navigate(AppScreen.Search.name) },
+                onClick = {
+                    navController.backQueue.clear()
+                    navController.navigate(AppScreen.Search.name)
+                },
                 label = { Text(stringResource(id = R.string.nav_search)) },
                 alwaysShowLabel = false
             )
@@ -195,9 +208,13 @@ fun BottomAppBarFunction(
                 },
                 selected = currentScreen == AppScreen.Profile.name
                         || currentScreen == AppScreen.Followers.name
+                        || currentScreen == AppScreen.Followeds.name
                         || currentScreen == AppScreen.Settings.name
                         || currentScreen == AppScreen.ProfileModification.name,
-                onClick = { navController.navigate(AppScreen.Profile.name) },
+                onClick = {
+                    navController.backQueue.clear()
+                    goToMyProfile()
+                },
                 label = { Text(stringResource(id = R.string.nav_profile)) },
                 alwaysShowLabel = false
             )
@@ -214,19 +231,33 @@ fun NavigationApp(
     methods: Map<String, () -> Unit>,
     navController: NavHostController = rememberNavController()
 ) {
+    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
     val currentScreen = backStackEntry?.destination?.route ?: startDestination
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    var userIdHistory = remember {
+        mutableListOf<String>()
+    }
+
+    var userId = remember {
+        mutableStateOf(String())
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBarFunction(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
+                navigateUp = {
+                    val lastScreen = currentScreen
+                    navController.navigateUp()
+
+                },
                 onSettingsButtonClicked = { navController.navigate(AppScreen.Settings.name) }
             )
         },
@@ -234,10 +265,13 @@ fun NavigationApp(
             BottomAppBarFunction(
                 currentScreen,
                 navController
-            )
+            ) {
+                userId.value = settings[USER_ID_KEY].orEmpty()
+                navController.navigate(AppScreen.Profile.name)
+            }
         }
     ) { innerPadding ->
-        NavigationGraph(settingsViewModel, warningViewModel, startDestination, navController, innerPadding, methods)
+        NavigationGraph(settingsViewModel, warningViewModel, startDestination, navController, innerPadding, methods, userId = userId)
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
             PermissionSnackBarComposable(snackbarHostState, context, warningViewModel)
@@ -284,7 +318,8 @@ private fun NavigationGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userId: MutableState<String>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
@@ -327,9 +362,10 @@ private fun NavigationGraph(
                 settingsViewModel,
                 mapOf(
                     "followers" to { navController.navigate(AppScreen.Followers.name) },
-                    "followed" to { navController.navigate(AppScreen.Followed.name) },
+                    "followed" to { navController.navigate(AppScreen.Followeds.name) },
                     "profileModification" to { navController.navigate(AppScreen.ProfileModification.name) }
-                )
+                ),
+                userId.value
             )
         }
         composable(route = AppScreen.ProfileModification.name) {
@@ -342,10 +378,20 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Followers.name) {
-            FollowersScreen(settings[USER_ID_KEY].toString(), FOLLOWERS_TAB)
+            FollowersScreen(userId.value, FOLLOWERS_TAB,
+                fun (uid: String) {
+                    userId.value = uid
+                    navController.navigate(AppScreen.Profile.name)
+                }
+            )
         }
-        composable(route = AppScreen.Followed.name) {
-            FollowersScreen(settings[USER_ID_KEY].toString(), FOLLOWED_TAB)
+        composable(route = AppScreen.Followeds.name) {
+            FollowersScreen(userId.value, FOLLOWED_TAB,
+                fun (uid: String) {
+                    userId.value = uid
+                    navController.navigate(AppScreen.Profile.name)
+                }
+            )
         }
         composable(route = AppScreen.Login.name) {
             LoginScreen(

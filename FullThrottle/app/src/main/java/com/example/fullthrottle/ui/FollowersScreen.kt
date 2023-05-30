@@ -25,7 +25,8 @@ import kotlinx.coroutines.async
 @Composable
 fun FollowersScreen(
     uid: String,
-    currentTab: Int = FOLLOWERS_TAB
+    currentTab: Int = FOLLOWERS_TAB,
+    goToUserProfile: (String) -> Unit
 ) {
     var tabIndex by remember { mutableStateOf(currentTab) }
 
@@ -44,14 +45,18 @@ fun FollowersScreen(
             }
         }
         when (tabIndex) {
-            FOLLOWERS_TAB -> UsersList(uid, FOLLOWERS_TAB)
-            FOLLOWED_TAB -> UsersList(uid, FOLLOWED_TAB)
+            FOLLOWERS_TAB -> UsersList(uid, FOLLOWERS_TAB, goToUserProfile)
+            FOLLOWED_TAB -> UsersList(uid, FOLLOWED_TAB, goToUserProfile)
         }
     }
 }
 
 @Composable
-fun UsersList(uid: String, currentTab: Int) {
+fun UsersList(
+    uid: String,
+    currentTab: Int,
+    goToUserProfile: (String) -> Unit
+) {
     var users by remember { mutableStateOf(emptyList<User>()) }
     var imagesUris by remember { mutableStateOf(mutableListOf<Uri>()) }
     LaunchedEffect(key1 = "followersQuery") {
@@ -72,10 +77,10 @@ fun UsersList(uid: String, currentTab: Int) {
         modifier = Modifier
             .padding(vertical = 5.dp, horizontal = 10.dp)
     ) {
-        users.forEachIndexed { index, element ->
+        users.forEachIndexed { index, user ->
             item {
-                ItemTonalButton(value = element.username.toString(),
-                    onClick = { /*TODO*/ },
+                ItemTonalButton(value = user.username.toString(),
+                    onClick = { goToUserProfile(user.userId.toString()) },
                     imgUri = imagesUris.getOrElse(index) { Uri.EMPTY }
                 )
             }
