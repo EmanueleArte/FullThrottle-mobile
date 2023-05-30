@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.fullthrottle.AppScreen
 import com.example.fullthrottle.R
@@ -193,8 +194,27 @@ fun ShowImage(
     Image(
         painter = paint,
         contentDescription = contentDescription,
-        modifier = modifier,//Modifier.size(50.dp).clip(CircleShape),
+        modifier = modifier,
         contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
+fun ShowAsyncImage(
+    imgUri: Uri,
+    contentDescription: String = "",
+    modifier: Modifier = Modifier,
+) {
+    val paint = if (imgUri != Uri.EMPTY)
+        rememberAsyncImagePainter(model = imgUri)
+    else
+        painterResource(id = R.drawable.standard)
+
+    AsyncImage(
+        model = imgUri,
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Crop
     )
 }
 
