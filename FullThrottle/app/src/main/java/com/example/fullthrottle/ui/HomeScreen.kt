@@ -1,5 +1,6 @@
 package com.example.fullthrottle.ui
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,10 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.fullthrottle.R
+import coil.compose.rememberAsyncImagePainter
+import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getRecentPosts
 import com.example.fullthrottle.data.DBHelper.getUserById
@@ -40,11 +41,21 @@ fun HomeScreen(
     var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
     var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
     var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
+    var postImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var userImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+
     LaunchedEffect(key1 = "posts") {
         async {
             val tPosts = getRecentPosts() as List<Post>
             users = tPosts.map { post -> getUserById(post.userId as String) as User }
             motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
+            postImagesUris = tPosts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
+            userImagesUris = users.map { user ->
+                if (user.userImg.toString().isNotEmpty())
+                    getImageUri(user.userId + "/" + user.userImg)
+                else
+                    Uri.EMPTY
+            }
             posts = tPosts
         }
     }
@@ -59,13 +70,13 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .clickable {
                         goToPost(post.postId as String)
-                               },
+                    },
                 elevation = CardDefaults.cardElevation(10.dp)
             ) {
                 Column {
                     Row {
-                        Image(
-                            painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+                        ShowImage(
+                            imgUri = userImagesUris[posts.indexOf(post)],
                             contentDescription = "user image",
                             modifier = Modifier
                                 .padding(5.dp)
@@ -91,12 +102,10 @@ fun HomeScreen(
                         )
                     }
                     Image(
-                        painter = painterResource(id = R.drawable.fullthrottle_logo_light),
+                        painter = rememberAsyncImagePainter(model = postImagesUris[posts.indexOf(post)]),
                         contentDescription = "post image",
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White)
-
+                            .requiredWidth(200.dp)
                     )
                     Text(
                         text = "${post.title}",

@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -22,7 +22,7 @@ import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
 
 @Composable
 fun ProfileScreen(
