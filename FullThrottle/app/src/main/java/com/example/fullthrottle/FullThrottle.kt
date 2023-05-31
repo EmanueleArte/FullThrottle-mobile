@@ -340,7 +340,8 @@ private fun NavigationGraph(
                 fun (id : String) {
                     userIdHistory.add(id)
                     navController.navigate(AppScreen.Profile.name)
-                }
+                },
+                settingsViewModel
             )
         }
         composable(route = AppScreen.Post.name) {

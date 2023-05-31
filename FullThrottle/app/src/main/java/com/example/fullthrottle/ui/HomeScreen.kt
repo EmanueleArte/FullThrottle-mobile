@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -22,27 +24,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.fullthrottle.data.DBHelper.checkLike
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getRecentPosts
 import com.example.fullthrottle.data.DBHelper.getUserById
+import com.example.fullthrottle.data.DBHelper.toggleLike
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     goToPost: (String) -> Unit,
-    goToProfile: (String) -> Unit
+    goToProfile: (String) -> Unit,
+    settingsViewModel: SettingsViewModel
 ) {
     val context = LocalContext.current
+    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+    val coroutineScope = rememberCoroutineScope()
 
     var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
     var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
     var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
     var postImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
     var userImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var likes by rememberSaveable { mutableStateOf(emptyList<Boolean>()) }
 
     LaunchedEffect(key1 = "posts") {
         async {
@@ -56,6 +67,7 @@ fun HomeScreen(
                 else
                     Uri.EMPTY
             }
+            likes = tPosts.map { post -> checkLike(post.postId.toString(), settings[USER_ID_KEY].toString()) }
             posts = tPosts
         }
     }
@@ -73,6 +85,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(posts) { post ->
+                val i = posts.indexOf(post)
                 Card(
                     modifier = Modifier
                         .padding(10.dp)
@@ -85,7 +98,7 @@ fun HomeScreen(
                     Column {
                         Row {
                             ProfileImage(
-                                imgUri = userImagesUris[posts.indexOf(post)],
+                                imgUri = userImagesUris[i],
                                 contentDescription = "user image",
                                 modifier = Modifier
                                     .padding(5.dp)
@@ -93,11 +106,11 @@ fun HomeScreen(
                                     .requiredWidth(40.dp)
                                     .clip(CircleShape)
                                     .background(Color.White)
-                                    .clickable{ goToProfile(users[posts.indexOf(post)].userId as String) },
+                                    .clickable { goToProfile(users[i].userId as String) },
                             )
                             Column {
                                 Text(
-                                    text = "${users[posts.indexOf(post)].username}",
+                                    text = "${users[i].username}",
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(text = "${post.publishDate}")
@@ -112,19 +125,64 @@ fun HomeScreen(
                             )
                         }
                         PostImage(
-                            imgUri = postImagesUris[posts.indexOf(post)],
+                            imgUri = postImagesUris[i],
                             contentDescription = "post image",
                             modifier = Modifier
                                 .fillMaxWidth()
                         )
-                        Text(
-                            text = "${post.title}",
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Piace a ${post.likesNumber} riders",
-                            fontWeight = FontWeight.Thin
-                        )
+                        Row {
+                            Column {
+                                Text(
+                                    text = "${post.title}",
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Piace a ${post.likesNumber} riders",
+                                    fontWeight = FontWeight.Thin
+                                )
+                            }
+                            Spacer(Modifier.weight(1f))
+                            Icon(
+                                imageVector = if (likes[i]) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = "like button",
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .size(30.dp)
+                                    .clickable {
+                                        var like = false
+                                        coroutineScope
+                                            .launch {
+                                                like = toggleLike(
+                                                    post.postId.toString(),
+                                                    settings[USER_ID_KEY].toString()
+                                                )
+                                            }
+                                            .invokeOnCompletion {
+                                                posts = posts.map { tPost ->
+                                                    if (post.postId == tPost.postId) {
+                                                        if (like) {
+                                                            tPost.copy(
+                                                                likesNumber = (tPost.likesNumber
+                                                                    ?.toInt()
+                                                                    ?.plus(1)).toString()
+                                                            )
+                                                        } else {
+                                                            tPost.copy(
+                                                                likesNumber = (tPost.likesNumber
+                                                                    ?.toInt()
+                                                                    ?.minus(1)).toString()
+                                                            )
+                                                        }
+                                                    } else tPost
+                                                }
+                                                likes = posts.map { post ->
+                                                    if (posts.indexOf(post) == i) { like }
+                                                    else { likes[posts.indexOf(post)] }
+                                                }
+                                            }
+                                    }
+                            )
+                        }
                         Text(
                             text = "Moto: ${motorbikes[posts.indexOf(post)].brand} ${
                                 motorbikes[posts.indexOf(
