@@ -59,7 +59,7 @@ fun HomeScreen(
         }
     }
 
-    if (posts.isEmpty()) {
+    if (posts.isEmpty() || postImagesUris.isEmpty()) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),

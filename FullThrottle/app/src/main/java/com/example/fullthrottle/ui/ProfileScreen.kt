@@ -1,14 +1,21 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -16,10 +23,12 @@ import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
+import com.example.fullthrottle.data.DBHelper.getPostsByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.entities.Motorbike
+import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
@@ -39,6 +48,8 @@ fun ProfileScreen(
     val centerArrangement = Arrangement.Center
 
     var user by remember { mutableStateOf(User()) }
+    var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
+    var postImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
     var imageUri by rememberSaveable { mutableStateOf<Uri>(Uri.EMPTY) }
     var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
     LaunchedEffect(key1 = "imageUri") {
@@ -54,6 +65,11 @@ fun ProfileScreen(
         }
         async {
             motorbikes = getMotorbikesByUserId(userId)
+            posts = getPostsByUserId(userId)
+        }.invokeOnCompletion {
+            launch {
+                postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
+            }
         }
     }
 
@@ -148,6 +164,43 @@ fun ProfileScreen(
                 modifier = baseModifier
             ) {
                 Text(text = stringResource(id = R.string.my_posts), fontWeight = FontWeight.Bold)
+            }
+            if (posts.isEmpty() || postImagesUris.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ThreeBounce()
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(posts) { post ->
+                        Card(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    /* TODO: Navigate to post */
+                                    //goToPost(post.postId as String)
+                                },
+                            elevation = CardDefaults.cardElevation(10.dp)
+                        ) {
+                            Row {
+                                PostImage(
+                                    imgUri = postImagesUris[posts.indexOf(post)],
+                                    contentDescription = "post image",
+                                    modifier = Modifier
+                                        .width(200.dp)
+                                )
+
+                                Text(text = post.title.orEmpty())
+                            }
+                        }
+                    }
+                }
             }
         }
 

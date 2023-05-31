@@ -212,10 +212,7 @@ fun PostImage(
     contentDescription: String = "",
     modifier: Modifier = Modifier,
 ) {
-    val paint = if (imgUri != Uri.EMPTY)
-        rememberAsyncImagePainter(model = imgUri)
-    else
-        painterResource(id = R.drawable.standard)
+
 
     AsyncImage(
         model = imgUri,
