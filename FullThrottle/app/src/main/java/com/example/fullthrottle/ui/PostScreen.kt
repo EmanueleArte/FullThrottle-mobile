@@ -3,12 +3,14 @@ package com.example.fullthrottle.ui
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -26,17 +28,23 @@ import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getPostById
 import com.example.fullthrottle.data.DBHelper.getUserById
+import com.example.fullthrottle.data.DBHelper.toggleLike
+import com.example.fullthrottle.data.DataStoreConstants
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Comment
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
 
 @Composable
 fun PostScreen(
-    postId : String
+    postId : String,
+    settingsViewModel: SettingsViewModel
 ) {
     val context = LocalContext.current
+    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
     var post by remember { mutableStateOf(Post()) }
     var user by remember { mutableStateOf(User()) }
@@ -136,6 +144,19 @@ fun PostScreen(
                 text = "Commenti",
                 fontWeight = FontWeight.Bold
             )
+        }
+        item {
+            Row {
+                Spacer(Modifier.weight(1f))
+                Icon(
+                    Icons.Outlined.Favorite,
+                    contentDescription = "like button",
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .requiredHeight(40.dp)
+                        .clickable { toggleLike(postId, settings[USER_ID_KEY].toString()) }
+                )
+            }
         }
         items(comments) {comment ->
             Card {

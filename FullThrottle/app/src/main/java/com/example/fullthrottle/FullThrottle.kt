@@ -32,9 +32,7 @@ import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
-import com.example.fullthrottle.ui.GPSAlertDialogComposable
 import com.example.fullthrottle.ui.Logo.logoId
-import com.example.fullthrottle.ui.PermissionSnackBarComposable
 import com.example.fullthrottle.ui.UiConstants.ANIMATION_DURATION
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
@@ -133,19 +131,6 @@ fun BottomAppBarFunction(
         exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(ANIMATION_DURATION))
     ) {
         NavigationBar {
-            // Home
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        Icons.Outlined.Home,
-                        contentDescription = stringResource(id = R.string.nav_home)
-                    )
-                },
-                selected = currentScreen == AppScreen.Home.name,
-                onClick = { navController.navigate(AppScreen.Home.name) },
-                label = { Text(stringResource(id = R.string.nav_home)) },
-                alwaysShowLabel = false
-            )
             // Map
             NavigationBarItem(
                 icon = {
@@ -159,19 +144,6 @@ fun BottomAppBarFunction(
                 label = { Text(stringResource(id = R.string.nav_map)) },
                 alwaysShowLabel = false
             )
-            // New post
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        Icons.Outlined.Add,
-                        contentDescription = stringResource(id = R.string.nav_new_post)
-                    )
-                },
-                selected = currentScreen == AppScreen.NewPost.name,
-                onClick = { navController.navigate(AppScreen.NewPost.name) },
-                label = { Text(stringResource(id = R.string.nav_new_post)) },
-                alwaysShowLabel = false
-            )
             // Search
             NavigationBarItem(
                 icon = {
@@ -183,6 +155,32 @@ fun BottomAppBarFunction(
                 selected = currentScreen == AppScreen.Search.name,
                 onClick = { navController.navigate(AppScreen.Search.name) },
                 label = { Text(stringResource(id = R.string.nav_search)) },
+                alwaysShowLabel = false
+            )
+            // Home
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        Icons.Outlined.Home,
+                        contentDescription = stringResource(id = R.string.nav_home)
+                    )
+                },
+                selected = currentScreen == AppScreen.Home.name,
+                onClick = { navController.navigate(AppScreen.Home.name) },
+                label = { Text(stringResource(id = R.string.nav_home)) },
+                alwaysShowLabel = false
+            )
+            // New post
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        Icons.Outlined.Add,
+                        contentDescription = stringResource(id = R.string.nav_new_post)
+                    )
+                },
+                selected = currentScreen == AppScreen.NewPost.name,
+                onClick = { navController.navigate(AppScreen.NewPost.name) },
+                label = { Text(stringResource(id = R.string.nav_new_post)) },
                 alwaysShowLabel = false
             )
             // Profile

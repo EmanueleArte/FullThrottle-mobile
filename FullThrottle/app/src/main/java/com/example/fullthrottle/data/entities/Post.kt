@@ -16,4 +16,4 @@ data class Post(
     val publishDate: String? = null,
     val title: String? = null,
     val userId: String? = null
-    )
+)
