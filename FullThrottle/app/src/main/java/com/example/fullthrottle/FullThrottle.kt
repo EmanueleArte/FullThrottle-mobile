@@ -1,8 +1,6 @@
 package com.example.fullthrottle
 
 import android.app.Application
-import android.service.autofill.FillEventHistory
-import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -22,7 +20,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.substring
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -339,6 +336,10 @@ private fun NavigationGraph(
                 fun (id : String) {
                     postId = id
                     navController.navigate(AppScreen.Post.name)
+                },
+                fun (id : String) {
+                    userIdHistory.add(id)
+                    navController.navigate(AppScreen.Profile.name)
                 }
             )
         }

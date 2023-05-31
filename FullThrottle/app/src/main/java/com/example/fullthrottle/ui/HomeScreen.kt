@@ -33,7 +33,8 @@ import kotlinx.coroutines.async
 
 @Composable
 fun HomeScreen(
-    goToPost: (String) -> Unit
+    goToPost: (String) -> Unit,
+    goToProfile: (String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -92,6 +93,7 @@ fun HomeScreen(
                                     .requiredWidth(40.dp)
                                     .clip(CircleShape)
                                     .background(Color.White)
+                                    .clickable{ goToProfile(users[posts.indexOf(post)].userId as String) },
                             )
                             Column {
                                 Text(
