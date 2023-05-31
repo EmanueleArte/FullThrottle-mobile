@@ -1,6 +1,8 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
+import android.view.animation.Animation
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -29,7 +31,32 @@ import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.ui.HomeScreenData.firstLoad
+import com.example.fullthrottle.ui.HomeScreenData.load
+import com.example.fullthrottle.ui.HomeScreenData.motorbikesLoaded
+import com.example.fullthrottle.ui.HomeScreenData.postImagesUrisLoaded
+import com.example.fullthrottle.ui.HomeScreenData.postsLoaded
+import com.example.fullthrottle.ui.HomeScreenData.userImagesUrisLoaded
+import com.example.fullthrottle.ui.HomeScreenData.usersLoaded
 import kotlinx.coroutines.async
+
+internal object HomeScreenData {
+    var postsLoaded by mutableStateOf(emptyList<Post>())
+    var usersLoaded by mutableStateOf(emptyList<User>())
+    var motorbikesLoaded by mutableStateOf(emptyList<Motorbike>())
+    var postImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
+    var userImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
+    var firstLoad by mutableStateOf(true)
+
+    fun load(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>) {
+        postsLoaded = posts
+        usersLoaded = users
+        motorbikesLoaded = motorbikes
+        postImagesUrisLoaded = postImagesUris
+        userImagesUrisLoaded = userImagesUris
+    }
+
+}
 
 @Composable
 fun HomeScreen(
@@ -37,14 +64,17 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
 
-    var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
-    var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
-    var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
-    var postImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
-    var userImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var posts by rememberSaveable { mutableStateOf(postsLoaded) }
+    var users by rememberSaveable { mutableStateOf(usersLoaded) }
+    var motorbikes by rememberSaveable { mutableStateOf(motorbikesLoaded) }
+    var postImagesUris by rememberSaveable { mutableStateOf(postImagesUrisLoaded) }
+    var userImagesUris by rememberSaveable { mutableStateOf(userImagesUrisLoaded) }
 
     LaunchedEffect(key1 = "posts") {
         async {
+            if (usersLoaded.isNotEmpty()) {
+                firstLoad = false
+            }
             val tPosts = getRecentPosts()
             users = tPosts.map { post -> getUserById(post.userId as String) as User }
             motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
@@ -56,21 +86,22 @@ fun HomeScreen(
                     Uri.EMPTY
             }
             posts = tPosts
+            load(posts, users, motorbikes, postImagesUris, userImagesUris)
         }
     }
 
     if (posts.isEmpty() || postImagesUris.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            ThreeBounce()
-        }
+        LoadingAnimation()
     } else {
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.animateContentSize()
         ) {
+            item {
+                if (!firstLoad) {
+                    LoadingAnimation(2000)
+                }
+            }
             items(posts) { post ->
                 Card(
                     modifier = Modifier

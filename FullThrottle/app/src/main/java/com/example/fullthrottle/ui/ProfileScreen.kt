@@ -166,13 +166,7 @@ fun ProfileScreen(
                 Text(text = stringResource(id = R.string.my_posts), fontWeight = FontWeight.Bold)
             }
             if (posts.isEmpty() || postImagesUris.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ThreeBounce()
-                }
+                LoadingAnimation()
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(10.dp)

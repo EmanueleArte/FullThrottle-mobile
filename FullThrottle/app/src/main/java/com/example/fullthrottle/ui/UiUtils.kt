@@ -48,10 +48,20 @@ import com.example.fullthrottle.R
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.viewModel.WarningViewModel
 import androidx.annotation.IntRange
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.fullthrottle.ui.UiConstants.ANIMATION_DURATION_LONG
+import kotlinx.coroutines.delay
 
 object UiConstants {
     val CORNER_RADIUS = 10.dp
     val ANIMATION_DURATION = 100
+    val ANIMATION_DURATION_LONG = 300
 }
 
 object Logo {
@@ -206,20 +216,27 @@ fun ProfileImage(
     )
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PostImage(
     imgUri: Uri,
     contentDescription: String = "",
     modifier: Modifier = Modifier,
 ) {
-
-
-    AsyncImage(
+    /*AsyncImage(
         model = imgUri,
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = ContentScale.Crop
-    )
+    )*/
+    GlideImage(
+        model = imgUri,
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Crop
+    ) {
+        it.diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+    }
 }
 
 @Composable
@@ -429,6 +446,32 @@ fun ThreeBounce(
                 shape = shape,
                 color = color
             ) {}
+        }
+    }
+}
+
+@Composable
+fun LoadingAnimation(durationMillis: Long = -1L) {
+    var active by remember { mutableStateOf(true) }
+
+    AnimatedVisibility(
+        visible = active,
+        enter = slideInVertically(initialOffsetY = { -it }, animationSpec = tween(ANIMATION_DURATION_LONG)),
+        exit = slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(ANIMATION_DURATION_LONG))
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 15.dp)
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            ThreeBounce()
+        }
+        if (durationMillis != -1L) {
+            LaunchedEffect(Unit) {
+                delay(durationMillis)
+                active = false
+            }
         }
     }
 }

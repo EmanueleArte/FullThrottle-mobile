@@ -257,10 +257,12 @@ object DBHelper {
     suspend fun getRecentPosts(): List<Post> = callbackFlow {
         database
             .getReference("posts")
+            .orderByChild("publishDate")
             .get()
             .addOnSuccessListener { posts ->
                 if (posts.exists()) {
-                    trySend(posts.children.map { post -> post.getValue<Post>() as Post })
+                    val res = posts.children.map { post -> post.getValue<Post>() as Post }
+                    trySend(res.reversed())
                 } else {
                     trySend(emptyList<Post>())
                 }
