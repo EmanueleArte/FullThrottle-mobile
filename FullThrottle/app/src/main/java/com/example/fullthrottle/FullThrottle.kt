@@ -143,8 +143,8 @@ fun BottomAppBarFunction(
                 },
                 selected = currentScreen == AppScreen.Map.name,
                 onClick = {
-                    navController.navigate(AppScreen.Map.name)
                     navController.backQueue.clear()
+                    navController.navigate(AppScreen.Map.name)
                 },
                 label = { Text(stringResource(id = R.string.nav_map)) },
                 alwaysShowLabel = false
@@ -159,8 +159,8 @@ fun BottomAppBarFunction(
                 },
                 selected = currentScreen == AppScreen.Search.name,
                 onClick = {
-                    navController.navigate(AppScreen.Search.name)
                     navController.backQueue.clear()
+                    navController.navigate(AppScreen.Search.name)
                 },
                 label = { Text(stringResource(id = R.string.nav_search)) },
                 alwaysShowLabel = false
@@ -175,8 +175,8 @@ fun BottomAppBarFunction(
                 },
                 selected = currentScreen == AppScreen.Home.name,
                 onClick = {
-                    navController.navigate(AppScreen.Home.name)
                     navController.backQueue.clear()
+                    navController.navigate(AppScreen.Home.name)
                 },
                 label = { Text(stringResource(id = R.string.nav_home)) },
                 alwaysShowLabel = false
@@ -318,7 +318,6 @@ private fun NavigationGraph(
     methods: Map<String, () -> Unit>,
     modifier: Modifier = Modifier,
     userIdHistory: MutableList<String>
-    //userId: MutableState<String>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 

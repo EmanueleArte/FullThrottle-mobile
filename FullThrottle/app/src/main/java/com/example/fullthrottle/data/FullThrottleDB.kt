@@ -274,7 +274,8 @@ object DBHelper {
         database
             .getReference("posts")
             .orderByChild("userId")
-            .equalTo(uid).get()
+            .equalTo(uid)
+            .get()
             .addOnSuccessListener { posts ->
                 if (posts.exists()) {
                     trySend(posts.children.map { post -> post.getValue<Post>() as Post })

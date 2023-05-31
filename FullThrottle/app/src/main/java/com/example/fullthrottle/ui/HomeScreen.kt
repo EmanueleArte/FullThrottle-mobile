@@ -1,13 +1,12 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
-import android.view.animation.Animation
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
@@ -19,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -37,6 +35,7 @@ import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.HomeScreenData.firstLoad
+import com.example.fullthrottle.ui.HomeScreenData.likesLoaded
 import com.example.fullthrottle.ui.HomeScreenData.load
 import com.example.fullthrottle.ui.HomeScreenData.motorbikesLoaded
 import com.example.fullthrottle.ui.HomeScreenData.postImagesUrisLoaded
@@ -53,14 +52,16 @@ internal object HomeScreenData {
     var motorbikesLoaded by mutableStateOf(emptyList<Motorbike>())
     var postImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
     var userImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
+    var likesLoaded by mutableStateOf(emptyList<Boolean>())
     var firstLoad by mutableStateOf(true)
 
-    fun load(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>) {
+    fun load(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>, likes: List<Boolean>) {
         postsLoaded = posts
         usersLoaded = users
         motorbikesLoaded = motorbikes
         postImagesUrisLoaded = postImagesUris
         userImagesUrisLoaded = userImagesUris
+        likesLoaded = likes
     }
 
 }
@@ -80,9 +81,9 @@ fun HomeScreen(
     var motorbikes by rememberSaveable { mutableStateOf(motorbikesLoaded) }
     var postImagesUris by rememberSaveable { mutableStateOf(postImagesUrisLoaded) }
     var userImagesUris by rememberSaveable { mutableStateOf(userImagesUrisLoaded) }
-    var likes by rememberSaveable { mutableStateOf(emptyList<Boolean>()) }
+    var likes by rememberSaveable { mutableStateOf(likesLoaded) }
 
-    LaunchedEffect(key1 = "posts") {
+    LaunchedEffect(Unit) {
         async {
             if (usersLoaded.isNotEmpty()) {
                 firstLoad = false
@@ -99,7 +100,8 @@ fun HomeScreen(
             }
             likes = tPosts.map { post -> checkLike(post.postId.toString(), settings[USER_ID_KEY].toString()) }
             posts = tPosts
-            load(posts, users, motorbikes, postImagesUris, userImagesUris)
+        }.invokeOnCompletion {
+            load(posts, users, motorbikes, postImagesUris, userImagesUris, likes)
         }
     }
 
@@ -107,16 +109,15 @@ fun HomeScreen(
         LoadingAnimation()
     } else {
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.animateContentSize()
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             item {
                 if (!firstLoad) {
                     LoadingAnimation(2000)
                 }
             }
-            items(posts) { post ->
-                val i = posts.indexOf(post)
+            itemsIndexed(posts) { i, post ->
+                //val i = posts.indexOf(post)
                 Card(
                     modifier = Modifier
                         .padding(10.dp)
@@ -207,8 +208,11 @@ fun HomeScreen(
                                                     } else tPost
                                                 }
                                                 likes = posts.map { post ->
-                                                    if (posts.indexOf(post) == i) { like }
-                                                    else { likes[posts.indexOf(post)] }
+                                                    if (posts.indexOf(post) == i) {
+                                                        like
+                                                    } else {
+                                                        likes[posts.indexOf(post)]
+                                                    }
                                                 }
                                             }
                                     }
