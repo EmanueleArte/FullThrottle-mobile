@@ -327,6 +327,27 @@ object DBHelper {
     }.first()
 
     // LIKES
+    suspend fun checkLike(postId: String, userId: String): Boolean = callbackFlow{
+        database
+            .getReference("likes")
+            .orderByChild("postId")
+            .equalTo(postId)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val likes = it.children.map { like -> like.getValue<Like>() }
+                    val like = likes.find { like -> like?.userId == userId }
+                    trySend(like != null)
+                } else {
+                    trySend(false)
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun toggleLike(postId: String, userId: String): Boolean = callbackFlow {
         database
             .getReference("likes")
