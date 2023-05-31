@@ -26,7 +26,6 @@ import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DBHelper.getPostsByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
-import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User

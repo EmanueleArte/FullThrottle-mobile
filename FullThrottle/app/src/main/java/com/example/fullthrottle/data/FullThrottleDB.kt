@@ -8,10 +8,7 @@ import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
-import com.example.fullthrottle.data.entities.Comment
-import com.example.fullthrottle.data.entities.Post
-import com.example.fullthrottle.data.entities.Motorbike
-import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.data.entities.*
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
@@ -341,6 +338,88 @@ object DBHelper {
                     trySend(comments.children.map { it.getValue<Comment>() as Comment })
                 } else {
                     trySend(emptyList<Comment>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    // LIKES
+    suspend fun checkLike(postId: String, userId: String): Boolean = callbackFlow{
+        database
+            .getReference("likes")
+            .orderByChild("postId")
+            .equalTo(postId)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val likes = it.children.map { like -> like.getValue<Like>() }
+                    val like = likes.find { like -> like?.userId == userId }
+                    trySend(like != null)
+                } else {
+                    trySend(false)
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
+    suspend fun toggleLike(postId: String, userId: String): Boolean = callbackFlow {
+        database
+            .getReference("likes")
+            .orderByChild("postId")
+            .equalTo(postId)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val likes = it.children.map { like -> like.getValue<Like>()  }
+                    val like = likes.find { like -> like?.userId == userId }
+                    if (like != null) {
+                        database
+                            .getReference("likes")
+                            .child(like?.likeId.toString())
+                            .removeValue()
+                        database
+                            .getReference("posts")
+                            .child(postId)
+                            .child("likesNumber")
+                            .setValue((likes.size - 1).toString())
+                        trySend(false)
+                    } else {
+                        val like = Like(
+                            likeId = UUID.randomUUID().toString(),
+                            notified = "0",
+                            postId,
+                            userId
+                        )
+                        database
+                            .getReference("likes").child(like.likeId.toString()).setValue(like)
+                        database
+                            .getReference("posts")
+                            .child(postId)
+                            .child("likesNumber")
+                            .setValue((likes.size + 1).toString())
+                        trySend(true)
+                    }
+                } else {
+                    val like = Like(
+                        likeId = UUID.randomUUID().toString(),
+                        notified = "0",
+                        postId,
+                        userId
+                    )
+                    database
+                        .getReference("likes").child(like.likeId.toString()).setValue(like)
+                    database
+                        .getReference("posts")
+                        .child(postId)
+                        .child("likesNumber")
+                        .setValue(1.toString())
+                    trySend(true)
                 }
             }
             .addOnFailureListener{ error ->

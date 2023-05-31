@@ -1,8 +1,6 @@
 package com.example.fullthrottle
 
 import android.app.Application
-import android.service.autofill.FillEventHistory
-import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -22,7 +20,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.substring
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -36,9 +33,7 @@ import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
-import com.example.fullthrottle.ui.GPSAlertDialogComposable
 import com.example.fullthrottle.ui.Logo.logoId
-import com.example.fullthrottle.ui.PermissionSnackBarComposable
 import com.example.fullthrottle.ui.UiConstants.ANIMATION_DURATION
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
@@ -138,22 +133,6 @@ fun BottomAppBarFunction(
         exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(ANIMATION_DURATION))
     ) {
         NavigationBar {
-            // Home
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        Icons.Outlined.Home,
-                        contentDescription = stringResource(id = R.string.nav_home)
-                    )
-                },
-                selected = currentScreen == AppScreen.Home.name,
-                onClick = {
-                    navController.backQueue.clear()
-                    navController.navigate(AppScreen.Home.name)
-                },
-                label = { Text(stringResource(id = R.string.nav_home)) },
-                alwaysShowLabel = false
-            )
             // Map
             NavigationBarItem(
                 icon = {
@@ -164,10 +143,42 @@ fun BottomAppBarFunction(
                 },
                 selected = currentScreen == AppScreen.Map.name,
                 onClick = {
-                    navController.backQueue.clear()
                     navController.navigate(AppScreen.Map.name)
+                    navController.backQueue.clear()
                 },
                 label = { Text(stringResource(id = R.string.nav_map)) },
+                alwaysShowLabel = false
+            )
+            // Search
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        Icons.Outlined.Search,
+                        contentDescription = stringResource(id = R.string.nav_search)
+                    )
+                },
+                selected = currentScreen == AppScreen.Search.name,
+                onClick = {
+                    navController.navigate(AppScreen.Search.name)
+                    navController.backQueue.clear()
+                },
+                label = { Text(stringResource(id = R.string.nav_search)) },
+                alwaysShowLabel = false
+            )
+            // Home
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        Icons.Outlined.Home,
+                        contentDescription = stringResource(id = R.string.nav_home)
+                    )
+                },
+                selected = currentScreen == AppScreen.Home.name,
+                onClick = {
+                    navController.navigate(AppScreen.Home.name)
+                    navController.backQueue.clear()
+                },
+                label = { Text(stringResource(id = R.string.nav_home)) },
                 alwaysShowLabel = false
             )
             // New post
@@ -184,22 +195,6 @@ fun BottomAppBarFunction(
                     navController.navigate(AppScreen.NewPost.name)
                 },
                 label = { Text(stringResource(id = R.string.nav_new_post)) },
-                alwaysShowLabel = false
-            )
-            // Search
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        Icons.Outlined.Search,
-                        contentDescription = stringResource(id = R.string.nav_search)
-                    )
-                },
-                selected = currentScreen == AppScreen.Search.name,
-                onClick = {
-                    navController.backQueue.clear()
-                    navController.navigate(AppScreen.Search.name)
-                },
-                label = { Text(stringResource(id = R.string.nav_search)) },
                 alwaysShowLabel = false
             )
             // Profile
@@ -341,12 +336,18 @@ private fun NavigationGraph(
                 fun (id : String) {
                     postId = id
                     navController.navigate(AppScreen.Post.name)
-                }
+                },
+                fun (id : String) {
+                    userIdHistory.add(id)
+                    navController.navigate(AppScreen.Profile.name)
+                },
+                settingsViewModel
             )
         }
         composable(route = AppScreen.Post.name) {
             PostScreen(
-                postId
+                postId,
+                settingsViewModel
             )
         }
         composable(route = AppScreen.Map.name) {
