@@ -332,17 +332,38 @@ object DBHelper {
             .getReference("likes")
             .orderByChild("postId")
             .equalTo(postId)
-            .orderByChild("userId")
-            .equalTo(userId)
             .get()
             .addOnSuccessListener {
                 if (it.exists()) {
-                    val like = it.children.first().getValue<Like>()
-                    database
-                        .getReference("likes")
-                        .child(like?.likeId.toString())
-                        .removeValue()
-                    trySend(false)
+                    val likes = it.children.map { like -> like.getValue<Like>()  }
+                    val like = likes.find { like -> like?.userId == userId }
+                    if (like != null) {
+                        database
+                            .getReference("likes")
+                            .child(like?.likeId.toString())
+                            .removeValue()
+                        database
+                            .getReference("posts")
+                            .child(postId)
+                            .child("likesNumber")
+                            .setValue((likes.size - 1).toString())
+                        trySend(false)
+                    } else {
+                        val like = Like(
+                            likeId = UUID.randomUUID().toString(),
+                            notified = "0",
+                            postId,
+                            userId
+                        )
+                        database
+                            .getReference("likes").child(like.likeId.toString()).setValue(like)
+                        database
+                            .getReference("posts")
+                            .child(postId)
+                            .child("likesNumber")
+                            .setValue((likes.size + 1).toString())
+                        trySend(true)
+                    }
                 } else {
                     val like = Like(
                         likeId = UUID.randomUUID().toString(),
@@ -352,6 +373,11 @@ object DBHelper {
                     )
                     database
                         .getReference("likes").child(like.likeId.toString()).setValue(like)
+                    database
+                        .getReference("posts")
+                        .child(postId)
+                        .child("likesNumber")
+                        .setValue(1.toString())
                     trySend(true)
                 }
             }

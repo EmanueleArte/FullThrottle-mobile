@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Card
@@ -29,7 +30,6 @@ import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getPostById
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DBHelper.toggleLike
-import com.example.fullthrottle.data.DataStoreConstants
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Comment
 import com.example.fullthrottle.data.entities.Motorbike
@@ -37,6 +37,7 @@ import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 @Composable
 fun PostScreen(
@@ -45,6 +46,7 @@ fun PostScreen(
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+    val coroutineScope = rememberCoroutineScope()
 
     var post by remember { mutableStateOf(Post()) }
     var user by remember { mutableStateOf(User()) }
@@ -148,13 +150,25 @@ fun PostScreen(
         item {
             Row {
                 Spacer(Modifier.weight(1f))
+                var likeIcon = Icons.Outlined.Favorite
                 Icon(
-                    Icons.Outlined.Favorite,
+                    likeIcon,
                     contentDescription = "like button",
                     modifier = Modifier
                         .padding(5.dp)
                         .requiredHeight(40.dp)
-                        .clickable { toggleLike(postId, settings[USER_ID_KEY].toString()) }
+                        .clickable {
+                            var result = false
+                            coroutineScope.launch {
+                                result = toggleLike(postId, settings[USER_ID_KEY].toString())
+                            }.invokeOnCompletion {
+                                if (result) {
+                                    likeIcon = Icons.Filled.Favorite
+                                } else {
+                                    likeIcon = Icons.Outlined.Favorite
+                                }
+                            }
+                        }
                 )
             }
         }

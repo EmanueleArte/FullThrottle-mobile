@@ -31,4 +31,15 @@ object Utils {
         settingsViewModel.saveData(USERNAME_KEY, "")
         settingsViewModel.saveData(USER_IMAGE_KEY, "")
     }
+
+    fun manageNavigateBack(
+        userIdHistory: MutableList<String> = mutableListOf(),
+        currentScreen: String = String(),
+        previousScreen: String = String()
+    ) {
+        if (currentScreen ==  AppScreen.Profile.name) {
+            userIdHistory.removeLast()
+        }
+    }
+
 }

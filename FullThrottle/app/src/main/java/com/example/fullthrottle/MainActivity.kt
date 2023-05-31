@@ -1,7 +1,6 @@
 package com.example.fullthrottle
 
 import android.Manifest
-import android.R
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -11,10 +10,8 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Looper
-import android.view.View
-import android.view.animation.AlphaAnimation
-import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,15 +20,13 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.findNavController
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -42,12 +37,14 @@ import com.example.fullthrottle.ui.LockScreenOrientation
 import com.example.fullthrottle.ui.theme.FullThrottleTheme
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
-import com.google.android.gms.location.*
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Granularity
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
 
 
 @AndroidEntryPoint
@@ -71,8 +68,16 @@ class MainActivity : ComponentActivity() {
 
     private var showSnackbar: Boolean = true
 
+    /*var onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            println("si")
+        }
+    }*/
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 

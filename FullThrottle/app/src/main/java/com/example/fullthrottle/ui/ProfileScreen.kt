@@ -18,16 +18,17 @@ import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
-import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
     settingsViewModel: SettingsViewModel,
     navigateTo: Map<String, () -> Unit>,
+    userId: String
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
@@ -41,14 +42,17 @@ fun ProfileScreen(
     var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
     LaunchedEffect(key1 = "imageUri") {
         async {
-            user = getUserById(settings[USER_ID_KEY]!!) ?: User()
+            user = getUserById(userId) ?: User()
+        }.invokeOnCompletion {
+            if (user.userImg?.isNotEmpty()!!) {
+                val imageUrl = userId + "/" + user.userImg
+                launch {
+                    imageUri = getImageUri(imageUrl)
+                }
+            }
         }
         async {
-            motorbikes = getMotorbikesByUserId(settings[USER_ID_KEY]!!) as List<Motorbike>
-        }
-        if (settings[USER_IMAGE_KEY].toString().isNotEmpty()) {
-            val imageUrl = settings[USER_ID_KEY] + "/" + settings[USER_IMAGE_KEY]
-            imageUri = getImageUri(imageUrl)
+            motorbikes = getMotorbikesByUserId(userId)
         }
     }
 
@@ -99,12 +103,14 @@ fun ProfileScreen(
             ) {
                 Text(text = user.username.toString(), fontWeight = FontWeight.SemiBold)
             }
-            Row(
-                horizontalArrangement = leftArrangement,
-                modifier = baseModifier
-            ) {
-                Text(text = "Mail: ", fontWeight = FontWeight.SemiBold)
-                Text(text = user.mail.toString())
+            if (userId == settings[USER_ID_KEY]) {
+                Row(
+                    horizontalArrangement = leftArrangement,
+                    modifier = baseModifier
+                ) {
+                    Text(text = "Mail: ", fontWeight = FontWeight.SemiBold)
+                    Text(text = user.mail.toString())
+                }
             }
             Row(
                 horizontalArrangement = leftArrangement,
@@ -122,13 +128,15 @@ fun ProfileScreen(
             }
             
             Spacer(modifier = Modifier.size(10.dp))
-            
-            Row(
-                horizontalArrangement = leftArrangement,
-                modifier = baseModifier
-            ) {
-                OutlineTextButton(value = stringResource(id = R.string.modify_profile)) {
-                    navigateTo["profileModification"]?.invoke()
+
+            if (userId == settings[USER_ID_KEY]) {
+                Row(
+                    horizontalArrangement = leftArrangement,
+                    modifier = baseModifier
+                ) {
+                    OutlineTextButton(value = stringResource(id = R.string.modify_profile)) {
+                        navigateTo["profileModification"]?.invoke()
+                    }
                 }
             }
         }

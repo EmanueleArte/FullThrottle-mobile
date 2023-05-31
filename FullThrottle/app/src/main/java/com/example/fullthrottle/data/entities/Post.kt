@@ -1,8 +1,11 @@
 package com.example.fullthrottle.data.entities
 
+import android.os.Parcelable
 import com.google.firebase.database.IgnoreExtraProperties
+import kotlinx.parcelize.Parcelize
 
 @IgnoreExtraProperties
+@Parcelize
 data class Post(
     val categoryId: String? = null,
     val description: String? = null,
@@ -16,4 +19,4 @@ data class Post(
     val publishDate: String? = null,
     val title: String? = null,
     val userId: String? = null
-)
+) : Parcelable

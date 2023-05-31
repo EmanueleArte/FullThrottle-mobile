@@ -1,6 +1,8 @@
 package com.example.fullthrottle
 
 import android.app.Application
+import android.service.autofill.FillEventHistory
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -20,12 +22,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.substring
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.fullthrottle.Utils.manageNavigateBack
 import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -49,7 +53,7 @@ sealed class AppScreen(val name: String) {
     object Register : AppScreen("Register")
     object Settings : AppScreen("Settings Screen")
     object Followers : AppScreen("Followers Screen")
-    object Followed : AppScreen("Followed Screen")
+    object Followeds : AppScreen("Followed Screen")
     object ProfileModification : AppScreen("Profile modification")
 }
 
@@ -122,7 +126,8 @@ fun TopAppBarFunction(
 @Composable
 fun BottomAppBarFunction(
     currentScreen: String,
-    navController: NavHostController
+    navController: NavHostController,
+    goToMyProfile: () -> Unit
 ) {
     AnimatedVisibility(
         visible = currentScreen != AppScreen.Login.name
@@ -140,7 +145,10 @@ fun BottomAppBarFunction(
                     )
                 },
                 selected = currentScreen == AppScreen.Map.name,
-                onClick = { navController.navigate(AppScreen.Map.name) },
+                onClick = {
+                    navController.navigate(AppScreen.Map.name)
+                    navController.backQueue.clear()
+                },
                 label = { Text(stringResource(id = R.string.nav_map)) },
                 alwaysShowLabel = false
             )
@@ -153,7 +161,10 @@ fun BottomAppBarFunction(
                     )
                 },
                 selected = currentScreen == AppScreen.Search.name,
-                onClick = { navController.navigate(AppScreen.Search.name) },
+                onClick = {
+                    navController.navigate(AppScreen.Search.name)
+                    navController.backQueue.clear()
+                },
                 label = { Text(stringResource(id = R.string.nav_search)) },
                 alwaysShowLabel = false
             )
@@ -166,7 +177,10 @@ fun BottomAppBarFunction(
                     )
                 },
                 selected = currentScreen == AppScreen.Home.name,
-                onClick = { navController.navigate(AppScreen.Home.name) },
+                onClick = {
+                    navController.navigate(AppScreen.Home.name)
+                    navController.backQueue.clear()
+                },
                 label = { Text(stringResource(id = R.string.nav_home)) },
                 alwaysShowLabel = false
             )
@@ -179,7 +193,10 @@ fun BottomAppBarFunction(
                     )
                 },
                 selected = currentScreen == AppScreen.NewPost.name,
-                onClick = { navController.navigate(AppScreen.NewPost.name) },
+                onClick = {
+                    navController.backQueue.clear()
+                    navController.navigate(AppScreen.NewPost.name)
+                },
                 label = { Text(stringResource(id = R.string.nav_new_post)) },
                 alwaysShowLabel = false
             )
@@ -193,9 +210,13 @@ fun BottomAppBarFunction(
                 },
                 selected = currentScreen == AppScreen.Profile.name
                         || currentScreen == AppScreen.Followers.name
+                        || currentScreen == AppScreen.Followeds.name
                         || currentScreen == AppScreen.Settings.name
                         || currentScreen == AppScreen.ProfileModification.name,
-                onClick = { navController.navigate(AppScreen.Profile.name) },
+                onClick = {
+                    navController.backQueue.clear()
+                    goToMyProfile()
+                },
                 label = { Text(stringResource(id = R.string.nav_profile)) },
                 alwaysShowLabel = false
             )
@@ -212,19 +233,28 @@ fun NavigationApp(
     methods: Map<String, () -> Unit>,
     navController: NavHostController = rememberNavController()
 ) {
+    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
     val currentScreen = backStackEntry?.destination?.route ?: startDestination
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    var userIdHistory = remember {
+        mutableListOf<String>()
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBarFunction(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
+                navigateUp = {
+                    navController.navigateUp()
+                    manageNavigateBack(userIdHistory = userIdHistory, currentScreen = currentScreen)
+                },
                 onSettingsButtonClicked = { navController.navigate(AppScreen.Settings.name) }
             )
         },
@@ -232,10 +262,17 @@ fun NavigationApp(
             BottomAppBarFunction(
                 currentScreen,
                 navController
-            )
+            ) {
+                //userId.value = settings[USER_ID_KEY].orEmpty()
+                userIdHistory.removeAll(userIdHistory)
+                userIdHistory.add(settings[USER_ID_KEY].orEmpty())
+                navController.navigate(AppScreen.Profile.name)
+            }
         }
     ) { innerPadding ->
-        NavigationGraph(settingsViewModel, warningViewModel, startDestination, navController, innerPadding, methods)
+        NavigationGraph(settingsViewModel, warningViewModel, startDestination, navController, innerPadding, methods,
+            userIdHistory = userIdHistory
+        )
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
             PermissionSnackBarComposable(snackbarHostState, context, warningViewModel)
@@ -282,7 +319,9 @@ private fun NavigationGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userIdHistory: MutableList<String>
+    //userId: MutableState<String>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
@@ -305,7 +344,8 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Post.name) {
             PostScreen(
-                postId
+                postId,
+                settingsViewModel
             )
         }
         composable(route = AppScreen.Map.name) {
@@ -325,9 +365,11 @@ private fun NavigationGraph(
                 settingsViewModel,
                 mapOf(
                     "followers" to { navController.navigate(AppScreen.Followers.name) },
-                    "followed" to { navController.navigate(AppScreen.Followed.name) },
+                    "followed" to { navController.navigate(AppScreen.Followeds.name) },
                     "profileModification" to { navController.navigate(AppScreen.ProfileModification.name) }
-                )
+                ),
+                userIdHistory.last()
+                //userId.value
             )
         }
         composable(route = AppScreen.ProfileModification.name) {
@@ -340,10 +382,22 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Followers.name) {
-            FollowersScreen(settings[USER_ID_KEY].toString(), FOLLOWERS_TAB)
+            FollowersScreen(userIdHistory.last()/*userId.value*/, FOLLOWERS_TAB,
+                fun (uid: String) {
+                    userIdHistory.add(uid)
+                    //userId.value = uid
+                    navController.navigate(AppScreen.Profile.name)
+                }
+            )
         }
-        composable(route = AppScreen.Followed.name) {
-            FollowersScreen(settings[USER_ID_KEY].toString(), FOLLOWED_TAB)
+        composable(route = AppScreen.Followeds.name) {
+            FollowersScreen(userIdHistory.last()/*userId.value*/, FOLLOWED_TAB,
+                fun (uid: String) {
+                    userIdHistory.add(uid)
+                    //userId.value = uid
+                    navController.navigate(AppScreen.Profile.name)
+                }
+            )
         }
         composable(route = AppScreen.Login.name) {
             LoginScreen(
