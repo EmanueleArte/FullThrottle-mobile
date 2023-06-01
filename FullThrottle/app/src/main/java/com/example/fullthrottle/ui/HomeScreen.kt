@@ -1,6 +1,10 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -44,6 +48,7 @@ import com.example.fullthrottle.ui.HomeScreenData.userImagesUrisLoaded
 import com.example.fullthrottle.ui.HomeScreenData.usersLoaded
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 internal object HomeScreenData {
@@ -100,6 +105,8 @@ fun HomeScreen(
             }
             likes = tPosts.map { post -> checkLike(post.postId.toString(), settings[USER_ID_KEY].toString()) }
             posts = tPosts
+            //posts.intersect()
+            //posts.toMutableList().addAll(tPosts)
         }.invokeOnCompletion {
             load(posts, users, motorbikes, postImagesUris, userImagesUris, likes)
         }
@@ -108,125 +115,129 @@ fun HomeScreen(
     if (posts.isEmpty() || postImagesUris.isEmpty()) {
         LoadingAnimation()
     } else {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            item {
+        Column {
+            Row(modifier = Modifier.heightIn(0.dp, 50.dp)) {
                 if (!firstLoad) {
                     LoadingAnimation(2000)
                 }
             }
-            itemsIndexed(posts) { i, post ->
-                //val i = posts.indexOf(post)
-                Card(
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .fillMaxWidth()
-                        .clickable {
-                            goToPost(post.postId as String)
-                        },
-                    elevation = CardDefaults.cardElevation(10.dp)
-                ) {
-                    Column {
-                        Row {
-                            ProfileImage(
-                                imgUri = userImagesUris[i],
-                                contentDescription = "user image",
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .requiredHeight(40.dp)
-                                    .requiredWidth(40.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White)
-                                    .clickable { goToProfile(users[i].userId as String) },
-                            )
-                            Column {
-                                Text(
-                                    text = "${users[i].username}",
-                                    fontWeight = FontWeight.Bold
+
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {}
+                itemsIndexed(posts) { i, post ->
+                    //val i = posts.indexOf(post)
+                    Card(
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                goToPost(post.postId as String)
+                            },
+                        elevation = CardDefaults.cardElevation(10.dp)
+                    ) {
+                        Column {
+                            Row {
+                                ProfileImage(
+                                    imgUri = userImagesUris[i],
+                                    contentDescription = "user image",
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .requiredHeight(40.dp)
+                                        .requiredWidth(40.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White)
+                                        .clickable { goToProfile(users[i].userId as String) },
                                 )
-                                Text(text = "${post.publishDate}")
-                            }
-                            Spacer(Modifier.weight(1f))
-                            Icon(
-                                Icons.Filled.Place,
-                                contentDescription = "post location",
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .requiredHeight(40.dp)
-                            )
-                        }
-                        PostImage(
-                            imgUri = postImagesUris[i],
-                            contentDescription = "post image",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        )
-                        Row {
-                            Column {
-                                Text(
-                                    text = "${post.title}",
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "Piace a ${post.likesNumber} riders",
-                                    fontWeight = FontWeight.Thin
+                                Column {
+                                    Text(
+                                        text = "${users[i].username}",
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(text = "${post.publishDate}")
+                                }
+                                Spacer(Modifier.weight(1f))
+                                Icon(
+                                    Icons.Filled.Place,
+                                    contentDescription = "post location",
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .requiredHeight(40.dp)
                                 )
                             }
-                            Spacer(Modifier.weight(1f))
-                            Icon(
-                                imageVector = if (likes[i]) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
-                                contentDescription = "like button",
+                            PostImage(
+                                imgUri = postImagesUris[i],
+                                contentDescription = "post image",
                                 modifier = Modifier
-                                    .padding(10.dp)
-                                    .size(30.dp)
-                                    .clickable {
-                                        var like = false
-                                        coroutineScope
-                                            .launch {
-                                                like = toggleLike(
-                                                    post.postId.toString(),
-                                                    settings[USER_ID_KEY].toString()
-                                                )
-                                            }
-                                            .invokeOnCompletion {
-                                                posts = posts.map { tPost ->
-                                                    if (post.postId == tPost.postId) {
-                                                        if (like) {
-                                                            tPost.copy(
-                                                                likesNumber = (tPost.likesNumber
-                                                                    ?.toInt()
-                                                                    ?.plus(1)).toString()
-                                                            )
-                                                        } else {
-                                                            tPost.copy(
-                                                                likesNumber = (tPost.likesNumber
-                                                                    ?.toInt()
-                                                                    ?.minus(1)).toString()
-                                                            )
-                                                        }
-                                                    } else tPost
+                                    .fillMaxWidth()
+                            )
+                            Row {
+                                Column {
+                                    Text(
+                                        text = "${post.title}",
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Piace a ${post.likesNumber} riders",
+                                        fontWeight = FontWeight.Thin
+                                    )
+                                }
+                                Spacer(Modifier.weight(1f))
+                                Icon(
+                                    imageVector = if (likes[i]) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                                    contentDescription = "like button",
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .size(30.dp)
+                                        .clickable {
+                                            var like = false
+                                            coroutineScope
+                                                .launch {
+                                                    like = toggleLike(
+                                                        post.postId.toString(),
+                                                        settings[USER_ID_KEY].toString()
+                                                    )
                                                 }
-                                                likes = posts.map { post ->
-                                                    if (posts.indexOf(post) == i) {
-                                                        like
-                                                    } else {
-                                                        likes[posts.indexOf(post)]
+                                                .invokeOnCompletion {
+                                                    posts = posts.map { tPost ->
+                                                        if (post.postId == tPost.postId) {
+                                                            if (like) {
+                                                                tPost.copy(
+                                                                    likesNumber = (tPost.likesNumber
+                                                                        ?.toInt()
+                                                                        ?.plus(1)).toString()
+                                                                )
+                                                            } else {
+                                                                tPost.copy(
+                                                                    likesNumber = (tPost.likesNumber
+                                                                        ?.toInt()
+                                                                        ?.minus(1)).toString()
+                                                                )
+                                                            }
+                                                        } else tPost
+                                                    }
+                                                    likes = posts.map { post ->
+                                                        if (posts.indexOf(post) == i) {
+                                                            like
+                                                        } else {
+                                                            likes[posts.indexOf(post)]
+                                                        }
                                                     }
                                                 }
-                                            }
-                                    }
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Moto: ${motorbikes[posts.indexOf(post)].brand} ${
+                                    motorbikes[posts.indexOf(
+                                        post
+                                    )].model
+                                }"
                             )
+                            Text(text = "Lunghezza percorso: ${post.length}km")
+                            Text(text = "${post.description}")
                         }
-                        Text(
-                            text = "Moto: ${motorbikes[posts.indexOf(post)].brand} ${
-                                motorbikes[posts.indexOf(
-                                    post
-                                )].model
-                            }"
-                        )
-                        Text(text = "Lunghezza percorso: ${post.length}km")
-                        Text(text = "${post.description}")
                     }
                 }
             }

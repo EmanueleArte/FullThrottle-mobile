@@ -197,19 +197,15 @@ fun ItemTonalButton(
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ProfileImage(
     imgUri: Uri,
     contentDescription: String = "",
     modifier: Modifier = Modifier,
 ) {
-    val paint = if (imgUri != Uri.EMPTY)
-        rememberAsyncImagePainter(model = imgUri)
-    else
-        painterResource(id = R.drawable.standard)
-
-    Image(
-        painter = paint,
+    GlideImage(
+        model = imgUri,
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = ContentScale.Fit
@@ -223,12 +219,6 @@ fun PostImage(
     contentDescription: String = "",
     modifier: Modifier = Modifier,
 ) {
-    /*AsyncImage(
-        model = imgUri,
-        contentDescription = contentDescription,
-        modifier = modifier,
-        contentScale = ContentScale.Crop
-    )*/
     GlideImage(
         model = imgUri,
         contentDescription = contentDescription,
