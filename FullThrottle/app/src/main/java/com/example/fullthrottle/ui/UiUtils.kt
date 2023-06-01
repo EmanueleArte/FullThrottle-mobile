@@ -204,8 +204,13 @@ fun ProfileImage(
     contentDescription: String = "",
     modifier: Modifier = Modifier,
 ) {
+    var imgModel = if (imgUri == Uri.EMPTY)
+        Uri.parse("android.resource://com.example.fullthrottle/" + R.drawable.standard)
+    else
+        imgUri
+
     GlideImage(
-        model = imgUri,
+        model = imgModel,
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = ContentScale.Fit

@@ -171,6 +171,7 @@ fun HomeScreen(
                                 contentDescription = "post image",
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .requiredHeight(200.dp)
                             )
                             Row {
                                 Column {
