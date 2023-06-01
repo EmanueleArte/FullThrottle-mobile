@@ -289,8 +289,9 @@ fun NavigationApp(
             }
         }
     ) { innerPadding ->
-        NavigationGraph(settingsViewModel, warningViewModel, startDestination, navController, innerPadding, methods,
-            userIdHistory = userIdHistory
+        NavigationGraph(settingsViewModel, warningViewModel, navController, innerPadding, methods,
+            userIdHistory = userIdHistory,
+            startDestination = startDestination
         )
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
@@ -334,12 +335,12 @@ fun NavigationApp(
 private fun NavigationGraph(
     settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel,
-    startDestination: String = AppScreen.Login.name,
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
     userIdHistory: MutableList<String>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    startDestination: String = AppScreen.Login.name
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
