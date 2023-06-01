@@ -253,7 +253,7 @@ fun NavigationApp(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var userIdHistory = remember {
+    val userIdHistory = remember {
         mutableListOf<String>()
     }
 
@@ -338,8 +338,8 @@ private fun NavigationGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
-    modifier: Modifier = Modifier,
-    userIdHistory: MutableList<String>
+    userIdHistory: MutableList<String>,
+    modifier: Modifier = Modifier
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
