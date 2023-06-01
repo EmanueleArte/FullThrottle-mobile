@@ -262,7 +262,7 @@ fun NavigationApp(
         topBar = {
             TopAppBarFunction(
                 currentScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null || currentScreen != AppScreen.Home.name,
+                canNavigateBack = currentScreen != AppScreen.Home.name,
                 navigateUp = {
                     if (navController.previousBackStackEntry != null) {
                         navController.navigateUp()
