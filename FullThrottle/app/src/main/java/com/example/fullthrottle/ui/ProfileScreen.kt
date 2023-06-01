@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -29,9 +30,23 @@ import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.ui.ProfileScreenData.load
+import com.example.fullthrottle.ui.ProfileScreenData.postsLoaded
+import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+
+internal object ProfileScreenData {
+    var postsLoaded by mutableStateOf(emptyList<Post>())
+    var postImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
+
+    fun load(posts: List<Post>, postImagesUris: List<Uri>) {
+        postsLoaded = posts
+        postImagesUrisLoaded = postImagesUris
+    }
+
+}
 
 @Composable
 fun ProfileScreen(
@@ -41,16 +56,13 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
-    val followModifier = Modifier
-        .requiredWidth(100.dp)
-        .requiredHeight(100.dp)
-    val centerArrangement = Arrangement.Center
 
     var user by remember { mutableStateOf(User()) }
-    var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
-    var postImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var posts by rememberSaveable { mutableStateOf(postsLoaded) }
+    var postImagesUris by rememberSaveable { mutableStateOf(ProfileScreenData.postImagesUrisLoaded) }
     var imageUri by rememberSaveable { mutableStateOf<Uri>(Uri.EMPTY) }
     var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
+
     LaunchedEffect(key1 = "imageUri") {
         async {
             user = getUserById(userId) ?: User()
@@ -68,9 +80,20 @@ fun ProfileScreen(
         }.invokeOnCompletion {
             launch {
                 postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
+                load(posts, postImagesUris)
             }
         }
     }
+
+    val centerArrangement = Arrangement.Center
+    val leftArrangement = Arrangement.Start
+    val baseModifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 40.dp)
+    val followModifier = Modifier
+        .requiredWidth(100.dp)
+        .requiredHeight(100.dp)
+
 
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -108,21 +131,17 @@ fun ProfileScreen(
             }
         }
 
-        val leftArrangement = Arrangement.Start
-        val baseModifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 40.dp)
-        Column {
+        Column(
+            modifier = baseModifier
+        ) {
             Row(
                 horizontalArrangement = leftArrangement,
-                modifier = baseModifier
             ) {
                 Text(text = user.username.toString(), fontWeight = FontWeight.SemiBold)
             }
             if (userId == settings[USER_ID_KEY]) {
                 Row(
                     horizontalArrangement = leftArrangement,
-                    modifier = baseModifier
                 ) {
                     Text(text = "Mail: ", fontWeight = FontWeight.SemiBold)
                     Text(text = user.mail.toString())
@@ -130,14 +149,12 @@ fun ProfileScreen(
             }
             Row(
                 horizontalArrangement = leftArrangement,
-                modifier = baseModifier
             ) {
                 Text(text = stringResource(id = R.string.my_motorbikes), fontWeight = FontWeight.SemiBold)
             }
             motorbikes.forEach {
                 Row(
                     horizontalArrangement = leftArrangement,
-                    modifier = baseModifier
                 ) {
                     Text(text = it.brand + " " + it.model + " " + it.productionYear)
                 }
@@ -148,7 +165,6 @@ fun ProfileScreen(
             if (userId == settings[USER_ID_KEY]) {
                 Row(
                     horizontalArrangement = leftArrangement,
-                    modifier = baseModifier
                 ) {
                     OutlineTextButton(value = stringResource(id = R.string.modify_profile)) {
                         navigateTo["profileModification"]?.invoke()
@@ -157,10 +173,11 @@ fun ProfileScreen(
             }
         }
         
-        Column {
+        Column(
+            modifier = baseModifier
+        ) {
             Row(
                 horizontalArrangement = leftArrangement,
-                modifier = baseModifier
             ) {
                 Text(text = stringResource(id = R.string.my_posts), fontWeight = FontWeight.Bold)
             }
@@ -168,12 +185,12 @@ fun ProfileScreen(
                 LoadingAnimation()
             } else {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    contentPadding = PaddingValues(top = 10.dp, bottom = 20.dp)
                 ) {
                     items(posts) { post ->
                         Card(
                             modifier = Modifier
-                                .padding(10.dp)
                                 .fillMaxWidth()
                                 .clickable {
                                     /* TODO: Navigate to post */
@@ -181,15 +198,28 @@ fun ProfileScreen(
                                 },
                             elevation = CardDefaults.cardElevation(10.dp)
                         ) {
-                            Row {
-                                PostImage(
-                                    imgUri = postImagesUris[posts.indexOf(post)],
-                                    contentDescription = "post image",
-                                    modifier = Modifier
-                                        .width(200.dp)
-                                )
+                            Row(
+                                modifier = Modifier.padding(2.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(2.dp)
+                                ) {
+                                    PostImage(
+                                        imgUri = postImagesUris[posts.indexOf(post)],
+                                        contentDescription = "post image",
+                                        modifier = Modifier
+                                            .requiredWidth(98.dp)
+                                            .requiredHeight(56.dp)
+                                            .clip(RoundedCornerShape(CORNER_RADIUS))
+                                    )
+                                }
 
-                                Text(text = post.title.orEmpty())
+                                Column(
+                                    modifier = Modifier.padding(start = 5.dp)
+                                ) {
+                                    Text(text = post.publishDate.orEmpty())
+                                    Text(text = post.title.orEmpty())
+                                }
                             }
                         }
                     }

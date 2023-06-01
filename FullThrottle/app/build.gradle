@@ -99,6 +99,6 @@ dependencies {
     implementation group: 'at.favre.lib', name: 'bcrypt', version: '0.10.2'
 
     // Glide
-    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
+    implementation 'com.github.bumptech.glide:compose:1.0.0-alpha.1'
 
 }

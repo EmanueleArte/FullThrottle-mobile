@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -147,7 +148,10 @@ fun BottomAppBarFunction(
                     navController.navigate(AppScreen.Map.name)
                 },
                 label = { Text(stringResource(id = R.string.nav_map)) },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(LocalAbsoluteTonalElevation.current)
+                )
             )
             // Search
             NavigationBarItem(
@@ -163,7 +167,10 @@ fun BottomAppBarFunction(
                     navController.navigate(AppScreen.Search.name)
                 },
                 label = { Text(stringResource(id = R.string.nav_search)) },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(LocalAbsoluteTonalElevation.current)
+                )
             )
             // Home
             NavigationBarItem(
@@ -179,7 +186,10 @@ fun BottomAppBarFunction(
                     navController.navigate(AppScreen.Home.name)
                 },
                 label = { Text(stringResource(id = R.string.nav_home)) },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(LocalAbsoluteTonalElevation.current)
+                )
             )
             // New post
             NavigationBarItem(
@@ -195,7 +205,10 @@ fun BottomAppBarFunction(
                     navController.navigate(AppScreen.NewPost.name)
                 },
                 label = { Text(stringResource(id = R.string.nav_new_post)) },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(LocalAbsoluteTonalElevation.current)
+                )
             )
             // Profile
             NavigationBarItem(
@@ -215,7 +228,10 @@ fun BottomAppBarFunction(
                     goToMyProfile()
                 },
                 label = { Text(stringResource(id = R.string.nav_profile)) },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(LocalAbsoluteTonalElevation.current)
+                )
             )
         }
     }
