@@ -382,6 +382,14 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Search.name) {
             SearchScreen(
+                fun (id : String) {
+                    postId = id
+                    navController.navigate(AppScreen.Post.name)
+                },
+                fun (id : String) {
+                    userIdHistory.add(id)
+                    navController.navigate(AppScreen.Profile.name)
+                }
             )
         }
         composable(route = AppScreen.Profile.name) {

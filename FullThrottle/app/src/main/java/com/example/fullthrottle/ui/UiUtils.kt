@@ -9,7 +9,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,7 +28,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,7 +36,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -115,6 +112,29 @@ fun OutLineTextFieldWithIcon(
         leadingIcon = { Icon (icon, iconDescription) },
         onValueChange = {
             text = it
+        },
+        modifier = modifier
+    )
+    return text
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchTextField(
+    label: String,
+    onValueChange : (String) -> Unit,
+    value: String = "",
+    modifier: Modifier = Modifier
+): String {
+    var text by rememberSaveable { mutableStateOf(value) }
+    TextField(
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        value = text,
+        label = { Text(text = label) },
+        trailingIcon = { Icon (Icons.Outlined.Search, "search icon") },
+        onValueChange = {
+            text = it
+            onValueChange(it)
         },
         modifier = modifier
     )

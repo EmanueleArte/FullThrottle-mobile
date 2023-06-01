@@ -68,7 +68,6 @@ fun PostScreen(
                     }
                     motorbike = getMotorbikeById(res.motorbikeId as String) as Motorbike
                     imageUri = getImageUri(res.userId + "/" + res.postImg)
-                    println(imageUri)
                     post = res
                 }
             }
