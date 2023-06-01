@@ -4,16 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.net.Uri
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.Easing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.InfiniteTransition
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.StartOffset
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.annotation.IntRange
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -31,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,20 +38,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
-import com.example.fullthrottle.R
-import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
-import com.example.fullthrottle.viewModel.WarningViewModel
-import androidx.annotation.IntRange
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.fullthrottle.R
 import com.example.fullthrottle.ui.UiConstants.ANIMATION_DURATION_LONG
+import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
+import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.delay
 
 object UiConstants {
@@ -100,6 +90,29 @@ fun OutLineTextField(
         shape = RoundedCornerShape(CORNER_RADIUS),
         value = text,
         label = { Text(text = label) },
+        onValueChange = {
+            text = it
+        },
+        modifier = modifier
+    )
+    return text
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OutLineTextFieldWithIcon(
+    label: String,
+    value: String = "",
+    icon: ImageVector,
+    iconDescription: String,
+    modifier: Modifier = Modifier
+): String {
+    var text by rememberSaveable { mutableStateOf(value) }
+    OutlinedTextField(
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        value = text,
+        label = { Text(text = label) },
+        leadingIcon = { Icon (icon, iconDescription) },
         onValueChange = {
             text = it
         },
@@ -156,6 +169,19 @@ fun SimpleTextButton(value: String, onClick: () -> Unit) {
         shape = RoundedCornerShape(CORNER_RADIUS)
     ) {
         Text(value)
+    }
+}
+
+@Composable
+fun TextButtonWithIcon(text: String, icon: ImageVector, iconDescription: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        modifier = modifier
+    ) {
+        Icon(icon, iconDescription)
+        Spacer(Modifier.width(10.dp))
+        Text(text, Modifier)
     }
 }
 
@@ -271,7 +297,6 @@ fun SimpleTitle(text: String) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .padding(vertical = 20.dp)
-            .fillMaxWidth()
     ) {
         Text(
             text = text,
