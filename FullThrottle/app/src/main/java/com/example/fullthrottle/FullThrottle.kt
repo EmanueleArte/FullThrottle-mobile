@@ -16,7 +16,6 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -263,10 +262,17 @@ fun NavigationApp(
         topBar = {
             TopAppBarFunction(
                 currentScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
+                canNavigateBack = navController.previousBackStackEntry != null || currentScreen != AppScreen.Home.name,
                 navigateUp = {
-                    navController.navigateUp()
-                    manageNavigateBack(userIdHistory = userIdHistory, currentScreen = currentScreen)
+                    if (navController.previousBackStackEntry != null) {
+                        navController.navigateUp()
+                    } else {
+                        navController.navigate(AppScreen.Home.name)
+                    }
+                    manageNavigateBack(
+                        userIdHistory = userIdHistory,
+                        currentScreen = currentScreen
+                    )
                 },
                 onSettingsButtonClicked = { navController.navigate(AppScreen.Settings.name) }
             )
@@ -385,7 +391,7 @@ private fun NavigationGraph(
                     "followed" to { navController.navigate(AppScreen.Followeds.name) },
                     "profileModification" to { navController.navigate(AppScreen.ProfileModification.name) }
                 ),
-                userIdHistory.last()
+                if (userIdHistory.size > 0) userIdHistory.last() else settings[USER_ID_KEY].toString()
                 //userId.value
             )
         }
