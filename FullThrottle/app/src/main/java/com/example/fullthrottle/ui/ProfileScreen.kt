@@ -105,8 +105,8 @@ fun ProfileScreen(
                     .clickable { navigateTo["followers"]?.invoke() },
                 verticalArrangement = centerArrangement
             ) {
-                BoldCenterText(text = user.followers.toString())
-                SimpleCenterText(text = stringResource(id = R.string.followers_label))
+                BoldCenterText(text = user.followers.toString(), Modifier.requiredWidth(100.dp))
+                SimpleCenterText(text = stringResource(id = R.string.followers_label), Modifier.requiredWidth(100.dp))
             }
 
             ProfileImage(
@@ -122,8 +122,8 @@ fun ProfileScreen(
                         .clickable { navigateTo["followed"]?.invoke() },
                 verticalArrangement = centerArrangement
             ) {
-                BoldCenterText(text = user.followed.toString())
-                SimpleCenterText(text = stringResource(id = R.string.followeds_label))
+                BoldCenterText(text = user.followed.toString(), Modifier.requiredWidth(100.dp))
+                SimpleCenterText(text = stringResource(id = R.string.followeds_label), Modifier.requiredWidth(100.dp))
             }
         }
 

@@ -46,9 +46,9 @@ import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.delay
 
 object UiConstants {
+    const val ANIMATION_DURATION = 100
+    const val ANIMATION_DURATION_LONG = 300
     val CORNER_RADIUS = 10.dp
-    val ANIMATION_DURATION = 100
-    val ANIMATION_DURATION_LONG = 300
     val MAIN_H_PADDING = 15.dp
 }
 
@@ -78,7 +78,7 @@ fun Context.findActivity(): Activity? = when (this) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutLineTextField(
+fun outLineTextField(
     label: String,
     value: String = "",
     modifier: Modifier = Modifier
@@ -98,7 +98,7 @@ fun OutLineTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutLineTextFieldWithIcon(
+fun outLineTextFieldWithIcon(
     label: String,
     value: String = "",
     icon: ImageVector,
@@ -121,7 +121,7 @@ fun OutLineTextFieldWithIcon(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchTextField(
+fun searchTextField(
     label: String,
     onValueChange : (String) -> Unit,
     value: String = "",
@@ -144,7 +144,7 @@ fun SearchTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutLinePasswordField(
+fun outLinePasswordField(
     label: String,
     modifier: Modifier = Modifier
 ): String {
@@ -248,10 +248,10 @@ fun ItemTonalButton(
 @Composable
 fun ProfileImage(
     imgUri: Uri,
-    contentDescription: String = "",
     modifier: Modifier = Modifier,
+    contentDescription: String = ""
 ) {
-    var imgModel = if (imgUri == Uri.EMPTY)
+    val imgModel = if (imgUri == Uri.EMPTY)
         Uri.parse("android.resource://com.example.fullthrottle/" + R.drawable.standard)
     else
         imgUri
@@ -268,10 +268,10 @@ fun ProfileImage(
 @Composable
 fun PostImage(
     imgUri: Uri,
-    contentDescription: String = "",
     modifier: Modifier = Modifier,
+    contentDescription: String = ""
+
 ) {
-    println("imgUri --$imgUri++")
     GlideImage(
         model = imgUri,
         contentDescription = contentDescription,
@@ -285,7 +285,7 @@ fun PostImage(
 @Composable
 fun SimpleCenterText(
     text: String,
-    modifier: Modifier = Modifier.requiredWidth(100.dp)
+    modifier: Modifier = Modifier
 ) {
     Text(
         modifier = modifier,
@@ -297,7 +297,7 @@ fun SimpleCenterText(
 @Composable
 fun BoldCenterText(
     text: String,
-    modifier: Modifier = Modifier.requiredWidth(100.dp)
+    modifier: Modifier = Modifier
 ) {
     Text(
         modifier = modifier,
@@ -423,8 +423,6 @@ internal fun InfiniteTransition.fractionTransition(
         )
     )
 }
-
-val EaseInOut = CubicBezierEasing(0.42f, 0f, 0.58f, 1f)
 
 @Composable
 fun ThreeBounce(

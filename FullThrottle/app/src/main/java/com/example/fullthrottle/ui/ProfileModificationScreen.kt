@@ -2,9 +2,6 @@ package com.example.fullthrottle.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarData
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -67,7 +64,7 @@ fun ProfileModificationScreen(
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // Username change
-                val username = OutLineTextField(
+                val username = outLineTextField(
                     label = "Username",
                     value = currentUsername,
                     modifier = Modifier.fillMaxWidth()
@@ -121,7 +118,7 @@ fun ProfileModificationScreen(
                 Spacer(modifier = Modifier.size(15.dp))
 
                 // Mail change
-                val mail = OutLineTextField(
+                val mail = outLineTextField(
                     label = "Mail",
                     value = currentMail,
                     modifier = Modifier.fillMaxWidth()
@@ -175,21 +172,21 @@ fun ProfileModificationScreen(
                 Spacer(modifier = Modifier.size(15.dp))
 
                 // Password change
-                val oldPassword = OutLinePasswordField(
+                val oldPassword = outLinePasswordField(
                     label = stringResource(id = R.string.old_password),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.size(10.dp))
 
-                val password = OutLinePasswordField(
+                val password = outLinePasswordField(
                     label = stringResource(id = R.string.new_password),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.size(10.dp))
 
-                val passwordRep = OutLinePasswordField(
+                val passwordRep = outLinePasswordField(
                     label = stringResource(id = R.string.password_repetition),
                     modifier = Modifier.fillMaxWidth()
                 )

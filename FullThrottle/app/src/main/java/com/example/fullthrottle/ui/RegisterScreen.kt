@@ -3,8 +3,6 @@ package com.example.fullthrottle.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -50,19 +48,19 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.size(40.dp))
 
-        val username = OutLineTextField(label = "Username")
+        val username = outLineTextField(label = "Username")
 
         Spacer(modifier = Modifier.size(10.dp))
 
-        val mail = OutLineTextField(label = "Mail")
+        val mail = outLineTextField(label = "Mail")
 
         Spacer(modifier = Modifier.size(10.dp))
 
-        val password = OutLinePasswordField(label = "Password")
+        val password = outLinePasswordField(label = "Password")
 
         Spacer(modifier = Modifier.size(10.dp))
 
-        val passwordRep = OutLinePasswordField(label = stringResource(id = R.string.password_repetition))
+        val passwordRep = outLinePasswordField(label = stringResource(id = R.string.password_repetition))
 
         Spacer(modifier = Modifier.size(10.dp))
 

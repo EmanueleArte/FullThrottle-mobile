@@ -41,10 +41,10 @@ fun NewPostScreen() {
             onClick = { /*TODO*/ },
             Modifier.fillMaxWidth()
         )
-        OutLineTextField(label = "Titolo", modifier = Modifier.fillMaxWidth())
-        OutLineTextField(label = "Descrizione", modifier = Modifier.fillMaxWidth())
-        OutLineTextField(label = "Moto", modifier = Modifier.fillMaxWidth())
-        OutLineTextField(label = "Lunghezza percorso (in km)", modifier = Modifier.fillMaxWidth())
-        OutLineTextFieldWithIcon(label = "Luogo", icon = Icons.Outlined.LocationSearching, iconDescription = "location icon", modifier = Modifier.fillMaxWidth())
+        outLineTextField(label = "Titolo", modifier = Modifier.fillMaxWidth())
+        outLineTextField(label = "Descrizione", modifier = Modifier.fillMaxWidth())
+        outLineTextField(label = "Moto", modifier = Modifier.fillMaxWidth())
+        outLineTextField(label = "Lunghezza percorso (in km)", modifier = Modifier.fillMaxWidth())
+        outLineTextFieldWithIcon(label = "Luogo", icon = Icons.Outlined.LocationSearching, iconDescription = "location icon", modifier = Modifier.fillMaxWidth())
     }
 }
