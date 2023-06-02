@@ -24,6 +24,7 @@ import com.example.fullthrottle.data.PushNotificationConstants.POSTS_NOTIFICATIO
 import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.LIGHT_THEME
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
+import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -39,7 +40,6 @@ fun SettingsScreen(
     //startLocationUpdates: () -> Unit
     methods: Map<String, () -> Unit>
 ) {
-    val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
     val themesText = mapOf(
@@ -56,7 +56,7 @@ fun SettingsScreen(
 
     Column(
         modifier = Modifier
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = MAIN_H_PADDING)
             .fillMaxWidth()
     ) {
         SimpleTitle(text = stringResource(id = R.string.settings_title))

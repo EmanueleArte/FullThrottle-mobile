@@ -49,6 +49,7 @@ object UiConstants {
     val CORNER_RADIUS = 10.dp
     val ANIMATION_DURATION = 100
     val ANIMATION_DURATION_LONG = 300
+    val MAIN_H_PADDING = 15.dp
 }
 
 object Logo {
@@ -270,6 +271,7 @@ fun PostImage(
     contentDescription: String = "",
     modifier: Modifier = Modifier,
 ) {
+    println("imgUri --$imgUri++")
     GlideImage(
         model = imgUri,
         contentDescription = contentDescription,

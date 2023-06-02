@@ -347,6 +347,14 @@ private fun NavigationGraph(
     var postId by remember {
         mutableStateOf(String())
     }
+    val goToPost = fun(id : String) {
+        postId = id
+        navController.navigate(AppScreen.Post.name)
+    }
+    val goToProfile = fun(id : String) {
+        userIdHistory.add(id)
+        navController.navigate(AppScreen.Profile.name)
+    }
 
     NavHost(
         navController = navController,
@@ -355,14 +363,8 @@ private fun NavigationGraph(
     ) {
         composable(route = AppScreen.Home.name) {
             HomeScreen(
-                fun (id : String) {
-                    postId = id
-                    navController.navigate(AppScreen.Post.name)
-                },
-                fun (id : String) {
-                    userIdHistory.add(id)
-                    navController.navigate(AppScreen.Profile.name)
-                },
+                goToPost,
+                goToProfile,
                 settingsViewModel
             )
         }
@@ -382,14 +384,8 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Search.name) {
             SearchScreen(
-                fun (id : String) {
-                    postId = id
-                    navController.navigate(AppScreen.Post.name)
-                },
-                fun (id : String) {
-                    userIdHistory.add(id)
-                    navController.navigate(AppScreen.Profile.name)
-                }
+                goToPost,
+                goToProfile
             )
         }
         composable(route = AppScreen.Profile.name) {
@@ -400,8 +396,8 @@ private fun NavigationGraph(
                     "followed" to { navController.navigate(AppScreen.Followeds.name) },
                     "profileModification" to { navController.navigate(AppScreen.ProfileModification.name) }
                 ),
-                if (userIdHistory.size > 0) userIdHistory.last() else settings[USER_ID_KEY].toString()
-                //userId.value
+                if (userIdHistory.size > 0) userIdHistory.last() else settings[USER_ID_KEY].toString(),
+                goToPost
             )
         }
         composable(route = AppScreen.ProfileModification.name) {
@@ -415,20 +411,12 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Followers.name) {
             FollowersScreen(userIdHistory.last()/*userId.value*/, FOLLOWERS_TAB,
-                fun (uid: String) {
-                    userIdHistory.add(uid)
-                    //userId.value = uid
-                    navController.navigate(AppScreen.Profile.name)
-                }
+                goToProfile
             )
         }
         composable(route = AppScreen.Followeds.name) {
             FollowersScreen(userIdHistory.last()/*userId.value*/, FOLLOWED_TAB,
-                fun (uid: String) {
-                    userIdHistory.add(uid)
-                    //userId.value = uid
-                    navController.navigate(AppScreen.Profile.name)
-                }
+                goToProfile
             )
         }
         composable(route = AppScreen.Login.name) {
@@ -448,18 +436,6 @@ private fun NavigationGraph(
                 )
             )
         }
-        /*composable(route = AppScreen.Add.name) {
-            AddScreen(
-                onNextButtonClicked = {
-                    navController.popBackStack(AppScreen.Home.name, inclusive = false)
-                },
-                placesViewModel = placesViewModel,
-                startLocationUpdates
-            )
-        }
-        composable(route = AppScreen.Details.name) {
-            DetailsScreen(placesViewModel = placesViewModel)
-        }*/
         composable(route = AppScreen.Settings.name) {
             SettingsScreen(settingsViewModel, methods)
         }

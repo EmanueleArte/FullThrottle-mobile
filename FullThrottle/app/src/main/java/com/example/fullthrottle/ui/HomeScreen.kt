@@ -1,17 +1,13 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.Favorite
@@ -19,15 +15,18 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.checkLike
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
@@ -46,9 +45,10 @@ import com.example.fullthrottle.ui.HomeScreenData.postImagesUrisLoaded
 import com.example.fullthrottle.ui.HomeScreenData.postsLoaded
 import com.example.fullthrottle.ui.HomeScreenData.userImagesUrisLoaded
 import com.example.fullthrottle.ui.HomeScreenData.usersLoaded
+import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
+import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 internal object HomeScreenData {
@@ -77,7 +77,6 @@ fun HomeScreen(
     goToProfile: (String) -> Unit,
     settingsViewModel: SettingsViewModel
 ) {
-    val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
 
@@ -112,10 +111,16 @@ fun HomeScreen(
         }
     }
 
+    val baseModifier = Modifier.padding(horizontal = 5.dp)
+
     if (posts.isEmpty() || postImagesUris.isEmpty()) {
         LoadingAnimation()
     } else {
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MAIN_H_PADDING)
+        ) {
             Row(modifier = Modifier.heightIn(0.dp, 50.dp)) {
                 if (!firstLoad) {
                     LoadingAnimation(2000)
@@ -130,20 +135,22 @@ fun HomeScreen(
                     //val i = posts.indexOf(post)
                     Card(
                         modifier = Modifier
-                            .padding(10.dp)
+                            .padding(top = 5.dp, bottom = 10.dp)
                             .fillMaxWidth()
                             .clickable {
                                 goToPost(post.postId as String)
                             },
-                        elevation = CardDefaults.cardElevation(10.dp)
+                        elevation = CardDefaults.cardElevation(8.dp)
                     ) {
                         Column {
-                            Row {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 ProfileImage(
                                     imgUri = userImagesUris[i],
                                     contentDescription = "user image",
-                                    modifier = Modifier
-                                        .padding(5.dp)
+                                    modifier = baseModifier
+                                        .padding(vertical = 5.dp)
                                         .requiredHeight(40.dp)
                                         .requiredWidth(40.dp)
                                         .clip(CircleShape)
@@ -153,7 +160,7 @@ fun HomeScreen(
                                 Column {
                                     Text(
                                         text = "${users[i].username}",
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                     Text(text = "${post.publishDate}")
                                 }
@@ -166,6 +173,7 @@ fun HomeScreen(
                                         .requiredHeight(40.dp)
                                 )
                             }
+                            Spacer(modifier = Modifier.size(5.dp))
                             PostImage(
                                 imgUri = postImagesUris[i],
                                 contentDescription = "post image",
@@ -173,15 +181,20 @@ fun HomeScreen(
                                     .fillMaxWidth()
                                     .requiredHeight(200.dp)
                             )
-                            Row {
-                                Column {
+                            Spacer(modifier = Modifier.size(5.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(
+                                    modifier = baseModifier
+                                ) {
                                     Text(
                                         text = "${post.title}",
-                                        fontWeight = FontWeight.Bold
+                                        style = MaterialTheme.typography.titleSmall
                                     )
                                     Text(
-                                        text = "Piace a ${post.likesNumber} riders",
-                                        fontWeight = FontWeight.Thin
+                                        text = stringResource(id = R.string.likes_to) + " ${post.likesNumber} riders",
+                                        style = MaterialTheme.typography.labelSmall
                                     )
                                 }
                                 Spacer(Modifier.weight(1f))
@@ -190,6 +203,7 @@ fun HomeScreen(
                                     contentDescription = "like button",
                                     modifier = Modifier
                                         .padding(10.dp)
+                                        .clip(RoundedCornerShape(CORNER_RADIUS))
                                         .size(30.dp)
                                         .clickable {
                                             var like = false
@@ -230,15 +244,17 @@ fun HomeScreen(
                                 )
                             }
                             Text(
-                                text = "Moto: ${motorbikes[posts.indexOf(post)].brand} ${
+                                text = stringResource(id = R.string.motorbike) + ": ${motorbikes[posts.indexOf(post)].brand} ${
                                     motorbikes[posts.indexOf(
                                         post
                                     )].model
-                                }"
+                                }",
+                                modifier = baseModifier
                             )
-                            Text(text = "Lunghezza percorso: ${post.length}km")
-                            Text(text = "${post.description}")
+                            Text(text = stringResource(id = R.string.path_length) + ": ${post.length}km", modifier = baseModifier)
+                            Text(text = "${post.description}", modifier = baseModifier)
                         }
+                        Spacer(modifier = Modifier.size(5.dp))
                     }
                 }
             }

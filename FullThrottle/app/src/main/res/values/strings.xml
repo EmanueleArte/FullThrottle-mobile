@@ -55,4 +55,9 @@
     <string name="modify_username_success">Username modificato con successo</string>
     <string name="modify_mail_success">Mail modificata con successo</string>
     <string name="modify_password_success">Password modificata con successo</string>
+
+    <string name="motorbike">Moto</string>
+    <string name="path_length">Lunghezza percorso</string>
+    <string name="comments">Commenti</string>
+    <string name="likes_to">Piace a</string>
 </resources>
