@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.data.DBHelper
@@ -34,7 +33,6 @@ import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.viewModel.SettingsViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 @Composable
@@ -42,7 +40,6 @@ fun PostScreen(
     postId : String,
     settingsViewModel: SettingsViewModel
 ) {
-    val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
 
@@ -59,33 +56,27 @@ fun PostScreen(
     LaunchedEffect(
         key1 = "posts",
         block = {
-            async {
-                val res = getPostById(postId)
-                if (res != null) {
-                    user = getUserById(res.userId as String) as User
-                    if (user.userImg.toString().isNotEmpty()) {
-                        userImageURI = getImageUri(res.userId + "/" + user.userImg)
-                    }
-                    motorbike = getMotorbikeById(res.motorbikeId as String) as Motorbike
-                    imageUri = getImageUri(res.userId + "/" + res.postImg)
-                    post = res
+            val res = getPostById(postId)
+            if (res != null) {
+                user = getUserById(res.userId as String) as User
+                if (user.userImg.toString().isNotEmpty()) {
+                    userImageURI = getImageUri(res.userId + "/" + user.userImg)
+                }
+                motorbike = getMotorbikeById(res.motorbikeId as String) as Motorbike
+                imageUri = getImageUri(res.userId + "/" + res.postImg)
+                post = res
+            }
+            val tComments = getCommentsByPostId(postId)
+            commentsUsers = tComments.map { comment -> getUserById(comment.userId as String) as User }
+            commentsUsersImagesURIS = commentsUsers.map { user ->
+                if (user.userImg.toString().isNotEmpty()) {
+                    getImageUri(user.userId + "/" + user.userImg)
+                } else {
+                    Uri.EMPTY
                 }
             }
-            async {
-                val tComments = getCommentsByPostId(postId)
-                commentsUsers = tComments.map { comment -> getUserById(comment.userId as String) as User }
-                commentsUsersImagesURIS = commentsUsers.map { user ->
-                    if (user.userImg.toString().isNotEmpty()) {
-                        getImageUri(user.userId + "/" + user.userImg)
-                    } else {
-                        Uri.EMPTY
-                    }
-                }
-                comments = tComments
-            }
-            async {
-                like = checkLike(postId, settings[USER_ID_KEY].toString())
-            }
+            comments = tComments
+            like = checkLike(postId, settings[USER_ID_KEY].toString())
         }
     )
 

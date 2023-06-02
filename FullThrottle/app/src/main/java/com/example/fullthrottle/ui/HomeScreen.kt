@@ -1,15 +1,10 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -25,7 +20,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.data.DBHelper.checkLike
@@ -48,7 +42,6 @@ import com.example.fullthrottle.ui.HomeScreenData.userImagesUrisLoaded
 import com.example.fullthrottle.ui.HomeScreenData.usersLoaded
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 internal object HomeScreenData {
@@ -77,7 +70,6 @@ fun HomeScreen(
     goToProfile: (String) -> Unit,
     settingsViewModel: SettingsViewModel
 ) {
-    val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
 
