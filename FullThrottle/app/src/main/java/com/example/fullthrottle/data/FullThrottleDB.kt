@@ -83,6 +83,26 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun searchUsers(text: String): List<User> = callbackFlow {
+        database
+            .getReference("users")
+            .get()
+            .addOnSuccessListener { users ->
+                if (users.exists()) {
+                    val res = users.children
+                        .map { user -> user.getValue<User>() as User }
+                        .filter { user -> user.username.toString().contains(text, true) }
+                    trySend(res)
+                } else {
+                    trySend(emptyList<User>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun getFollowers(uid: String): List<User> = callbackFlow {
         database
             .getReference("follows")
@@ -251,6 +271,25 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun getPostsByUserId(uid: String): List<Post> = callbackFlow {
+        database
+            .getReference("posts")
+            .orderByChild("userId")
+            .equalTo(uid)
+            .get()
+            .addOnSuccessListener { posts ->
+                if (posts.exists()) {
+                    trySend(posts.children.map { post -> post.getValue<Post>() as Post })
+                } else {
+                    trySend(emptyList<Post>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun getRecentPosts(): List<Post> = callbackFlow {
         database
             .getReference("posts")
@@ -270,15 +309,16 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun getPostsByUserId(uid: String): List<Post> = callbackFlow {
+    suspend fun searchPosts(text: String): List<Post> = callbackFlow {
         database
             .getReference("posts")
-            .orderByChild("userId")
-            .equalTo(uid)
             .get()
             .addOnSuccessListener { posts ->
                 if (posts.exists()) {
-                    trySend(posts.children.map { post -> post.getValue<Post>() as Post })
+                    val res = posts.children
+                        .map { post -> post.getValue<Post>() as Post }
+                        .filter { post -> post.title.toString().contains(text, true) }
+                    trySend(res)
                 } else {
                     trySend(emptyList<Post>())
                 }

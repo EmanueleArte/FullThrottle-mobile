@@ -19,8 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.data.DBHelper.getImageUri
-import com.example.fullthrottle.data.DBHelper.getRecentPosts
-import com.example.fullthrottle.data.DBHelper.getUserById
+import com.example.fullthrottle.data.DBHelper.searchPosts
+import com.example.fullthrottle.data.DBHelper.searchUsers
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import kotlinx.coroutines.launch
@@ -49,14 +49,12 @@ fun SearchScreen(
             onValueChange = fun(text: String) {
                 if(text.length >= 3) {
                     coroutineScope.launch {
-                        val tPosts = getRecentPosts()
+                        val tPosts = searchPosts(text)
                         postImagesUris = tPosts.map { post ->
                             getImageUri(post.userId + "/" + post.postImg.toString())
                         }
                         postResults = tPosts
-                        val tUsers = postResults.map { post ->
-                            getUserById(post.userId.toString()) as User
-                        }
+                        val tUsers = searchUsers(text)
                         userImagesUris = tUsers.map { user ->
                             if (user.userImg.toString().isNotEmpty())
                                 getImageUri(user.userId + "/" + user.userImg)
@@ -117,7 +115,7 @@ fun SearchScreen(
                 }
             }
         }
-        if (postResults.isNotEmpty()) {
+        if (userResults.isNotEmpty()) {
             Text(
                 text = "Riders",
                 fontWeight = FontWeight.Bold,
