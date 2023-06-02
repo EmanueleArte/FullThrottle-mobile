@@ -148,11 +148,13 @@ fun ProfileScreen(
             ) {
                 Text(text = stringResource(id = R.string.my_motorbikes), fontWeight = FontWeight.SemiBold)
             }
-            motorbikes.forEach {
-                Row(
-                    horizontalArrangement = leftArrangement,
-                ) {
-                    Text(text = it.brand + " " + it.model + " " + it.productionYear)
+            motorbikes.forEach { motorbike ->
+                if (!motorbike.deleted!!) {
+                    Row(
+                        horizontalArrangement = leftArrangement,
+                    ) {
+                        Text(text = "${motorbike.brand} ${motorbike.model} ${motorbike.productionYear}")
+                    }
                 }
             }
             

@@ -43,18 +43,28 @@
     <string name="modify_profile">Modifica profilo</string>
 
     <string name="save">Salva modifica</string>
+    <string name="add_motorbike">Aggiungi moto</string>
     <string name="confirm_title">Conferma la modifica</string>
     <string name="confirm">Conferma</string>
     <string name="dismiss">Rifiuta</string>
+    <string name="add">Aggiungi</string>
+    <string name="cancel">Annulla</string>
     <string name="modify_username_text">Vuoi confermare il salvataggio del nuovo username?
         Tale username sarà necessario per effettuare il login.</string>
     <string name="modify_mail_text">Vuoi confermare il salvataggio della nuova mail?</string>
     <string name="modify_password_text">Vuoi confermare il salvataggio della nuova password?
         Tale password sarà necessaria per effettuare il login.</string>
+    <string name="delete_motorbike_text">Vuoi confermare l\'eliminazione della moto dal tuo account?
+        La suddetta moto sarà comunque ancora visibile nei post ad essa associati.</string>
 
     <string name="modify_username_success">Username modificato con successo</string>
     <string name="modify_mail_success">Mail modificata con successo</string>
     <string name="modify_password_success">Password modificata con successo</string>
+    <string name="motorbike_added">Nuova moto aggiunta</string>
+    <string name="motorbike_deleted">Moto cancellata</string>
+    <string name="brand">Marca</string>
+    <string name="model">Modello</string>
+    <string name="production_year">Anno di produzione</string>
 
     <string name="motorbike">Moto</string>
     <string name="path_length">Lunghezza percorso</string>

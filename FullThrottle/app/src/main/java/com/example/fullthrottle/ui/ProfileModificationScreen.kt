@@ -1,23 +1,40 @@
 package com.example.fullthrottle.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.Utils.isValidMail
 import com.example.fullthrottle.Utils.isValidPassword
 import com.example.fullthrottle.Utils.isValidUsername
+import com.example.fullthrottle.data.DBHelper
+import com.example.fullthrottle.data.DBHelper.addMotorbike
 import com.example.fullthrottle.data.DBHelper.checkPassword
+import com.example.fullthrottle.data.DBHelper.deleteMotorbikeById
+import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DBHelper.getUserByMail
 import com.example.fullthrottle.data.DBHelper.getUserByUsername
 import com.example.fullthrottle.data.DBHelper.updateMail
 import com.example.fullthrottle.data.DBHelper.updatePassword
 import com.example.fullthrottle.data.DBHelper.updateUsername
+import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.*
@@ -35,17 +52,29 @@ fun ProfileModificationScreen(
         warningViewModel.setSimpleSnackBarVisibility(true)
     }
 
+    var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
+
+    LaunchedEffect(key1 = "motorbikes") {
+        motorbikes = getMotorbikesByUserId(uid)
+    }
+
     val usernameSuccess = stringResource(id = R.string.modify_username_success)
     val mailSuccess = stringResource(id = R.string.modify_mail_success)
     val pwSuccess = stringResource(id = R.string.modify_password_success)
+    val motorbikeAdded = stringResource(id = R.string.motorbike_added)
+    val motorbikeDeleted = stringResource(id = R.string.motorbike_deleted)
 
     val saveUsernameModify = remember { mutableStateOf(false) }
     val saveMailModify = remember { mutableStateOf(false) }
     val savePwModify = remember { mutableStateOf(false) }
+    val saveMotorbikeAdd = remember { mutableStateOf(false) }
+    val saveMotorbikeDelete = remember { mutableStateOf(false) }
 
     val openDialogUsername = remember { mutableStateOf(false) }
     val openDialogMail = remember { mutableStateOf(false) }
     val openDialogPw = remember { mutableStateOf(false) }
+    val openDialogMotorbikeAdd = remember { mutableStateOf(false) }
+    val openDialogMotorbikeDelete = remember { mutableStateOf(false) }
 
     var usernameError by remember { mutableStateOf(-1) }
     var mailError by remember { mutableStateOf(-1) }
@@ -250,6 +279,96 @@ fun ProfileModificationScreen(
 
                 Spacer(modifier = Modifier.size(10.dp))
             }
+        }
+        item {
+            if (motorbikes.isNotEmpty()) {
+                SimpleTitle(text = stringResource(id = R.string.my_motorbikes))
+
+                motorbikes.forEach { motorbike ->
+                    if (!motorbike.deleted!!) {
+                        Spacer(modifier = Modifier.size(5.dp))
+
+                        Card {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                            ) {
+                                Text(
+                                    text = "${motorbike.brand} ${motorbike.model} ${motorbike.productionYear}",
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Icon(
+                                    Icons.Outlined.Delete,
+                                    contentDescription = "delete motorbike",
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(CORNER_RADIUS))
+                                        .clickable {
+                                            openDialogMotorbikeDelete.value = true
+                                        }
+                                )
+                                if (openDialogMotorbikeDelete.value) {
+                                    SimpleAlertDialog(
+                                        title = stringResource(id = R.string.confirm_title),
+                                        text = stringResource(id = R.string.delete_motorbike_text),
+                                        openDialog = openDialogMotorbikeDelete,
+                                        result = saveMotorbikeDelete,
+                                        onConfirm = {
+                                            coroutineScope.launch {
+                                                deleteMotorbikeById(motorbike.motorbikeId.orEmpty())
+                                                motorbikes = getMotorbikesByUserId(uid)
+                                            }
+                                            showSnackBar(motorbikeDeleted)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.size(5.dp))
+                    }
+                }
+            }
+        }
+
+        item {
+            SimpleButton(value = stringResource(id = R.string.add_motorbike)) {
+                openDialogMotorbikeAdd.value = true
+            }
+            if (openDialogMotorbikeAdd.value) {
+                val brand = remember { mutableStateOf(String()) }
+                val model = remember { mutableStateOf(String()) }
+                val productionYear = remember { mutableStateOf(String()) }
+                val fieldNames = listOf(
+                    stringResource(id = R.string.brand),
+                    stringResource(id = R.string.model),
+                    stringResource(id = R.string.production_year)
+                )
+                FieldsAlertDialog(
+                    title = stringResource(id = R.string.add_motorbike),
+                    text = "",
+                    fields = mapOf(
+                        fieldNames[0] to brand,
+                        fieldNames[1] to model,
+                        fieldNames[2] to productionYear
+                    ),
+                    openDialog = openDialogMotorbikeAdd,
+                    result = saveMotorbikeAdd,
+                    confirm = stringResource(id = R.string.add),
+                    dismiss = stringResource(id = R.string.cancel),
+                    onConfirm = {
+                        var isValid = brand.value.isNotEmpty() && model.value.isNotEmpty() && productionYear.value.isNotEmpty()
+                        if (isValid) {
+                            coroutineScope.launch {
+                                addMotorbike(uid, brand.value, model.value, productionYear.value)
+                                motorbikes = getMotorbikesByUserId(uid)
+                            }
+                            showSnackBar(motorbikeAdded)
+                        }
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.size(15.dp))
         }
     }
 }

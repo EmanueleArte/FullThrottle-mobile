@@ -330,11 +330,11 @@ object DBHelper {
     }.first()
 
     // MOTORBIKES
-    suspend fun getMotorbikeById(uid: String): Motorbike? = callbackFlow {
+    suspend fun getMotorbikeById(motorbikeId: String): Motorbike? = callbackFlow {
         database
             .getReference("motorbikes")
             .orderByChild("motorbikeId")
-            .equalTo(uid)
+            .equalTo(motorbikeId)
             .get()
             .addOnSuccessListener {
                 if (it.exists()) {
@@ -366,6 +366,31 @@ object DBHelper {
             }
         awaitClose { }
     }.first()
+
+    fun deleteMotorbikeById(motorbikeId: String) {
+        database
+            .getReference("motorbikes")
+            .child(motorbikeId)
+            .child("deleted")
+            .setValue(true)
+            .addOnFailureListener { error ->
+                Log.d("Error deleting motorbike", error.toString())
+            }
+    }
+
+    fun addMotorbike(uid: String, brand: String, model: String, productionYear: String) {
+        val newMotorbike = Motorbike(
+            motorbikeId = UUID.randomUUID().toString(),
+            brand = brand,
+            model = model,
+            productionYear = productionYear,
+            userId = uid,
+            deleted = false
+        )
+        database.getReference("motorbikes")
+            .child(newMotorbike.motorbikeId.toString())
+            .setValue(newMotorbike)
+    }
 
     // COMMENTS
     suspend fun getCommentsByPostId(postId: String): List<Comment> = callbackFlow {

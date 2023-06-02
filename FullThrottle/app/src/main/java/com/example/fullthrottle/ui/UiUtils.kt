@@ -10,6 +10,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -317,7 +318,7 @@ fun SimpleTitle(text: String) {
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
         )
     }
 }
@@ -344,6 +345,53 @@ fun SimpleAlertDialog(
         confirmButton = {
             SimpleTextButton(value = confirm) {
                 onConfirm()
+                result.value = true
+                openDialog.value = false
+            }
+        },
+        dismissButton = {
+            SimpleTextButton(value = dismiss) {
+                onDismiss()
+                result.value = false
+                openDialog.value = false
+            }
+        }
+    )
+}
+
+@Composable
+fun FieldsAlertDialog(
+    title: String,
+    text: String,
+    fields: Map<String, MutableState<String>>,
+    confirm: String = stringResource(id = R.string.confirm),
+    dismiss: String = stringResource(id = R.string.dismiss),
+    openDialog: MutableState<Boolean>,
+    result: MutableState<Boolean>,
+    onConfirm: () -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+    AlertDialog(
+        onDismissRequest = { openDialog.value = false },
+        title = {
+            Text(text = title)
+        },
+        text = {
+            Text(text = text)
+
+            LazyColumn {
+                fields.forEach { (fieldName, field) ->
+                    item {
+                        field.value = outLineTextField(label = fieldName)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            SimpleTextButton(value = confirm) {
+                onConfirm()
+                //result.value = false
+
                 result.value = true
                 openDialog.value = false
             }

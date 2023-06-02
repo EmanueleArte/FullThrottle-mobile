@@ -11,5 +11,6 @@ data class Motorbike (
     val brand: String? = null,
     val model: String? = null,
     val productionYear: String? = null,
-    val userId: String? = null
+    val userId: String? = null,
+    val deleted: Boolean? = null
 ) : Parcelable
