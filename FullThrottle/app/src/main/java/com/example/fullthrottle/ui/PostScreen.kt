@@ -3,6 +3,7 @@ package com.example.fullthrottle.ui
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -159,7 +160,11 @@ fun PostScreen(
                             modifier = Modifier
                                 .padding(10.dp)
                                 .size(30.dp)
-                                .clickable {
+                                .bounceClick()
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
                                     coroutineScope
                                         .launch {
                                             like = DBHelper.toggleLike(

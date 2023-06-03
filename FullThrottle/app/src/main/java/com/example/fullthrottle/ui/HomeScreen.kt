@@ -1,8 +1,12 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
+import androidx.compose.animation.core.TargetBasedAnimation
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
@@ -104,8 +109,6 @@ fun HomeScreen(
             }
             likes = tPosts.map { post -> checkLike(post.postId.toString(), settings[USER_ID_KEY].toString()) }
             posts = tPosts
-            //posts.intersect()
-            //posts.toMutableList().addAll(tPosts)
         }.invokeOnCompletion {
             load(posts, users, motorbikes, postImagesUris, userImagesUris, likes)
         }
@@ -132,7 +135,6 @@ fun HomeScreen(
             ) {
                 item {}
                 itemsIndexed(posts) { i, post ->
-                    //val i = posts.indexOf(post)
                     Card(
                         modifier = Modifier
                             .padding(top = 5.dp, bottom = 10.dp)
@@ -205,7 +207,11 @@ fun HomeScreen(
                                         .padding(10.dp)
                                         .clip(RoundedCornerShape(CORNER_RADIUS))
                                         .size(30.dp)
-                                        .clickable {
+                                        .bounceClick()
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
                                             var like = false
                                             coroutineScope
                                                 .launch {
