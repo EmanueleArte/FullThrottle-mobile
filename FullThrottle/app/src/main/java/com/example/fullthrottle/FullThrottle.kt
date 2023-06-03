@@ -41,7 +41,7 @@ import dagger.hilt.android.HiltAndroidApp
 
 sealed class AppScreen(val name: String) {
     object Home : AppScreen("Home")
-    object Post : AppScreen("post")
+    object Post : AppScreen("Post")
     object Map : AppScreen("Map Screen")
     object NewPost : AppScreen("New Post Screen")
     object Search : AppScreen("Search Screen")
@@ -253,9 +253,9 @@ fun NavigationApp(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val userIdHistory = remember {
-        mutableListOf<String>()
-    }
+    val userIdStack = remember { mutableListOf<String>() }
+
+    val postIdStack = remember { mutableStateListOf<String>() }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -270,7 +270,8 @@ fun NavigationApp(
                         navController.navigate(AppScreen.Home.name)
                     }
                     manageNavigateBack(
-                        userIdHistory = userIdHistory,
+                        userIdStack = userIdStack,
+                        postIdStack = postIdStack,
                         currentScreen = currentScreen
                     )
                 },
@@ -282,15 +283,15 @@ fun NavigationApp(
                 currentScreen,
                 navController
             ) {
-                //userId.value = settings[USER_ID_KEY].orEmpty()
-                userIdHistory.removeAll(userIdHistory)
-                userIdHistory.add(settings[USER_ID_KEY].orEmpty())
+                userIdStack.removeAll(userIdStack)
+                userIdStack.add(settings[USER_ID_KEY].orEmpty())
                 navController.navigate(AppScreen.Profile.name)
             }
         }
     ) { innerPadding ->
         NavigationGraph(settingsViewModel, warningViewModel, navController, innerPadding, methods,
-            userIdHistory = userIdHistory,
+            userIdStack = userIdStack,
+            postIdStack = postIdStack,
             startDestination = startDestination
         )
         val context = LocalContext.current
@@ -311,14 +312,14 @@ fun NavigationApp(
             PermissionSnackBarComposable(
                 snackbarHostState,
                 warningViewModel,
-                "Aggiornamenti sulla posizione attuale disabilitati"
+                stringResource(id = R.string.location_snackbar_stop)
             )
         }
         if (warningViewModel.startLocationSnackBar.value) {
             PermissionSnackBarComposable(
                 snackbarHostState,
                 warningViewModel,
-                "Aggiornamenti sulla posizione attuale abilitati"
+                stringResource(id = R.string.location_snackbar_start)
             )
         }
         if (warningViewModel.showModificationDone.value) {
@@ -338,21 +339,19 @@ private fun NavigationGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
-    userIdHistory: MutableList<String>,
+    userIdStack: MutableList<String>,
+    postIdStack: MutableList<String>,
     modifier: Modifier = Modifier,
     startDestination: String = AppScreen.Login.name
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
-    var postId by remember {
-        mutableStateOf(String())
-    }
     val goToPost = fun(id : String) {
-        postId = id
+        postIdStack.add(id)
         navController.navigate(AppScreen.Post.name)
     }
     val goToProfile = fun(id : String) {
-        userIdHistory.add(id)
+        userIdStack.add(id)
         navController.navigate(AppScreen.Profile.name)
     }
 
@@ -370,8 +369,9 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Post.name) {
             PostScreen(
-                postId,
-                settingsViewModel
+                if (postIdStack.size > 0) postIdStack.last() else "",
+                settingsViewModel,
+                goToProfile
             )
         }
         composable(route = AppScreen.Map.name) {
@@ -396,7 +396,7 @@ private fun NavigationGraph(
                     "followed" to { navController.navigate(AppScreen.Followeds.name) },
                     "profileModification" to { navController.navigate(AppScreen.ProfileModification.name) }
                 ),
-                if (userIdHistory.size > 0) userIdHistory.last() else settings[USER_ID_KEY].toString(),
+                if (userIdStack.size > 0) userIdStack.last() else settings[USER_ID_KEY].toString(),
                 goToPost
             )
         }
@@ -410,12 +410,12 @@ private fun NavigationGraph(
             )
         }
         composable(route = AppScreen.Followers.name) {
-            FollowersScreen(userIdHistory.last()/*userId.value*/, FOLLOWERS_TAB,
+            FollowersScreen(userIdStack.last()/*userId.value*/, FOLLOWERS_TAB,
                 goToProfile
             )
         }
         composable(route = AppScreen.Followeds.name) {
-            FollowersScreen(userIdHistory.last()/*userId.value*/, FOLLOWED_TAB,
+            FollowersScreen(userIdStack.last()/*userId.value*/, FOLLOWED_TAB,
                 goToProfile
             )
         }

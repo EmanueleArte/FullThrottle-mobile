@@ -152,7 +152,7 @@ fun HomeScreen(
                                     imgUri = userImagesUris[i],
                                     contentDescription = "user image",
                                     modifier = baseModifier
-                                        .padding(vertical = 5.dp)
+                                        .padding(vertical = 8.dp)
                                         .requiredHeight(40.dp)
                                         .requiredWidth(40.dp)
                                         .clip(CircleShape)
@@ -175,7 +175,7 @@ fun HomeScreen(
                                         .requiredHeight(40.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.size(5.dp))
+                            //Spacer(modifier = Modifier.size(3.dp))
                             PostImage(
                                 imgUri = postImagesUris[i],
                                 contentDescription = "post image",
@@ -183,7 +183,7 @@ fun HomeScreen(
                                     .fillMaxWidth()
                                     .requiredHeight(200.dp)
                             )
-                            Spacer(modifier = Modifier.size(5.dp))
+                            Spacer(modifier = Modifier.size(3.dp))
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -260,7 +260,7 @@ fun HomeScreen(
                             Text(text = stringResource(id = R.string.path_length) + ": ${post.length}km", modifier = baseModifier)
                             Text(text = "${post.description}", modifier = baseModifier)
                         }
-                        Spacer(modifier = Modifier.size(5.dp))
+                        Spacer(modifier = Modifier.size(8.dp))
                     }
                 }
             }

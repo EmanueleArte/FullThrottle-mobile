@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -44,7 +46,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun PostScreen(
     postId : String,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    goToProfile: (String) -> Unit
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
@@ -112,11 +115,17 @@ fun PostScreen(
                                 .requiredWidth(40.dp)
                                 .clip(CircleShape)
                                 .background(Color.White)
+                                .clickable {
+                                    goToProfile(user.userId as String)
+                                }
                         )
                         Column {
                             Text(
                                 text = "${user.username}",
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.clickable {
+                                    goToProfile(user.userId as String)
+                                }
                             )
                             Text(text = "${post.publishDate}")
                         }
@@ -210,16 +219,18 @@ fun PostScreen(
                     )
                     Spacer(modifier = Modifier.size(5.dp))
                 }
-                items(comments) { comment ->
+                itemsIndexed(comments) { i, comment ->
                     Card(
                         modifier = Modifier.padding(bottom = 5.dp)
                     ) {
                         Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
+                                .padding(horizontal = 5.dp)
                                 .fillMaxWidth()
                         ) {
                             ProfileImage(
-                                imgUri = commentsUsersImagesUris[comments.indexOf(comment)],
+                                imgUri = commentsUsersImagesUris[i],
                                 contentDescription = "comment user image",
                                 modifier = Modifier
                                     .padding(5.dp)
@@ -227,14 +238,20 @@ fun PostScreen(
                                     .requiredWidth(40.dp)
                                     .clip(CircleShape)
                                     .background(Color.White)
+                                    .clickable {
+                                        goToProfile(commentsUsers[i].userId as String)
+                                    }
                             )
                             Column {
                                 Row {
                                     Text(
-                                        text = "${commentsUsers[comments.indexOf(comment)].username}",
-                                        fontWeight = FontWeight.Bold
+                                        text = "${commentsUsers[i].username}",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.clickable {
+                                            goToProfile(commentsUsers[i].userId as String)
+                                        }
                                     )
-                                    Text(text = "${comment.publishDate}")
+                                    Text(text = " ${comment.publishDate}")
                                 }
                                 Text(text = comment.text as String)
                             }

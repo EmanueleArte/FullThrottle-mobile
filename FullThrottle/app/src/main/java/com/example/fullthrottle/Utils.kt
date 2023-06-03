@@ -33,12 +33,15 @@ object Utils {
     }
 
     fun manageNavigateBack(
-        userIdHistory: MutableList<String> = mutableListOf(),
+        userIdStack: MutableList<String> = mutableListOf(),
+        postIdStack: MutableList<String> = mutableListOf(),
         currentScreen: String = String(),
-        previousScreen: String = String()
     ) {
-        if (currentScreen ==  AppScreen.Profile.name) {
-            userIdHistory.removeLast()
+        if (currentScreen == AppScreen.Profile.name) {
+            userIdStack.removeLast()
+        }
+        if (currentScreen == AppScreen.Post.name) {
+            postIdStack.removeLast()
         }
     }
 

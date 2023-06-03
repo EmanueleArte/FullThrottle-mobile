@@ -193,7 +193,6 @@ fun ProfileScreen(
                                 .clickable {
                                     goToPost(post.postId as String)
                                 }
-                            //elevation = CardDefaults.cardElevation(10.dp)
                         ) {
                             Row(
                                 modifier = Modifier.padding(2.dp)

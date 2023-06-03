@@ -279,7 +279,7 @@ object DBHelper {
             .get()
             .addOnSuccessListener { posts ->
                 if (posts.exists()) {
-                    trySend(posts.children.map { post -> post.getValue<Post>() as Post })
+                    trySend(posts.children.map { post -> post.getValue<Post>() as Post }.reversed())
                 } else {
                     trySend(emptyList<Post>())
                 }
@@ -297,8 +297,7 @@ object DBHelper {
             .get()
             .addOnSuccessListener { posts ->
                 if (posts.exists()) {
-                    val res = posts.children.map { post -> post.getValue<Post>() as Post }
-                    trySend(res.reversed())
+                    trySend(posts.children.map { post -> post.getValue<Post>() as Post }.reversed())
                 } else {
                     trySend(emptyList<Post>())
                 }

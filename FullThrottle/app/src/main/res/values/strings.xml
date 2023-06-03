@@ -70,4 +70,7 @@
     <string name="path_length">Lunghezza percorso</string>
     <string name="comments">Commenti</string>
     <string name="likes_to">Piace a</string>
+
+    <string name="location_snackbar_stop">Aggiornamenti sulla posizione attuale disabilitati</string>
+    <string name="location_snackbar_start">Aggiornamenti sulla posizione attuale abilitati</string>
 </resources>
