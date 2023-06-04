@@ -442,11 +442,11 @@ object DBHelper {
             .addOnSuccessListener {
                 if (it.exists()) {
                     val likes = it.children.map { like -> like.getValue<Like>()  }
-                    val like = likes.find { like -> like?.userId == userId }
+                    var like = likes.find { like -> like?.userId == userId }
                     if (like != null) {
                         database
                             .getReference("likes")
-                            .child(like?.likeId.toString())
+                            .child(like.likeId.toString())
                             .removeValue()
                         database
                             .getReference("posts")
@@ -455,7 +455,7 @@ object DBHelper {
                             .setValue((likes.size - 1).toString())
                         trySend(false)
                     } else {
-                        val like = Like(
+                        like = Like(
                             likeId = UUID.randomUUID().toString(),
                             notified = "0",
                             postId,

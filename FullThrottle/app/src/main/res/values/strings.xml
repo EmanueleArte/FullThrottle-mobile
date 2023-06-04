@@ -1,16 +1,21 @@
 <resources>
     <string name="app_name">FullThrottle</string>
 
+    <!-- Settings -->
     <string name="settings_title">Impostazioni</string>
     <string name="profile_modification_title">Dettagli profilo</string>
-
     <string name="system_theme">Predefinito di sistema</string>
     <string name="dark_theme">Scuro</string>
     <string name="light_theme">Chiaro</string>
     <string name="all_notifications">Tutte</string>
     <string name="posts_notifications">Solo riguardanti i post</string>
     <string name="followers_notifications">Solo riguardanti i followers</string>
+    <string name="permission_denied">Permessi negati</string>
+    <string name="theme">Tema</string>
+    <string name="push_notification">Notifiche push</string>
+    <string name="use_current_position">Utilizza posizione attuale</string>
 
+    <!-- Login/registration -->
     <string name="not_registered_yet">Non hai ancora un account?</string>
     <string name="register">Registrati</string>
     <string name="login_error">Username o password errati/mancanti</string>
@@ -28,12 +33,14 @@
     <string name="username_used">Username già in uso</string>
     <string name="mail_used">Mail già in uso</string>
 
+    <!-- Bottom navbar -->
     <string name="nav_home">Home</string>
     <string name="nav_map">Mappa</string>
     <string name="nav_new_post">Crea post</string>
     <string name="nav_search">Cerca</string>
     <string name="nav_profile">Profilo</string>
 
+    <!-- Profile -->
     <string name="followers_label">followers</string>
     <string name="followeds_label">seguiti</string>
     <string name="my_motorbikes">Le mie moto:</string>
@@ -42,6 +49,7 @@
     <string name="followed_tab_label">Seguiti</string>
     <string name="modify_profile">Modifica profilo</string>
 
+    <!-- Modify user data -->
     <string name="save">Salva modifica</string>
     <string name="add_motorbike">Aggiungi moto</string>
     <string name="confirm_title">Conferma la modifica</string>
@@ -66,11 +74,24 @@
     <string name="model">Modello</string>
     <string name="production_year">Anno di produzione</string>
 
+    <!-- Post -->
     <string name="motorbike">Moto</string>
     <string name="path_length">Lunghezza percorso</string>
     <string name="comments">Commenti</string>
     <string name="likes_to">Piace a</string>
 
+    <!-- Location -->
     <string name="location_snackbar_stop">Aggiornamenti sulla posizione attuale disabilitati</string>
     <string name="location_snackbar_start">Aggiornamenti sulla posizione attuale abilitati</string>
+
+    <!-- New post -->
+    <string name="new_post">Nuovo post</string>
+    <string name="publish">Pubblica</string>
+    <string name="select_an_image">Scegli una foto</string>
+    <string name="title">Titolo</string>
+    <string name="description">Descrizione</string>
+    <string name="path_length_input">Lunghezza percorso in km</string>
+    <string name="place">Luogo</string>
+    <string name="take_a_photo">Scatta una foto</string>
+
 </resources>
