@@ -128,8 +128,6 @@ fun SettingsScreen(
                         notificationsText.forEach { entry ->
                             DropdownMenuItem(
                                 onClick = {
-                                    /*Toast.makeText(contextForToast, itemValue, Toast.LENGTH_SHORT)
-                                        .show()*/
                                     expanded = false
                                     settingsViewModel.saveData(PUSH_NOTIFICATIONS_KEY, entry.key)
                                 },

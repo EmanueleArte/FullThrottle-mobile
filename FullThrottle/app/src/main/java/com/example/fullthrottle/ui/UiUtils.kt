@@ -113,6 +113,29 @@ fun outLineTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun outLineNumberTextField(
+    label: String,
+    value: String = "",
+    modifier: Modifier = Modifier
+): String {
+    var text by rememberSaveable { mutableStateOf(value) }
+    OutlinedTextField(
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        value = text,
+        label = { Text(text = label) },
+        onValueChange = {
+            text = it.filter { symbol ->
+                symbol.isDigit() || symbol == '.'
+            }
+        },
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+    )
+    return text
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun outLineTextFieldWithIcon(
     label: String,
     value: String = "",

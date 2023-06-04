@@ -93,5 +93,6 @@
     <string name="path_length_input">Lunghezza percorso in km</string>
     <string name="place">Luogo</string>
     <string name="take_a_photo">Scatta una foto</string>
+    <string name="chose_motorbike">Scegli la moto che hai utilizzato</string>
 
 </resources>

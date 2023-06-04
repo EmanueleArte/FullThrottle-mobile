@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
-import android.icu.text.CaseMap.Title
 import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
@@ -20,20 +19,28 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddAPhoto
 import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.LocationSearching
+import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,15 +51,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.fullthrottle.R
 import com.example.fullthrottle.createPermissionRequest
+import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
+import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
+import com.example.fullthrottle.viewModel.SettingsViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -61,8 +73,17 @@ import java.util.Objects
 
 
 @Composable
-fun NewPostScreen() {
+fun NewPostScreen(
+    settingsViewModel: SettingsViewModel
+) {
+    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val context = LocalContext.current
+
+    var motorbikes by rememberSaveable { mutableStateOf(listOf<Motorbike>()) }
+
+    LaunchedEffect(Unit) {
+        motorbikes = getMotorbikesByUserId(settings[USER_ID_KEY].orEmpty())
+    }
 
     val permissionDeniedLabel = stringResource(id = R.string.permission_denied)
 
@@ -86,7 +107,7 @@ fun NewPostScreen() {
 
     lateinit var title: String
     lateinit var description: String
-    lateinit var motorbike: Motorbike
+    lateinit var motorbikeId: String
     lateinit var length: String
     lateinit var place: String
 
@@ -153,11 +174,57 @@ fun NewPostScreen() {
                 description = outLineTextField(label =  stringResource(id = R.string.description), modifier = Modifier.fillMaxWidth())
             }
             item {
-                // TODO
-                //motorbike = outLineTextField(label =  stringResource(id = R.string.motorbike), modifier = Modifier.fillMaxWidth())
+                Text(text = stringResource(id = R.string.motorbike) + ":", fontWeight = FontWeight.SemiBold)
+
+                Spacer(modifier = Modifier.size(5.dp))
+
+                val motorbikeLabel = stringResource(id = R.string.chose_motorbike)
+                var motorbikeName by rememberSaveable { mutableStateOf(motorbikeLabel) }
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    var expanded by remember {
+                        mutableStateOf(false)
+                    }
+
+                    fun expand() {
+                        expanded = true
+                    }
+
+                    OutlinedButton(
+                        shape = RoundedCornerShape(CORNER_RADIUS),
+                        modifier = Modifier
+                            .height(50.dp)
+                            .fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        onClick = { expand() }
+                    ) {
+                        Text(motorbikeName, textAlign = TextAlign.Left)
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        modifier = Modifier.fillMaxWidth(),
+                        onDismissRequest = {
+                            expanded = false
+                        }
+                    ) {
+                        motorbikes.forEach { motorbike ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    expanded = false
+                                    motorbikeName = "${motorbike.brand} ${motorbike.model} ${motorbike.productionYear}"
+                                    motorbikeId = motorbike.motorbikeId.orEmpty()
+                                },
+                                text = {
+                                    Text(text = "${motorbike.brand} ${motorbike.model} ${motorbike.productionYear}")
+                                }
+                            )
+                        }
+                    }
+                }
             }
             item {
-                length = outLineTextField(
+                length = outLineNumberTextField(
                     label =  stringResource(id = R.string.path_length_input),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -165,7 +232,7 @@ fun NewPostScreen() {
             item {
                 place = outLineTextFieldWithIcon(
                     label =  stringResource(id = R.string.place),
-                    icon = Icons.Outlined.LocationSearching,
+                    icon = Icons.Outlined.MyLocation,
                     iconDescription = "location icon",
                     modifier = Modifier.fillMaxWidth()
                 )

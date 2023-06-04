@@ -1,26 +1,17 @@
 package com.example.fullthrottle
 
-import android.content.Context
 import android.text.TextUtils
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.runtime.Composable
-import androidx.core.content.ContextCompat
-import com.example.fullthrottle.data.DataStoreConstants
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.viewModel.SettingsViewModel
-import java.util.regex.Matcher
 import java.util.regex.Pattern
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
-object Utils {
+object ValidityUtils {
     private const val PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}$"
 
     fun isValidPassword(password: String): Boolean {
@@ -35,6 +26,10 @@ object Utils {
 
     fun isValidUsername(username: String): Boolean {
         return !TextUtils.isEmpty(username)
+    }
+
+    fun isValidLength(length: String): Boolean {
+        return !length.toFloat().isNaN()
     }
 
 }
