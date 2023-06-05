@@ -1,8 +1,10 @@
 package com.example.fullthrottle.ui
 
 import android.app.Activity
+import android.app.Notification
 import android.content.Context
 import android.content.ContextWrapper
+import android.graphics.Paint
 import android.net.Uri
 import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedVisibility
@@ -37,13 +39,18 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -100,6 +107,29 @@ fun outLineTextField(
             text = it
         },
         modifier = modifier
+    )
+    return text
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun outLineNumberTextField(
+    label: String,
+    value: String = "",
+    modifier: Modifier = Modifier
+): String {
+    var text by rememberSaveable { mutableStateOf(value) }
+    OutlinedTextField(
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        value = text,
+        label = { Text(text = label) },
+        onValueChange = {
+            text = it.filter { symbol ->
+                symbol.isDigit() || symbol == '.'
+            }
+        },
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
     return text
 }
@@ -182,27 +212,44 @@ fun outLinePasswordField(
 }
 
 @Composable
-fun SimpleButton(value: String, onClick: () -> Unit) {
+fun SimpleButton(
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
-        shape = RoundedCornerShape(CORNER_RADIUS)
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        modifier = modifier
     ) {
         Text(value)
     }
 }
 
 @Composable
-fun SimpleTextButton(value: String, onClick: () -> Unit) {
+fun SimpleTextButton(
+    value: String,
+    modifier: Modifier = Modifier,
+    fontSize: TextUnit = 16.sp,
+    onClick: () -> Unit
+) {
     TextButton(
         onClick = onClick,
-        shape = RoundedCornerShape(CORNER_RADIUS)
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        modifier = modifier
     ) {
-        Text(value)
+        Text(value, fontSize = fontSize)
     }
 }
 
 @Composable
-fun TextButtonWithIcon(text: String, icon: ImageVector, iconDescription: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun TextButtonWithIcon(
+    text: String,
+    icon: ImageVector,
+    iconDescription: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
@@ -215,11 +262,15 @@ fun TextButtonWithIcon(text: String, icon: ImageVector, iconDescription: String,
 }
 
 @Composable
-fun OutlineTextButton(value: String, onClick: () -> Unit) {
+fun OutlineTextButton(
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
-        modifier = Modifier.height(30.dp),
+        modifier = modifier.height(30.dp),
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         Text(value)
@@ -229,8 +280,9 @@ fun OutlineTextButton(value: String, onClick: () -> Unit) {
 @Composable
 fun ItemTonalButton(
     value: String,
-    onClick: () -> Unit,
-    imgUri: Uri
+    imgUri: Uri,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     FilledTonalIconButton(
         onClick = onClick,
@@ -240,7 +292,7 @@ fun ItemTonalButton(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier
+            modifier = modifier
                 .padding(5.dp)
                 .fillMaxWidth()
         ) {
@@ -278,7 +330,6 @@ fun PostImage(
     imgUri: Uri,
     modifier: Modifier = Modifier,
     contentDescription: String = ""
-
 ) {
     GlideImage(
         model = imgUri,
@@ -288,6 +339,20 @@ fun PostImage(
     ) {
         it.diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
     }
+}
+
+@Composable
+fun PreviewImage(
+    imgUri: Uri,
+    modifier: Modifier = Modifier,
+    contentDescription: String = ""
+) {
+    AsyncImage(
+        model = imgUri,
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Crop
+    )
 }
 
 @Composable

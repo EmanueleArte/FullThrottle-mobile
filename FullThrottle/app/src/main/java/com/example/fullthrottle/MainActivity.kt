@@ -11,7 +11,6 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Looper
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.findNavController
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY

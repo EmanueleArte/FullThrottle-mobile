@@ -26,7 +26,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.fullthrottle.Utils.manageNavigateBack
 import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -381,6 +380,7 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.NewPost.name) {
             NewPostScreen(
+                settingsViewModel
             )
         }
         composable(route = AppScreen.Search.name) {

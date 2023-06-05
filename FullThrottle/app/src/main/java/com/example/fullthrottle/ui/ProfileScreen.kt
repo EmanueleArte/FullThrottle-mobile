@@ -164,7 +164,10 @@ fun ProfileScreen(
                 Row(
                     horizontalArrangement = leftArrangement,
                 ) {
-                    OutlineTextButton(value = stringResource(id = R.string.modify_profile)) {
+                    OutlineTextButton(
+                        value = stringResource(id = R.string.modify_profile),
+                        modifier = Modifier.height(30.dp)
+                    ) {
                         navigateTo["profileModification"]?.invoke()
                     }
                 }

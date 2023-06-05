@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,10 +17,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
-import com.example.fullthrottle.Utils.isValidMail
-import com.example.fullthrottle.Utils.isValidPassword
-import com.example.fullthrottle.Utils.isValidUsername
-import com.example.fullthrottle.data.DBHelper
+import com.example.fullthrottle.ValidityUtils.isValidMail
+import com.example.fullthrottle.ValidityUtils.isValidPassword
+import com.example.fullthrottle.ValidityUtils.isValidUsername
 import com.example.fullthrottle.data.DBHelper.addMotorbike
 import com.example.fullthrottle.data.DBHelper.checkPassword
 import com.example.fullthrottle.data.DBHelper.deleteMotorbikeById

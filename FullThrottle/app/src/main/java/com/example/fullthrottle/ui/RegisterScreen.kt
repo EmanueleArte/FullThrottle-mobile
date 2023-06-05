@@ -15,9 +15,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
-import com.example.fullthrottle.Utils.isValidMail
-import com.example.fullthrottle.Utils.isValidPassword
-import com.example.fullthrottle.Utils.isValidUsername
+import com.example.fullthrottle.ValidityUtils.isValidMail
+import com.example.fullthrottle.ValidityUtils.isValidPassword
+import com.example.fullthrottle.ValidityUtils.isValidUsername
 import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.ui.Logo.logoId
 import com.example.fullthrottle.viewModel.SettingsViewModel
