@@ -493,6 +493,34 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    // LOCATIONS
+    suspend fun getPostsLocations(): Map<String, List<Post>> = callbackFlow {
+        database
+            .getReference("posts")
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val posts = it.children.map { post -> post.getValue<Post>() as Post }
+                    val locations = mutableMapOf<String, List<Post>>()
+                    posts.forEach { post ->
+                        locations[post.position.toString()] = if (locations.containsKey(post.position)) {
+                            locations[post.position]?.plus(post) as List<Post>
+                        } else {
+                            listOf(post)
+                        }
+                    }
+                    println(locations)
+                    trySend(locations)
+                } else {
+                    trySend(emptyMap<String, List<Post>>())
+                }
+            }
+            .addOnFailureListener { error ->
+        Log.d("Error getting data", error.toString())
+    }
+        awaitClose { }
+    }.first()
+
     // IMAGES
     suspend fun getImageUri(imgUrl: String): Uri = callbackFlow {
         storage.reference

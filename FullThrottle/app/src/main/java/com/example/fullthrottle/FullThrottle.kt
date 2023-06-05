@@ -376,6 +376,7 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Map.name) {
             MapScreen(
+                settingsViewModel
             )
         }
         composable(route = AppScreen.NewPost.name) {
