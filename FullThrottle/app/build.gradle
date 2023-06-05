@@ -111,4 +111,8 @@ dependencies {
     // Glide
     implementation 'com.github.bumptech.glide:compose:1.0.0-alpha.1'
 
+    // Compose Image Cropper
+    //implementation 'com.github.SmartToolFactory:Compose-Cropper:0.3.4'
+    implementation 'com.github.yalantis:ucrop:2.2.6-native'
+
 }

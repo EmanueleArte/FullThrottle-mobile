@@ -1,14 +1,21 @@
 package com.example.fullthrottle
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.text.TextUtils
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.core.net.toUri
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.yalantis.ucrop.UCrop
+import java.io.File
 import java.util.regex.Pattern
 
 object ValidityUtils {
@@ -21,15 +28,11 @@ object ValidityUtils {
     }
 
     fun isValidMail(mail: String): Boolean {
-        return !TextUtils.isEmpty(mail) && android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches();
+        return !TextUtils.isEmpty(mail) && android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()
     }
 
     fun isValidUsername(username: String): Boolean {
         return !TextUtils.isEmpty(username)
-    }
-
-    fun isValidLength(length: String): Boolean {
-        return !length.toFloat().isNaN()
     }
 
 }
@@ -68,4 +71,32 @@ fun createPermissionRequest(
             }
         }
     )
+}
+
+fun uCropContractBuilder(
+    aspectRatioX: Float,
+    aspectRatioY: Float
+) = object : ActivityResultContract<List<Uri>, Uri?>() {
+    override fun createIntent(context: Context, input: List<Uri>): Intent {
+        val inputUri = input[0]
+        val outputUri = input[1]
+        val uCrop = UCrop.of(inputUri, outputUri)
+            .withAspectRatio(aspectRatioX, aspectRatioY)
+        return uCrop.getIntent(context)
+    }
+
+    override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+        return if (resultCode != UCrop.RESULT_ERROR && intent != null)
+            UCrop.getOutput(intent!!) else Uri.EMPTY
+    }
+}
+
+fun saveAndCropTempFile(
+    cropImageActivity: ManagedActivityResultLauncher<List<Uri>, Uri?>,
+    uri: Uri?
+) {
+    if (uri != null) {
+        val outputFile = File.createTempFile("img", ".tmp")
+        cropImageActivity.launch(listOf(uri!!, outputFile.toUri()))
+    }
 }

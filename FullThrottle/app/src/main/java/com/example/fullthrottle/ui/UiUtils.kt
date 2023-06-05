@@ -1,20 +1,22 @@
 package com.example.fullthrottle.ui
 
+import android.Manifest
 import android.app.Activity
-import android.app.Notification
 import android.content.Context
 import android.content.ContextWrapper
-import android.graphics.Paint
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -39,8 +41,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -50,15 +50,21 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.fullthrottle.R
+import com.example.fullthrottle.createPermissionRequest
+import com.example.fullthrottle.saveAndCropTempFile
+import com.example.fullthrottle.uCropContractBuilder
 import com.example.fullthrottle.ui.UiConstants.ANIMATION_DURATION_LONG
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.delay
+import java.util.Objects
 
 object UiConstants {
     const val ANIMATION_DURATION = 100
@@ -657,4 +663,75 @@ fun Modifier.bounceClick() = composed {
                 }
             }
         }
+}
+
+// Image Cropper
+@Composable
+fun cropImageActivityBuilder(
+    outputUri: MutableState<Uri?>,
+    x: Float = 16F,
+    y: Float = 9F
+): ManagedActivityResultLauncher<List<Uri>, Uri?> {
+    val uCropContract = uCropContractBuilder(x, y)
+    return rememberLauncherForActivityResult(
+        contract = uCropContract,
+        onResult = { uri ->
+            if (uri != Uri.EMPTY) {
+                outputUri.value = uri
+            }
+        }
+    )
+}
+
+@Composable
+fun TakePhoto(
+    cropImageActivity: ManagedActivityResultLauncher<List<Uri>, Uri?>,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        context.packageName + ".provider", file
+    )
+
+    val permissionDeniedLabel = stringResource(id = R.string.permission_denied)
+
+    var capturedImageUri by remember {
+        mutableStateOf<Uri>(Uri.EMPTY)
+    }
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            capturedImageUri = uri
+        }
+
+    val cameraPermission = createPermissionRequest(
+        onSuccess = {
+            cameraLauncher.launch(uri)
+        },
+        onDismiss = {
+            Toast.makeText(context, permissionDeniedLabel, Toast.LENGTH_SHORT).show()
+        }
+    )
+
+    TextButtonWithIcon(
+        text =  stringResource(id = R.string.take_a_photo),
+        icon = Icons.Outlined.AddAPhoto,
+        "photo icon",
+        modifier = modifier,
+        onClick = {
+            val permissionCheckResult =
+                ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+            if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                cameraLauncher.launch(uri)
+            } else {
+                cameraPermission.launch(Manifest.permission.CAMERA)
+            }
+        }
+    )
+
+    if (capturedImageUri.path?.isNotEmpty() == true) {
+        saveAndCropTempFile(cropImageActivity, capturedImageUri)
+    }
 }

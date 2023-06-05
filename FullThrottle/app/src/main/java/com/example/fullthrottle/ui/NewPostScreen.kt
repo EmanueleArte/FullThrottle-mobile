@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.SystemClock
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -57,11 +58,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import com.example.fullthrottle.R
 import com.example.fullthrottle.createPermissionRequest
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Motorbike
+import com.example.fullthrottle.saveAndCropTempFile
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
@@ -89,9 +92,13 @@ fun NewPostScreen(
 
     val selectedImageUri = rememberSaveable { mutableStateOf<Uri?>(Uri.EMPTY) }
 
+    val cropImageActivity = cropImageActivityBuilder(selectedImageUri)
+
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> selectedImageUri.value = uri }
+        onResult = { uri ->
+            saveAndCropTempFile(cropImageActivity, uri)
+        }
     )
 
     val photoPickerPermission = createPermissionRequest(
@@ -153,7 +160,7 @@ fun NewPostScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    TakePhoto(selectedImageUri)
+                    TakePhoto(cropImageActivity)
                     TextButtonWithIcon(
                         text = stringResource(id = R.string.select_an_image),
                         icon = Icons.Outlined.Image,
@@ -236,61 +243,10 @@ fun NewPostScreen(
                     iconDescription = "location icon",
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(modifier = Modifier.size(20.dp))
             }
         }
-    }
-}
-
-@Composable
-fun TakePhoto(
-    imageUri: MutableState<Uri?>,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val file = context.createImageFile()
-    val uri = FileProvider.getUriForFile(
-        Objects.requireNonNull(context),
-        context.packageName + ".provider", file
-    )
-
-    val permissionDeniedLabel = stringResource(id = R.string.permission_denied)
-
-    var capturedImageUri by remember {
-        mutableStateOf<Uri>(Uri.EMPTY)
-    }
-
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            capturedImageUri = uri
-        }
-
-    val cameraPermission = createPermissionRequest(
-        onSuccess = {
-            cameraLauncher.launch(uri)
-        },
-        onDismiss = {
-            Toast.makeText(context, permissionDeniedLabel, Toast.LENGTH_SHORT).show()
-        }
-    )
-
-    TextButtonWithIcon(
-        text =  stringResource(id = R.string.take_a_photo),
-        icon = Icons.Outlined.AddAPhoto,
-        "photo icon",
-        modifier = modifier,
-        onClick = {
-            val permissionCheckResult =
-                ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-            if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                cameraLauncher.launch(uri)
-            } else {
-                cameraPermission.launch(Manifest.permission.CAMERA)
-            }
-        }
-    )
-
-    if (capturedImageUri.path?.isNotEmpty() == true) {
-        imageUri.value = capturedImageUri
     }
 }
 
