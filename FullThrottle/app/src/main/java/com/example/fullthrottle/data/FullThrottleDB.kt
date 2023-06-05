@@ -509,7 +509,6 @@ object DBHelper {
                             listOf(post)
                         }
                     }
-                    println(locations)
                     trySend(locations)
                 } else {
                     trySend(emptyMap<String, List<Post>>())
