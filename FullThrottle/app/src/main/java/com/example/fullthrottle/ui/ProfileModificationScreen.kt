@@ -44,11 +44,6 @@ fun ProfileModificationScreen(
     settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel
 ) {
-    fun showSnackBar(message: String) {
-        warningViewModel.setSimpleSnackBarContent(message)
-        warningViewModel.setSimpleSnackBarVisibility(true)
-    }
-
     var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
 
     LaunchedEffect(key1 = "motorbikes") {
@@ -129,7 +124,7 @@ fun ProfileModificationScreen(
                                             settingsViewModel = settingsViewModel
                                         )
                                     }
-                                    showSnackBar(usernameSuccess)
+                                    showSnackBar(warningViewModel, usernameSuccess)
                                 }
                             }
                         }
@@ -183,7 +178,7 @@ fun ProfileModificationScreen(
                                             settingsViewModel = settingsViewModel
                                         )
                                     }
-                                    showSnackBar(mailSuccess)
+                                    showSnackBar(warningViewModel, mailSuccess)
                                 }
                             }
                         }
@@ -257,7 +252,7 @@ fun ProfileModificationScreen(
                                         newPassword = password
                                     )
                                 }
-                                showSnackBar(pwSuccess)
+                                showSnackBar(warningViewModel, pwSuccess)
                             }
                         }
                     )
@@ -314,7 +309,7 @@ fun ProfileModificationScreen(
                                                 deleteMotorbikeById(motorbike.motorbikeId.orEmpty())
                                                 motorbikes = getMotorbikesByUserId(uid)
                                             }
-                                            showSnackBar(motorbikeDeleted)
+                                            showSnackBar(warningViewModel, motorbikeDeleted)
                                         }
                                     )
                                 }
@@ -359,7 +354,7 @@ fun ProfileModificationScreen(
                                 addMotorbike(uid, brand.value, model.value, productionYear.value)
                                 motorbikes = getMotorbikesByUserId(uid)
                             }
-                            showSnackBar(motorbikeAdded)
+                            showSnackBar(warningViewModel, motorbikeAdded)
                         }
                     }
                 )

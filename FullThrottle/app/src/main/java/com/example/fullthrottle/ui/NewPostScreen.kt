@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -12,7 +11,6 @@ import android.os.Build
 import android.os.SystemClock
 import android.provider.MediaStore
 import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,7 +29,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AddAPhoto
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material3.DropdownMenu
@@ -40,11 +37,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,10 +53,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import com.example.fullthrottle.R
+import com.example.fullthrottle.ValidityUtils.isValidFieldText
 import com.example.fullthrottle.createPermissionRequest
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -68,12 +63,12 @@ import com.example.fullthrottle.saveAndCropTempFile
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.example.fullthrottle.viewModel.WarningViewModel
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.Objects
-
 
 @Composable
 fun NewPostScreen(
@@ -81,6 +76,7 @@ fun NewPostScreen(
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     var motorbikes by rememberSaveable { mutableStateOf(listOf<Motorbike>()) }
 
@@ -89,6 +85,7 @@ fun NewPostScreen(
     }
 
     val permissionDeniedLabel = stringResource(id = R.string.permission_denied)
+    val fillAllFieldsError = stringResource(id = R.string.fill_all_fields_error)
 
     val selectedImageUri = rememberSaveable { mutableStateOf<Uri?>(Uri.EMPTY) }
 
@@ -114,9 +111,9 @@ fun NewPostScreen(
 
     lateinit var title: String
     lateinit var description: String
-    lateinit var motorbikeId: String
     lateinit var length: String
     lateinit var place: String
+    var motorbikeId = String()
 
     Column (
         modifier = Modifier
@@ -138,7 +135,22 @@ fun NewPostScreen(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.fillMaxHeight()
                     ) {
-                        SimpleTextButton(value = stringResource(id = R.string.publish), fontSize = 18.sp) { /*TODO*/ }
+                        SimpleTextButton(value = stringResource(id = R.string.publish), fontSize = 18.sp)
+                        {
+                            if (isValidFieldText(title)
+                                && isValidFieldText(description)
+                                && isValidFieldText(length)
+                                && isValidFieldText(place)
+                                && isValidFieldText(motorbikeId)
+                                && selectedImageUri.value != Uri.EMPTY
+                            ) {
+                                coroutineScope.launch {
+                                    // TODO insert post
+                                }
+                            } else {
+                                Toast.makeText(context, fillAllFieldsError, Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                 }
             }
@@ -210,7 +222,7 @@ fun NewPostScreen(
                     }
                     DropdownMenu(
                         expanded = expanded,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillParentMaxWidth(),
                         onDismissRequest = {
                             expanded = false
                         }

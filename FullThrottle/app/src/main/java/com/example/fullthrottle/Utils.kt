@@ -35,6 +35,10 @@ object ValidityUtils {
         return !TextUtils.isEmpty(username)
     }
 
+    fun isValidFieldText(text: String): Boolean {
+        return !TextUtils.isEmpty(text)
+    }
+
 }
 
 fun deleteMemorizedUserData(settingsViewModel: SettingsViewModel) {

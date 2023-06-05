@@ -504,6 +504,11 @@ fun SimpleSnackBarComposable(
     }
 }
 
+fun showSnackBar(warningViewModel: WarningViewModel, message: String) {
+    warningViewModel.setSimpleSnackBarContent(message)
+    warningViewModel.setSimpleSnackBarVisibility(true)
+}
+
 @Composable
 internal fun InfiniteTransition.fractionTransition(
     initialValue: Float,
@@ -676,7 +681,7 @@ fun cropImageActivityBuilder(
     return rememberLauncherForActivityResult(
         contract = uCropContract,
         onResult = { uri ->
-            if (uri != Uri.EMPTY) {
+            if (uri != null && uri != Uri.EMPTY) {
                 outputUri.value = uri
             }
         }
