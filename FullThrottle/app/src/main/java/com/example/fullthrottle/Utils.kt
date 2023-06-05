@@ -16,6 +16,11 @@ import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.yalantis.ucrop.UCrop
 import java.io.File
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 import java.util.regex.Pattern
 
 object ValidityUtils {
@@ -100,7 +105,17 @@ fun saveAndCropTempFile(
     uri: Uri?
 ) {
     if (uri != null) {
-        val outputFile = File.createTempFile("img", ".tmp")
+        val outputFile = File.createTempFile(LocalDateTime.now().toString(), ".jpg")
         cropImageActivity.launch(listOf(uri!!, outputFile.toUri()))
     }
+}
+
+fun Context.createImageFile(): File {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    return File.createTempFile(
+        imageFileName,
+        ".jpg",
+        externalCacheDir
+    )
 }

@@ -57,6 +57,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.fullthrottle.R
+import com.example.fullthrottle.createImageFile
 import com.example.fullthrottle.createPermissionRequest
 import com.example.fullthrottle.saveAndCropTempFile
 import com.example.fullthrottle.uCropContractBuilder
@@ -702,9 +703,7 @@ fun TakePhoto(
 
     val permissionDeniedLabel = stringResource(id = R.string.permission_denied)
 
-    var capturedImageUri by remember {
-        mutableStateOf<Uri>(Uri.EMPTY)
-    }
+    var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
 
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {

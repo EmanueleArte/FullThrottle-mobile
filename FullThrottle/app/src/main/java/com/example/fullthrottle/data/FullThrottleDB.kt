@@ -19,11 +19,15 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 object DBHelper {
     private val database = Firebase.database
     private val storage = Firebase.storage
+
+    private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
     // USERS
     suspend fun getUserByUsername(username: String): User? = callbackFlow {
@@ -289,6 +293,35 @@ object DBHelper {
             }
         awaitClose { }
     }.first()
+
+    fun createPost(uid: String, title: String, description: String, postImgUri: Uri, motorbikeId: String, position: String, length: String, lapTime: String = "", categoryId: String = "") {
+        val postImageRef = storage.reference.child("$uid/${postImgUri.lastPathSegment}")
+        val uploadTask = postImageRef.putFile(postImgUri)
+
+        val currDateTime = LocalDateTime.now().format(formatter)
+        val post = Post(
+            categoryId = categoryId,
+            description = description,
+            lapTime = lapTime,
+            length = length,
+            likesNumber = "0",
+            motorbikeId = motorbikeId,
+            position = position,
+            postId = UUID.randomUUID().toString(),
+            postImg = postImgUri.lastPathSegment,
+            publishDate = currDateTime.toString(),
+            title = title,
+            userId = uid
+        )
+        database
+            .getReference("posts")
+            .child(post.postId.toString())
+            .setValue(post)
+
+        uploadTask.addOnFailureListener {
+            Log.d("Error uploading image", it.toString())
+        }
+    }
 
     suspend fun getRecentPosts(): List<Post> = callbackFlow {
         database

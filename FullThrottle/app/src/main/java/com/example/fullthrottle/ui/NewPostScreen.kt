@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.ValidityUtils.isValidFieldText
 import com.example.fullthrottle.createPermissionRequest
+import com.example.fullthrottle.data.DBHelper.createPost
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Motorbike
@@ -63,7 +64,7 @@ import com.example.fullthrottle.saveAndCropTempFile
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -71,7 +72,8 @@ import java.util.Locale
 
 @Composable
 fun NewPostScreen(
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    navigateToHome: () -> Unit
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val context = LocalContext.current
@@ -143,8 +145,18 @@ fun NewPostScreen(
                                 && isValidFieldText(motorbikeId)
                                 && selectedImageUri.value != Uri.EMPTY
                             ) {
-                                coroutineScope.launch {
-                                    // TODO insert post
+                                coroutineScope.async {
+                                    createPost(
+                                        settings[USER_ID_KEY].orEmpty(),
+                                        title,
+                                        description,
+                                        selectedImageUri.value as Uri,
+                                        motorbikeId,
+                                        place,
+                                        length
+                                    )
+                                }.invokeOnCompletion {
+                                    navigateToHome()
                                 }
                             } else {
                                 Toast.makeText(context, fillAllFieldsError, Toast.LENGTH_SHORT).show()
@@ -212,7 +224,7 @@ fun NewPostScreen(
                     OutlinedButton(
                         shape = RoundedCornerShape(CORNER_RADIUS),
                         modifier = Modifier
-                            .height(50.dp)
+                            .height(55.dp)
                             .fillMaxWidth(),
                         contentPadding = PaddingValues(horizontal = 8.dp),
                         onClick = { expand() }
@@ -259,43 +271,4 @@ fun NewPostScreen(
             }
         }
     }
-}
-
-fun saveImage(contentResolver: ContentResolver, capturedImageUri: Uri) {
-    val bitmap = getBitmap(capturedImageUri, contentResolver)
-
-    val values = ContentValues()
-    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-    values.put(MediaStore.Images.Media.DISPLAY_NAME, "IMG_${SystemClock.uptimeMillis()}")
-
-    val imageUri =
-        contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-
-    val outputStream = imageUri?.let { contentResolver.openOutputStream(it) }
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-    outputStream?.close()
-}
-
-fun Context.createImageFile(): File {
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val imageFileName = "JPEG_" + timeStamp + "_"
-    return File.createTempFile(
-        imageFileName,
-        ".jpg",
-        externalCacheDir
-    )
-}
-
-private fun getBitmap(selectedPhotoUri: Uri, contentResolver: ContentResolver): Bitmap {
-    val bitmap = when {
-        Build.VERSION.SDK_INT < 28 -> MediaStore.Images.Media.getBitmap(
-            contentResolver,
-            selectedPhotoUri
-        )
-        else -> {
-            val source = ImageDecoder.createSource(contentResolver, selectedPhotoUri)
-            ImageDecoder.decodeBitmap(source)
-        }
-    }
-    return bitmap
 }

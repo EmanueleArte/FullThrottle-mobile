@@ -381,7 +381,7 @@ private fun NavigationGraph(
         composable(route = AppScreen.NewPost.name) {
             NewPostScreen(
                 settingsViewModel
-            )
+            ) { navController.navigate(AppScreen.Home.name) }
         }
         composable(route = AppScreen.Search.name) {
             SearchScreen(
