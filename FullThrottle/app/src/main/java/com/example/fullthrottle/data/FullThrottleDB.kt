@@ -433,7 +433,7 @@ object DBHelper {
             .get()
             .addOnSuccessListener { comments ->
                 if (comments.exists()) {
-                    trySend(comments.children.map { it.getValue<Comment>() as Comment })
+                    trySend(comments.children.map { it.getValue<Comment>() as Comment }.reversed())
                 } else {
                     trySend(emptyList<Comment>())
                 }

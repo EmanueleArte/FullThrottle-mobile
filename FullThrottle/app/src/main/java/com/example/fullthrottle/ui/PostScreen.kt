@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -209,6 +208,8 @@ fun PostScreen(
                     Text(text = stringResource(id = R.string.path_length) + ": ${post.length}km")
                 }
                 item {
+                    Spacer(modifier = Modifier.size(8.dp))
+
                     Text(text = "${post.description}")
                 }
                 item {
@@ -219,41 +220,47 @@ fun PostScreen(
                     )
                     Spacer(modifier = Modifier.size(5.dp))
                 }
-                itemsIndexed(comments) { i, comment ->
-                    Card(
-                        modifier = Modifier.padding(bottom = 5.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .padding(horizontal = 5.dp)
-                                .fillMaxWidth()
+                if (comments.isEmpty()) {
+                    item {
+                        Text(text = stringResource(id = R.string.no_comments))
+                    }
+                } else {
+                    itemsIndexed(comments) { i, comment ->
+                        Card(
+                            modifier = Modifier.padding(bottom = 5.dp)
                         ) {
-                            ProfileImage(
-                                imgUri = commentsUsersImagesUris[i],
-                                contentDescription = "comment user image",
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                    .padding(5.dp)
-                                    .requiredHeight(40.dp)
-                                    .requiredWidth(40.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White)
-                                    .clickable {
-                                        goToProfile(commentsUsers[i].userId as String)
-                                    }
-                            )
-                            Column {
-                                Row {
-                                    Text(
-                                        text = "${commentsUsers[i].username}",
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.clickable {
-                                            goToProfile(commentsUsers[i].userId as String)
+                                    .padding(horizontal = 5.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                ProfileImage(
+                                    imgUri = commentsUsersImagesUris[i],
+                                    contentDescription = "comment user image",
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .requiredHeight(40.dp)
+                                        .requiredWidth(40.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White)
+                                        .clickable {
+                                            goToProfile(comment.userId as String)
                                         }
-                                    )
-                                    Text(text = " ${comment.publishDate}")
+                                )
+                                Column {
+                                    Row {
+                                        Text(
+                                            text = "${commentsUsers[i].username}",
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.clickable {
+                                                goToProfile(comment.userId as String)
+                                            }
+                                        )
+                                        Text(text = " ${comment.publishDate}")
+                                    }
+                                    Text(text = comment.text as String)
                                 }
-                                Text(text = comment.text as String)
                             }
                         }
                     }
