@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
@@ -15,9 +16,11 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -29,6 +32,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.HomeValues.getFilterValueListener
+import com.example.fullthrottle.data.HomeValues.registerFilterValueListener
+import com.example.fullthrottle.data.HomeValues.setLifeCycleOwner
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
@@ -93,6 +99,55 @@ fun TopAppBarFunction(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Back button"
                         )
+                    }
+                } else if (currentScreen == AppScreen.Home.name) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        var expanded by remember { mutableStateOf(false) }
+
+                        fun expand() {
+                            expanded = true
+                        }
+
+                        setLifeCycleOwner(LocalLifecycleOwner.current)
+                        val allPostsLabel = stringResource(id = R.string.all_posts)
+                        val followedPostsLabel = stringResource(id = R.string.followeds_posts_only)
+                        val currFilter = stringResource(id = getFilterValueListener().value!!)
+                        var filterValueLabel by remember { mutableStateOf(currFilter) }
+
+                        TextButtonWithIcon(
+                            text = filterValueLabel,
+                            icon = Icons.Outlined.ExpandMore,
+                            iconDescription = "Expand more"
+                        ) { expand() }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = {
+                                expanded = false
+                            }
+                        ) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    expanded = false
+                                    filterValueLabel = allPostsLabel
+                                    getFilterValueListener().value = R.string.all_posts
+                                },
+                                text = {
+                                    Text(text = allPostsLabel)
+                                }
+                            )
+                            DropdownMenuItem(
+                                onClick = {
+                                    expanded = false
+                                    filterValueLabel = followedPostsLabel
+                                    getFilterValueListener().value = R.string.followeds_posts_only
+                                },
+                                text = {
+                                    Text(text = followedPostsLabel)
+                                }
+                            )
+                        }
                     }
                 }
             },

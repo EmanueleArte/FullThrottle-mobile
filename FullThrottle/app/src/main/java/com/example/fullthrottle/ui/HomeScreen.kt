@@ -1,15 +1,12 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
-import androidx.compose.animation.core.TargetBasedAnimation
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,21 +25,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.checkLike
+import com.example.fullthrottle.data.DBHelper.getFolloweds
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getRecentPosts
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DBHelper.toggleLike
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.HomeValues.registerFilterValueListener
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.ui.HomeScreenData.filterPosts
 import com.example.fullthrottle.ui.HomeScreenData.firstLoad
+import com.example.fullthrottle.ui.HomeScreenData.followedsIdsLoaded
 import com.example.fullthrottle.ui.HomeScreenData.likesLoaded
 import com.example.fullthrottle.ui.HomeScreenData.load
 import com.example.fullthrottle.ui.HomeScreenData.motorbikesLoaded
@@ -63,15 +63,21 @@ internal object HomeScreenData {
     var postImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
     var userImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
     var likesLoaded by mutableStateOf(emptyList<Boolean>())
+    var followedsIdsLoaded by mutableStateOf(emptyList<String>())
     var firstLoad by mutableStateOf(true)
 
-    fun load(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>, likes: List<Boolean>) {
+    fun load(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>, likes: List<Boolean>, followedsIds: List<String>) {
         postsLoaded = posts
         usersLoaded = users
         motorbikesLoaded = motorbikes
         postImagesUrisLoaded = postImagesUris
         userImagesUrisLoaded = userImagesUris
         likesLoaded = likes
+        followedsIdsLoaded = followedsIds
+    }
+
+    fun filterPosts() {
+
     }
 
 }
@@ -91,6 +97,16 @@ fun HomeScreen(
     var postImagesUris by rememberSaveable { mutableStateOf(postImagesUrisLoaded) }
     var userImagesUris by rememberSaveable { mutableStateOf(userImagesUrisLoaded) }
     var likes by rememberSaveable { mutableStateOf(likesLoaded) }
+    var followedsIds by rememberSaveable { mutableStateOf(followedsIdsLoaded) }
+    var filteredPosts by rememberSaveable { mutableStateOf(posts) }
+
+    registerFilterValueListener {
+        filteredPosts = if (it == R.string.all_posts) {
+            posts
+        } else {
+            posts.filter { post -> followedsIds.contains(post.userId) }
+        }
+    }
 
     LaunchedEffect(Unit) {
         async {
@@ -108,15 +124,17 @@ fun HomeScreen(
                     Uri.EMPTY
             }
             likes = tPosts.map { post -> checkLike(post.postId.toString(), settings[USER_ID_KEY].toString()) }
+            followedsIds = getFolloweds(settings[USER_ID_KEY].toString()).map { user -> user.userId.toString() }
             posts = tPosts
         }.invokeOnCompletion {
-            load(posts, users, motorbikes, postImagesUris, userImagesUris, likes)
+            load(posts, users, motorbikes, postImagesUris, userImagesUris, likes, followedsIds)
+            filterPosts()
         }
     }
 
     val baseModifier = Modifier.padding(horizontal = 5.dp)
 
-    if (posts.isEmpty() || postImagesUris.isEmpty()) {
+    if (filteredPosts.isEmpty() || postImagesUris.isEmpty()) {
         LoadingAnimation()
     } else {
         Column(
@@ -134,7 +152,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {}
-                itemsIndexed(posts) { i, post ->
+                items(filteredPosts) { post ->
                     Card(
                         modifier = Modifier
                             .padding(top = 5.dp, bottom = 10.dp)
@@ -149,7 +167,7 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 ProfileImage(
-                                    imgUri = userImagesUris[i],
+                                    imgUri = userImagesUris[posts.indexOf(post)],
                                     contentDescription = "user image",
                                     modifier = baseModifier
                                         .padding(vertical = 8.dp)
@@ -157,11 +175,11 @@ fun HomeScreen(
                                         .requiredWidth(40.dp)
                                         .clip(CircleShape)
                                         .background(Color.White)
-                                        .clickable { goToProfile(users[i].userId as String) },
+                                        .clickable { goToProfile(users[posts.indexOf(post)].userId as String) },
                                 )
                                 Column {
                                     Text(
-                                        text = "${users[i].username}",
+                                        text = "${users[posts.indexOf(post)].username}",
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(text = "${post.publishDate}")
@@ -175,9 +193,8 @@ fun HomeScreen(
                                         .requiredHeight(40.dp)
                                 )
                             }
-                            //Spacer(modifier = Modifier.size(3.dp))
                             PostImage(
-                                imgUri = postImagesUris[i],
+                                imgUri = postImagesUris[posts.indexOf(post)],
                                 contentDescription = "post image",
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -201,7 +218,7 @@ fun HomeScreen(
                                 }
                                 Spacer(Modifier.weight(1f))
                                 Icon(
-                                    imageVector = if (likes[i]) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                                    imageVector = if (likes[posts.indexOf(post)]) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
                                     contentDescription = "like button",
                                     modifier = Modifier
                                         .padding(10.dp)
@@ -239,7 +256,7 @@ fun HomeScreen(
                                                         } else tPost
                                                     }
                                                     likes = posts.map { post ->
-                                                        if (posts.indexOf(post) == i) {
+                                                        if (posts.indexOf(post) == posts.indexOf(post)) {
                                                             like
                                                         } else {
                                                             likes[posts.indexOf(post)]

@@ -261,6 +261,24 @@ fun TextButtonWithIcon(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    TextButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(CORNER_RADIUS),
+        modifier = modifier
+    ) {
+        Text(text, Modifier)
+        Icon(icon, iconDescription)
+    }
+}
+
+@Composable
+fun ButtonWithIcon(
+    text: String,
+    icon: ImageVector,
+    iconDescription: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
@@ -723,21 +741,20 @@ fun TakePhoto(
         }
     )
 
-    TextButtonWithIcon(
+    ButtonWithIcon(
         text =  stringResource(id = R.string.take_a_photo),
         icon = Icons.Outlined.AddAPhoto,
         "photo icon",
-        modifier = modifier,
-        onClick = {
-            val permissionCheckResult =
-                ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-            if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                cameraLauncher.launch(uri)
-            } else {
-                cameraPermission.launch(Manifest.permission.CAMERA)
-            }
+        modifier = modifier
+    ) {
+        val permissionCheckResult =
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+            cameraLauncher.launch(uri)
+        } else {
+            cameraPermission.launch(Manifest.permission.CAMERA)
         }
-    )
+    }
 
     if (capturedImageUri.path?.isNotEmpty() == true) {
         saveAndCropTempFile(cropImageActivity, capturedImageUri)

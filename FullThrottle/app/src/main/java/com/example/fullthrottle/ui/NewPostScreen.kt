@@ -1,15 +1,7 @@
 package com.example.fullthrottle.ui
 
 import android.Manifest
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
-import android.os.SystemClock
-import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -65,10 +57,6 @@ import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun NewPostScreen(
@@ -184,15 +172,14 @@ fun NewPostScreen(
                         .fillMaxWidth()
                 ) {
                     TakePhoto(cropImageActivity)
-                    TextButtonWithIcon(
+                    ButtonWithIcon(
                         text = stringResource(id = R.string.select_an_image),
                         icon = Icons.Outlined.Image,
                         "image icon",
-                        modifier = Modifier,
-                        onClick = {
-                            photoPickerPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
-                    )
+                        modifier = Modifier
+                    ) {
+                        photoPickerPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
                 }
             }
 
