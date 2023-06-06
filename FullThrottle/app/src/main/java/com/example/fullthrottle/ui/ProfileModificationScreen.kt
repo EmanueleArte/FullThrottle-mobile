@@ -54,6 +54,7 @@ fun ProfileModificationScreen(
     val mailSuccess = stringResource(id = R.string.modify_mail_success)
     val pwSuccess = stringResource(id = R.string.modify_password_success)
     val motorbikeAdded = stringResource(id = R.string.motorbike_added)
+    val motoInvalid = stringResource(id = R.string.all_moto_fields)
     val motorbikeDeleted = stringResource(id = R.string.motorbike_deleted)
 
     val saveUsernameModify = remember { mutableStateOf(false) }
@@ -84,6 +85,9 @@ fun ProfileModificationScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
+                // Profile image change
+
+
                 // Username change
                 val username = outLineTextField(
                     label = "Username",
@@ -268,8 +272,6 @@ fun ProfileModificationScreen(
                 Text(
                     text = stringResource(id = R.string.password_regex),
                 )
-
-                Spacer(modifier = Modifier.size(10.dp))
             }
         }
         item {
@@ -348,13 +350,15 @@ fun ProfileModificationScreen(
                     confirm = stringResource(id = R.string.add),
                     dismiss = stringResource(id = R.string.cancel),
                     onConfirm = {
-                        var isValid = brand.value.isNotEmpty() && model.value.isNotEmpty() && productionYear.value.isNotEmpty()
+                        val isValid = brand.value.isNotEmpty() && model.value.isNotEmpty() && productionYear.value.isNotEmpty()
                         if (isValid) {
                             coroutineScope.launch {
                                 addMotorbike(uid, brand.value, model.value, productionYear.value)
                                 motorbikes = getMotorbikesByUserId(uid)
                             }
                             showSnackBar(warningViewModel, motorbikeAdded)
+                        } else {
+                            showSnackBar(warningViewModel, motoInvalid)
                         }
                     }
                 )

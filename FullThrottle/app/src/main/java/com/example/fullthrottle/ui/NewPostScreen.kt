@@ -171,12 +171,15 @@ fun NewPostScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    TakePhoto(cropImageActivity)
+                    TakePhoto(cropImageActivity = cropImageActivity, modifier = Modifier.weight(0.49F))
+
+                    Spacer(modifier = Modifier.weight(0.02F))
+
                     ButtonWithIcon(
                         text = stringResource(id = R.string.select_an_image),
                         icon = Icons.Outlined.Image,
-                        "image icon",
-                        modifier = Modifier
+                        iconDescription = "image icon",
+                        modifier = Modifier.weight(0.49F)
                     ) {
                         photoPickerPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }

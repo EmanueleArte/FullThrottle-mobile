@@ -10,12 +10,17 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Publish
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -246,13 +252,14 @@ fun PostScreen(
                                 commentText = it
                             },
                             modifier = Modifier
-                                .weight(0.5F)
+                                .weight(1F)
                                 .padding(end = 5.dp),
                         )
-                        SimpleButton(
-                            value = stringResource(id = R.string.publish),
+                        ButtonWithIcon(
+                            icon = Icons.Filled.Send,
+                            iconDescription = "Publish comment icon",
                             modifier = Modifier
-                                .weight(0.2F)
+                                //.weight(0.22F)
                                 .height(55.dp)
                         ) {
                             if (commentText.isNotEmpty()) {
@@ -289,7 +296,8 @@ fun PostScreen(
                 } else {
                     itemsIndexed(comments) { i, comment ->
                         Card(
-                            modifier = Modifier.padding(bottom = 5.dp)
+                            modifier = Modifier.padding(bottom = 5.dp),
+                            elevation = CardDefaults.cardElevation(5.dp)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.Top,

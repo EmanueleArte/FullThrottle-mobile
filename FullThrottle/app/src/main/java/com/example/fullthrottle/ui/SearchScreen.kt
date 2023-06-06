@@ -41,7 +41,7 @@ fun SearchScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp)
+            .padding(15.dp)
     ) {
         searchTextField(
             label = stringResource(id = R.string.search_label),
@@ -102,8 +102,8 @@ fun SearchScreen(
                                         imgUri = postImagesUris[postResults.indexOf(post)],
                                         contentDescription = "post image",
                                         modifier = Modifier
-                                            .requiredWidth(98.dp)
-                                            .requiredHeight(56.dp)
+                                            .requiredWidth(71.dp)
+                                            .requiredHeight(40.dp)
                                             .clip(RoundedCornerShape(UiConstants.CORNER_RADIUS))
                                     )
                                 }

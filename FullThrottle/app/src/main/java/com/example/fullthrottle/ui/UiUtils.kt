@@ -226,11 +226,13 @@ fun outLinePasswordField(
 fun SimpleButton(
     value: String,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     onClick: () -> Unit
 ) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
+        contentPadding = contentPadding,
         modifier = modifier
     ) {
         Text(value)
@@ -241,12 +243,14 @@ fun SimpleButton(
 fun SimpleTextButton(
     value: String,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     fontSize: TextUnit = 16.sp,
     onClick: () -> Unit
 ) {
     TextButton(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
+        contentPadding = contentPadding,
         modifier = modifier
     ) {
         Text(value, fontSize = fontSize)
@@ -259,11 +263,13 @@ fun TextButtonWithIcon(
     icon: ImageVector,
     iconDescription: String,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     onClick: () -> Unit
 ) {
     TextButton(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
+        contentPadding = contentPadding,
         modifier = modifier
     ) {
         Text(text, Modifier)
@@ -273,20 +279,24 @@ fun TextButtonWithIcon(
 
 @Composable
 fun ButtonWithIcon(
-    text: String,
+    text: String = "",
     icon: ImageVector,
     iconDescription: String,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     onClick: () -> Unit
 ) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
+        contentPadding = contentPadding,
         modifier = modifier
     ) {
         Icon(icon, iconDescription)
-        Spacer(Modifier.width(10.dp))
-        Text(text, Modifier)
+        if (text.isNotEmpty()) {
+            Spacer(Modifier.width(10.dp))
+            Text(text, Modifier)
+        }
     }
 }
 
@@ -294,13 +304,14 @@ fun ButtonWithIcon(
 fun OutlineTextButton(
     value: String,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
     onClick: () -> Unit
 ) {
     OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
         modifier = modifier.height(30.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp)
+        contentPadding = contentPadding
     ) {
         Text(value)
     }
@@ -744,7 +755,7 @@ fun TakePhoto(
     ButtonWithIcon(
         text =  stringResource(id = R.string.take_a_photo),
         icon = Icons.Outlined.AddAPhoto,
-        "photo icon",
+        iconDescription = "photo icon",
         modifier = modifier
     ) {
         val permissionCheckResult =

@@ -98,6 +98,7 @@ fun ProfileScreen(
     val followModifier = Modifier
         .requiredWidth(100.dp)
         .requiredHeight(100.dp)
+        .clip(RoundedCornerShape(CORNER_RADIUS))
 
 
     Column(
@@ -112,7 +113,7 @@ fun ProfileScreen(
             Column(
                 modifier = followModifier
                     .clickable { navigateTo["followers"]?.invoke() },
-                verticalArrangement = centerArrangement
+                verticalArrangement = centerArrangement,
             ) {
                 BoldCenterText(text = user.followers.toString(), Modifier.requiredWidth(100.dp))
                 SimpleCenterText(text = stringResource(id = R.string.followers_label), Modifier.requiredWidth(100.dp))

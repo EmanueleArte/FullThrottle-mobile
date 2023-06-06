@@ -119,7 +119,8 @@ fun TopAppBarFunction(
                         TextButtonWithIcon(
                             text = filterValueLabel,
                             icon = Icons.Outlined.ExpandMore,
-                            iconDescription = "Expand more"
+                            iconDescription = "Expand more",
+                            contentPadding = PaddingValues(horizontal = 10.dp)
                         ) { expand() }
                         DropdownMenu(
                             expanded = expanded,
