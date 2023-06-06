@@ -14,10 +14,13 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +36,7 @@ import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getPostById
 import com.example.fullthrottle.data.DBHelper.getUserById
+import com.example.fullthrottle.data.DBHelper.publishComment
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Comment
 import com.example.fullthrottle.data.entities.Motorbike
@@ -40,8 +44,10 @@ import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostScreen(
     postId : String,
@@ -60,6 +66,8 @@ fun PostScreen(
     var comments by remember { mutableStateOf(emptyList<Comment>()) }
     var commentsUsers by remember { mutableStateOf(emptyList<User>()) }
     var commentsUsersImagesUris by remember { mutableStateOf(emptyList<Uri>()) }
+
+    var commentText by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(key1 = "posts") {
         launch {
@@ -100,10 +108,12 @@ fun PostScreen(
     } else {
         Column(
             modifier = baseModifier
-                .padding(vertical = 10.dp)
+                .padding(vertical = 0.dp)
         ) {
             LazyColumn {
                 item {
+                    Spacer(modifier = Modifier.size(10.dp))
+
                     Row {
                         ProfileImage(
                             imgUri = userImageUri,
@@ -220,6 +230,58 @@ fun PostScreen(
                     )
                     Spacer(modifier = Modifier.size(5.dp))
                 }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom,
+                        modifier = Modifier
+                            .padding(bottom = 10.dp)
+                            .fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            shape = RoundedCornerShape(UiConstants.CORNER_RADIUS),
+                            value = commentText,
+                            label = { Text(text = stringResource(id = R.string.write_comment)) },
+                            onValueChange = {
+                                commentText = it
+                            },
+                            modifier = Modifier
+                                .weight(0.5F)
+                                .padding(end = 5.dp),
+                        )
+                        SimpleButton(
+                            value = stringResource(id = R.string.publish),
+                            modifier = Modifier
+                                .weight(0.2F)
+                                .height(55.dp)
+                        ) {
+                            if (commentText.isNotEmpty()) {
+                                coroutineScope.async {
+                                    publishComment(
+                                        postId,
+                                        settings[USER_ID_KEY].toString(),
+                                        commentText
+                                    )
+                                }.invokeOnCompletion {
+                                    coroutineScope.launch {
+                                        val tComments = getCommentsByPostId(postId)
+                                        commentsUsers =
+                                            tComments.map { comment -> getUserById(comment.userId as String) as User }
+                                        commentsUsersImagesUris = commentsUsers.map { user ->
+                                            if (user.userImg.toString().isNotEmpty()) {
+                                                getImageUri(user.userId + "/" + user.userImg)
+                                            } else {
+                                                Uri.EMPTY
+                                            }
+                                        }
+                                        comments = tComments
+                                    }
+                                    commentText = ""
+                                }
+                            }
+                        }
+                    }
+                }
                 if (comments.isEmpty()) {
                     item {
                         Text(text = stringResource(id = R.string.no_comments))
@@ -230,9 +292,9 @@ fun PostScreen(
                             modifier = Modifier.padding(bottom = 5.dp)
                         ) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                                verticalAlignment = Alignment.Top,
                                 modifier = Modifier
-                                    .padding(horizontal = 5.dp)
+                                    .padding(horizontal = 5.dp, vertical = 5.dp)
                                     .fillMaxWidth()
                             ) {
                                 ProfileImage(
@@ -248,7 +310,7 @@ fun PostScreen(
                                             goToProfile(comment.userId as String)
                                         }
                                 )
-                                Column {
+                                Column(modifier = Modifier.padding(start = 5.dp)) {
                                     Row {
                                         Text(
                                             text = "${commentsUsers[i].username}",
@@ -264,6 +326,9 @@ fun PostScreen(
                             }
                         }
                     }
+                }
+                item {
+                    Spacer(modifier = Modifier.size(10.dp))
                 }
             }
         }

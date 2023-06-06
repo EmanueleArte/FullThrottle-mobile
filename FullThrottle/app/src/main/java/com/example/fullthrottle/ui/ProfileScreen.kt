@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,7 +27,9 @@ import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.ProfileScreenData.load
+import com.example.fullthrottle.ui.ProfileScreenData.postImagesUrisLoaded
 import com.example.fullthrottle.ui.ProfileScreenData.postsLoaded
+import com.example.fullthrottle.ui.ProfileScreenData.uid
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
@@ -34,6 +37,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 internal object ProfileScreenData {
+    var uid by mutableStateOf(String())
     var postsLoaded by mutableStateOf(emptyList<Post>())
     var postImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
 
@@ -53,9 +57,14 @@ fun ProfileScreen(
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
+    if (uid != userId) {
+        uid = userId
+        postsLoaded = emptyList()
+        postImagesUrisLoaded = emptyList()
+    }
     var user by remember { mutableStateOf(User()) }
     var posts by rememberSaveable { mutableStateOf(postsLoaded) }
-    var postImagesUris by rememberSaveable { mutableStateOf(ProfileScreenData.postImagesUrisLoaded) }
+    var postImagesUris by rememberSaveable { mutableStateOf(postImagesUrisLoaded) }
     var imageUri by rememberSaveable { mutableStateOf<Uri>(Uri.EMPTY) }
     var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
 
@@ -186,7 +195,7 @@ fun ProfileScreen(
                 LoadingAnimation()
             } else {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(top = 10.dp, bottom = 20.dp)
                 ) {
                     items(posts) { post ->
@@ -195,7 +204,8 @@ fun ProfileScreen(
                                 .fillMaxWidth()
                                 .clickable {
                                     goToPost(post.postId as String)
-                                }
+                                },
+                            elevation = CardDefaults.cardElevation(5.dp)
                         ) {
                             Row(
                                 modifier = Modifier.padding(2.dp)

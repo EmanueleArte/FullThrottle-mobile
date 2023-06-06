@@ -1,3 +1,5 @@
+@file:Suppress("RemoveExplicitTypeArguments")
+
 package com.example.fullthrottle.data
 
 import android.net.Uri
@@ -443,6 +445,24 @@ object DBHelper {
             }
         awaitClose { }
     }.first()
+
+    fun publishComment(postId: String, uid: String, text: String) {
+        val comment = Comment(
+            commentId = UUID.randomUUID().toString(),
+            notified = "0",
+            postId = postId,
+            publishDate = LocalDateTime.now().format(formatter),
+            text = text,
+            userId = uid
+        )
+        database
+            .getReference("comments")
+            .child(comment.commentId.toString())
+            .setValue(comment)
+            .addOnFailureListener{ error ->
+                Log.d("Error publishing comment", error.toString())
+            }
+    }
 
     // LIKES
     suspend fun checkLike(postId: String, userId: String): Boolean = callbackFlow{

@@ -14,8 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.searchPosts
 import com.example.fullthrottle.data.DBHelper.searchUsers
@@ -42,7 +44,7 @@ fun SearchScreen(
             .padding(10.dp)
     ) {
         searchTextField(
-            label = "Cerca post e riders",
+            label = stringResource(id = R.string.search_label),
             onValueChange = fun(text: String) {
                 if(text.length >= 3) {
                     coroutineScope.launch {
@@ -69,6 +71,8 @@ fun SearchScreen(
         if (searching > 0) LoadingAnimation()
         else {
             if (postResults.isNotEmpty()) {
+                Spacer(modifier = Modifier.size(10.dp))
+
                 Text(
                     text = "Post",
                     fontWeight = FontWeight.Bold,
@@ -116,6 +120,8 @@ fun SearchScreen(
                 }
             }
             if (userResults.isNotEmpty()) {
+                Spacer(modifier = Modifier.size(10.dp))
+
                 Text(
                     text = "Riders",
                     fontWeight = FontWeight.Bold,

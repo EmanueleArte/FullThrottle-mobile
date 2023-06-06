@@ -113,7 +113,7 @@ fun outLineTextField(
         onValueChange = {
             text = it
         },
-        modifier = modifier
+        modifier = modifier,
     )
     return text
 }
@@ -182,6 +182,10 @@ fun searchTextField(
             text = it
             onValueChange(it)
         },
+        colors = TextFieldDefaults.textFieldColors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+        ),
         modifier = modifier
     )
     return text
