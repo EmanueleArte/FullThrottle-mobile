@@ -69,6 +69,7 @@
     <string name="delete_motorbike_text">Vuoi confermare l\'eliminazione della moto dal tuo account?
         La suddetta moto sarà comunque ancora visibile nei post ad essa associati.</string>
 
+    <string name="modify_profile_image_success">Immagine profilo modificata con successo</string>
     <string name="modify_username_success">Username modificato con successo</string>
     <string name="modify_mail_success">Mail modificata con successo</string>
     <string name="modify_password_success">Password modificata con successo</string>

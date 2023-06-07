@@ -68,6 +68,7 @@ fun ProfileModificationScreen(
         motorbikes = getMotorbikesByUserId(uid)
     }
 
+    val profileImageSuccess = stringResource(id = R.string.modify_profile_image_success)
     val usernameSuccess = stringResource(id = R.string.modify_username_success)
     val mailSuccess = stringResource(id = R.string.modify_mail_success)
     val pwSuccess = stringResource(id = R.string.modify_password_success)
@@ -145,6 +146,7 @@ fun ProfileModificationScreen(
             onConfirm = {
                 changeProfileImage(uid, profileImageUri.value as Uri)
                 profileImageUri.value = Uri.EMPTY
+                showSnackBar(warningViewModel, profileImageSuccess)
             },
             onDismiss = {
                 profileImageUri.value = Uri.EMPTY
