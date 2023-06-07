@@ -35,7 +35,6 @@ import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.data.entities.User
-import kotlinx.coroutines.async
 
 @Composable
 fun FollowersScreen(
@@ -53,7 +52,8 @@ fun FollowersScreen(
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex) {
             tabs.forEachIndexed { index, title ->
-                Tab(text = { Text(title) },
+                Tab(
+                    text = { Text(title) },
                     selected = tabIndex == index,
                     onClick = { tabIndex = index },
                 )
@@ -72,19 +72,20 @@ fun UsersList(
     currentTab: Int,
     goToUserProfile: (String) -> Unit
 ) {
-    var users by remember { mutableStateOf(emptyList<User>()) }
-    var imagesUris by remember { mutableStateOf(mutableListOf<Uri>()) }
+    var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
+    var imagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+
     LaunchedEffect(key1 = "followersQuery") {
-        async {
-            users = if (currentTab == FOLLOWERS_TAB) {
-                getFollowers(uid)
-            } else {
-                getFolloweds(uid)
-            }
-            users.forEach {
-                val imageUrl = it.userId + "/" + it.userImg
-                imagesUris.add(getImageUri(imageUrl))
-            }
+        users = if (currentTab == FOLLOWERS_TAB) {
+            getFollowers(uid)
+        } else {
+            getFolloweds(uid)
+        }
+        imagesUris = users.map { user ->
+            if (user.userImg.toString().isNotEmpty())
+                getImageUri(user.userId + "/" + user.userImg)
+            else
+                Uri.EMPTY
         }
     }
 

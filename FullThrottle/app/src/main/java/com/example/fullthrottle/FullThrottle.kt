@@ -298,6 +298,7 @@ fun NavigationApp(
     warningViewModel: WarningViewModel,
     startDestination: String = AppScreen.Login.name,
     methods: Map<String, () -> Unit>,
+    onBackAction: MutableState<() -> Unit>,
     navController: NavHostController = rememberNavController()
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
@@ -312,6 +313,24 @@ fun NavigationApp(
 
     val postIdStack = remember { mutableStateListOf<String>() }
 
+    onBackAction.value = {
+        if (currentScreen == AppScreen.Login.name
+            || currentScreen == AppScreen.Home.name) {
+            methods["exit"]?.invoke()
+        }
+        if (navController.previousBackStackEntry != null) {
+            navController.navigateUp()
+        } else {
+            navController.navigate(AppScreen.Home.name)
+        }
+        manageNavigateBack(
+            userIdStack = userIdStack,
+            postIdStack = postIdStack,
+            currentScreen = currentScreen
+        )
+        println("ok ok ok")
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -319,16 +338,7 @@ fun NavigationApp(
                 currentScreen = currentScreen,
                 canNavigateBack = currentScreen != AppScreen.Home.name,
                 navigateUp = {
-                    if (navController.previousBackStackEntry != null) {
-                        navController.navigateUp()
-                    } else {
-                        navController.navigate(AppScreen.Home.name)
-                    }
-                    manageNavigateBack(
-                        userIdStack = userIdStack,
-                        postIdStack = postIdStack,
-                        currentScreen = currentScreen
-                    )
+                    onBackAction.value()
                 },
                 onSettingsButtonClicked = { navController.navigate(AppScreen.Settings.name) }
             )

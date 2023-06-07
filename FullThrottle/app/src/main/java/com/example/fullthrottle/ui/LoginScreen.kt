@@ -15,10 +15,10 @@ import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.userLogin
 import com.example.fullthrottle.ui.Logo.logoId
+import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     settingsViewModel: SettingsViewModel,
@@ -29,24 +29,35 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .padding(50.dp)
+            .padding(vertical = 50.dp)
             .fillMaxSize()
     ) {
         Image(
             painter = painterResource(id = logoId),
             contentDescription = "app logo",
             modifier = Modifier
+                .padding(horizontal = 50.dp)
                 .fillMaxWidth(),
             contentScale = ContentScale.Fit
         )
 
         Spacer(modifier = Modifier.size(40.dp))
 
-        val username = outLineTextField(label = "Username")
+        val username = outLineTextField(
+            label = "Username",
+            modifier = Modifier
+                .padding(horizontal = MAIN_H_PADDING)
+                .fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.size(10.dp))
 
-        val password = outLinePasswordField(label = "Password")
+        val password = outLinePasswordField(
+            label = "Password",
+            modifier = Modifier
+                .padding(horizontal = MAIN_H_PADDING)
+                .fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.size(10.dp))
 

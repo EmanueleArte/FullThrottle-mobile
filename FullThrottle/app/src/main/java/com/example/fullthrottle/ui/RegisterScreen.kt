@@ -2,14 +2,12 @@ package com.example.fullthrottle.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -20,47 +18,50 @@ import com.example.fullthrottle.ValidityUtils.isValidPassword
 import com.example.fullthrottle.ValidityUtils.isValidUsername
 import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.ui.Logo.logoId
+import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
-import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     settingsViewModel: SettingsViewModel,
     navigateTo: Map<String, () ->Unit>
 ) {
-    val context = LocalContext.current
+    val fieldModifier = Modifier
+        .padding(horizontal = MAIN_H_PADDING)
+        .fillMaxWidth()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .padding(50.dp)
+            .padding(vertical = 50.dp)
             .fillMaxSize()
     ) {
         Image(
             painter = painterResource(id = logoId),
             contentDescription = "app logo",
             modifier = Modifier
+                .padding(horizontal = 50.dp)
                 .fillMaxWidth(),
             contentScale = ContentScale.Fit
         )
 
         Spacer(modifier = Modifier.size(40.dp))
 
-        val username = outLineTextField(label = "Username")
+        val username = outLineTextField(label = "Username", modifier = fieldModifier)
 
         Spacer(modifier = Modifier.size(10.dp))
 
-        val mail = outLineTextField(label = "Mail")
+        val mail = outLineTextField(label = "Mail", modifier = fieldModifier)
 
         Spacer(modifier = Modifier.size(10.dp))
 
-        val password = outLinePasswordField(label = "Password")
+        val password = outLinePasswordField(label = "Password", modifier = fieldModifier)
 
         Spacer(modifier = Modifier.size(10.dp))
 
-        val passwordRep = outLinePasswordField(label = stringResource(id = R.string.password_repetition))
+        val passwordRep = outLinePasswordField(label = stringResource(id = R.string.password_repetition), modifier = fieldModifier)
 
         Spacer(modifier = Modifier.size(10.dp))
 

@@ -11,6 +11,7 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -66,16 +68,22 @@ class MainActivity : ComponentActivity() {
 
     private var showSnackbar: Boolean = true
 
-    /*var onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+    private val onBackAction = mutableStateOf({})
+
+    private val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            println("si")
+            onBackAction.value()
         }
-    }*/
+    }
+
+    override fun onBackPressed() {
+        onBackAction.value()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -155,7 +163,9 @@ class MainActivity : ComponentActivity() {
                             "startLocationUpdates" to ::startLocationUpdates,
                             "stopLocationUpdates" to ::stopLocationUpdates,
                             "requestingLocationUpdatesFalse" to { requestingLocationUpdates.value = false },
-                        )
+                            "exit" to ::finish
+                        ),
+                        onBackAction = onBackAction
                     )
 
                 }
