@@ -52,6 +52,8 @@
     <string name="modify_profile">Modifica profilo</string>
 
     <!-- Modify user data -->
+    <string name="profile_image_change">Cambia immagine profilo</string>
+    <string name="modify_image_text">Vuoi confermare la modifica della tua immagine di profilo?</string>
     <string name="save">Salva modifica</string>
     <string name="add_motorbike">Aggiungi moto</string>
     <string name="confirm_title">Conferma la modifica</string>

@@ -1,26 +1,39 @@
 package com.example.fullthrottle.ui
 
+import android.Manifest
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.ValidityUtils.isValidMail
 import com.example.fullthrottle.ValidityUtils.isValidPassword
 import com.example.fullthrottle.ValidityUtils.isValidUsername
+import com.example.fullthrottle.createPermissionRequest
 import com.example.fullthrottle.data.DBHelper.addMotorbike
+import com.example.fullthrottle.data.DBHelper.changeProfileImage
 import com.example.fullthrottle.data.DBHelper.checkPassword
 import com.example.fullthrottle.data.DBHelper.deleteMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
@@ -31,7 +44,9 @@ import com.example.fullthrottle.data.DBHelper.updatePassword
 import com.example.fullthrottle.data.DBHelper.updateUsername
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.saveAndCropTempFile
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
+import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.*
@@ -44,6 +59,9 @@ fun ProfileModificationScreen(
     settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
 
     LaunchedEffect(key1 = "motorbikes") {
@@ -56,28 +74,87 @@ fun ProfileModificationScreen(
     val motorbikeAdded = stringResource(id = R.string.motorbike_added)
     val motoInvalid = stringResource(id = R.string.all_moto_fields)
     val motorbikeDeleted = stringResource(id = R.string.motorbike_deleted)
+    val permissionDeniedLabel = stringResource(id = R.string.permission_denied)
 
     val saveUsernameModify = remember { mutableStateOf(false) }
     val saveMailModify = remember { mutableStateOf(false) }
     val savePwModify = remember { mutableStateOf(false) }
     val saveMotorbikeAdd = remember { mutableStateOf(false) }
     val saveMotorbikeDelete = remember { mutableStateOf(false) }
+    val saveImage = remember { mutableStateOf(false) }
+
+    val profileImageUri = rememberSaveable { mutableStateOf<Uri?>(Uri.EMPTY) }
 
     val openDialogUsername = remember { mutableStateOf(false) }
     val openDialogMail = remember { mutableStateOf(false) }
     val openDialogPw = remember { mutableStateOf(false) }
     val openDialogMotorbikeAdd = remember { mutableStateOf(false) }
     val openDialogMotorbikeDelete = remember { mutableStateOf(false) }
+    val openDialogImage = remember { mutableStateOf(false) }
 
     var usernameError by remember { mutableStateOf(-1) }
     var mailError by remember { mutableStateOf(-1) }
     var pwError by remember { mutableStateOf(-1) }
 
-    val coroutineScope = rememberCoroutineScope()
+    val cropImageActivity = cropImageActivityBuilder(profileImageUri, 1F, 1F)
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            saveAndCropTempFile(cropImageActivity, uri)
+        }
+    )
+
+    val photoPickerPermission = createPermissionRequest(
+        onSuccess = {
+            singlePhotoPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        },
+        onDismiss = {
+            Toast.makeText(context, permissionDeniedLabel, Toast.LENGTH_SHORT).show()
+        }
+    )
+
+    if (profileImageUri.value != Uri.EMPTY) {
+        openDialogImage.value = true
+    }
+
+    if (openDialogImage.value) {
+        ImageAlertDialog(
+            title = stringResource(id = R.string.confirm_title),
+            body = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(stringResource(id = R.string.modify_image_text))
+
+                    Spacer(modifier = Modifier.size(15.dp))
+
+                    ProfileImage(
+                        imgUri = profileImageUri.value as Uri,
+                        modifier = Modifier
+                            .requiredHeight(250.dp)
+                            .requiredWidth(250.dp)
+                            .clip(CircleShape)
+                    )
+                }
+            },
+            openDialog = openDialogImage,
+            result = saveImage,
+            onConfirm = {
+                changeProfileImage(uid, profileImageUri.value as Uri)
+                profileImageUri.value = Uri.EMPTY
+            },
+            onDismiss = {
+                profileImageUri.value = Uri.EMPTY
+            }
+        )
+    }
 
     LazyColumn(
         modifier = Modifier
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = MAIN_H_PADDING)
             .fillMaxWidth()
     ) {
         item {
@@ -86,7 +163,34 @@ fun ProfileModificationScreen(
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // Profile image change
+                Text(
+                    text = stringResource(id = R.string.profile_image_change),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
 
+                Spacer(modifier = Modifier.size(5.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    TakePhoto(cropImageActivity = cropImageActivity, modifier = Modifier.weight(0.49F))
+
+                    Spacer(modifier = Modifier.weight(0.02F))
+
+                    ButtonWithIcon(
+                        text = stringResource(id = R.string.select_an_image),
+                        icon = Icons.Outlined.Image,
+                        iconDescription = "image icon",
+                        modifier = Modifier.weight(0.49F)
+                    ) {
+                        photoPickerPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
+                }
+
+                Spacer(modifier = Modifier.size(15.dp))
 
                 // Username change
                 val username = outLineTextField(

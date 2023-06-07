@@ -279,10 +279,10 @@ fun TextButtonWithIcon(
 
 @Composable
 fun ButtonWithIcon(
+    modifier: Modifier = Modifier,
     text: String = "",
     icon: ImageVector,
     iconDescription: String,
-    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     onClick: () -> Unit
 ) {
@@ -504,6 +504,42 @@ fun FieldsAlertDialog(
                 onConfirm()
                 //result.value = false
 
+                result.value = true
+                openDialog.value = false
+            }
+        },
+        dismissButton = {
+            SimpleTextButton(value = dismiss) {
+                onDismiss()
+                result.value = false
+                openDialog.value = false
+            }
+        }
+    )
+}
+
+@Composable
+fun ImageAlertDialog(
+    title: String,
+    body: @Composable () -> Unit,
+    confirm: String = stringResource(id = R.string.confirm),
+    dismiss: String = stringResource(id = R.string.dismiss),
+    openDialog: MutableState<Boolean>,
+    result: MutableState<Boolean>,
+    onConfirm: () -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+    AlertDialog(
+        onDismissRequest = { openDialog.value = false },
+        title = {
+            Text(text = title)
+        },
+        text = {
+            body()
+        },
+        confirmButton = {
+            SimpleTextButton(value = confirm) {
+                onConfirm()
                 result.value = true
                 openDialog.value = false
             }
@@ -767,7 +803,11 @@ fun TakePhoto(
         }
     }
 
-    if (capturedImageUri.path?.isNotEmpty() == true) {
-        saveAndCropTempFile(cropImageActivity, capturedImageUri)
+    DisposableEffect(capturedImageUri.path) {
+        if (capturedImageUri.path?.isNotEmpty() == true) {
+            saveAndCropTempFile(cropImageActivity, capturedImageUri)
+        }
+        onDispose {
+        }
     }
 }

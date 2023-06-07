@@ -104,7 +104,7 @@ fun saveAndCropTempFile(
     cropImageActivity: ManagedActivityResultLauncher<List<Uri>, Uri?>,
     uri: Uri?
 ) {
-    if (uri != null) {
+    if (uri != null && uri != Uri.EMPTY) {
         val outputFile = File.createTempFile(LocalDateTime.now().toString(), ".jpg")
         cropImageActivity.launch(listOf(uri!!, outputFile.toUri()))
     }

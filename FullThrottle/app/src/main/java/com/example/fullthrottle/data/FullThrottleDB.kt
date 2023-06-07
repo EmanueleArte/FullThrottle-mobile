@@ -586,6 +586,21 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    fun changeProfileImage(uid: String, profileImageUri: Uri) {
+        val postImageRef = storage.reference.child("$uid/${profileImageUri.lastPathSegment}")
+        val uploadTask = postImageRef.putFile(profileImageUri)
+
+        database
+            .getReference("users")
+            .child(uid)
+            .child("userImg")
+            .setValue(profileImageUri.lastPathSegment.toString())
+
+        uploadTask.addOnFailureListener {
+            Log.d("Error uploading image", it.toString())
+        }
+    }
+
     // USER DATA
     fun updateUsername(
         uid: String,
