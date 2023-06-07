@@ -7,17 +7,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
+import com.example.fullthrottle.data.DBHelper.deletePost
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DBHelper.getPostsByUserId
@@ -26,7 +32,6 @@ import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
-import com.example.fullthrottle.ui.ProfileScreenData.load
 import com.example.fullthrottle.ui.ProfileScreenData.postImagesUrisLoaded
 import com.example.fullthrottle.ui.ProfileScreenData.postsLoaded
 import com.example.fullthrottle.ui.ProfileScreenData.uid
@@ -56,6 +61,7 @@ fun ProfileScreen(
     goToPost: (String) -> Unit
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+    val coroutineScope = rememberCoroutineScope()
 
     if (uid != userId) {
         uid = userId
@@ -85,7 +91,7 @@ fun ProfileScreen(
         }.invokeOnCompletion {
             launch {
                 postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
-                load(posts, postImagesUris)
+                //load(posts, postImagesUris)
             }
         }
     }
@@ -99,7 +105,6 @@ fun ProfileScreen(
         .requiredWidth(100.dp)
         .requiredHeight(100.dp)
         .clip(RoundedCornerShape(CORNER_RADIUS))
-
 
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -209,6 +214,7 @@ fun ProfileScreen(
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
                             Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(2.dp)
                             ) {
                                 Column(
@@ -224,11 +230,51 @@ fun ProfileScreen(
                                     )
                                 }
 
-                                Column(
-                                    modifier = Modifier.padding(start = 5.dp)
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text(text = post.publishDate.orEmpty())
-                                    Text(text = post.title.orEmpty())
+                                    Column(
+                                        modifier = Modifier.padding(start = 5.dp)
+                                    ) {
+                                        Text(text = post.publishDate.orEmpty())
+                                        Text(text = post.title.orEmpty())
+                                    }
+
+                                    val openDialogDeletePost = rememberSaveable { mutableStateOf(false) }
+                                    val saveDeletePost = rememberSaveable { mutableStateOf(false) }
+                                    val deletePostTitle = stringResource(id = R.string.confirm_delete_title)
+
+                                    if (openDialogDeletePost.value) {
+                                        SimpleAlertDialog(
+                                            title = deletePostTitle,
+                                            text = "",
+                                            openDialog = openDialogDeletePost,
+                                            result = saveDeletePost,
+                                            onConfirm = {
+                                                coroutineScope.launch {
+                                                    deletePost(post.postId.orEmpty())
+                                                    posts = getPostsByUserId(userId)
+                                                }
+                                                //showSnackBar(warningViewModel, usernameSuccess)
+                                            }
+                                        )
+                                    }
+
+                                    Column(
+                                        modifier = Modifier.padding(start = 5.dp)
+                                    ) {
+                                        IconButton(
+                                            onClick = {
+                                                openDialogDeletePost.value = true
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Delete,
+                                                contentDescription = "Delete post"
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

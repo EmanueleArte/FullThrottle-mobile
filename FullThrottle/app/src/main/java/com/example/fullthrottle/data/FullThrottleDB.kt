@@ -363,6 +363,16 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    suspend fun deletePost(postId: String) {
+        val post = getPostById(postId)
+        database.getReference("posts").child(postId).removeValue()
+        storage.reference
+            .child("${post?.userId}/${post?.postImg}")
+            .delete().addOnFailureListener { error ->
+                Log.d("Error deleting image", error.toString())
+            }
+    }
+
     // MOTORBIKES
     suspend fun getMotorbikeById(motorbikeId: String): Motorbike? = callbackFlow {
         database

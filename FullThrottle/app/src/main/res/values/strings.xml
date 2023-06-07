@@ -57,6 +57,7 @@
     <string name="save">Salva modifica</string>
     <string name="add_motorbike">Aggiungi moto</string>
     <string name="confirm_title">Conferma la modifica</string>
+    <string name="confirm_delete_title">Confermi l\'eliminazione del post?</string>
     <string name="confirm">Conferma</string>
     <string name="dismiss">Rifiuta</string>
     <string name="add">Aggiungi</string>
