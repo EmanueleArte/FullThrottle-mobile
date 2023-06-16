@@ -258,6 +258,23 @@ object DBHelper {
     }.first()
 
     // POSTS
+    suspend fun getAllPosts(): List<Post> = callbackFlow {
+        database
+            .getReference("posts")
+            .get()
+            .addOnSuccessListener { posts ->
+                if (posts.exists()) {
+                    trySend(posts.children.map { post -> post.getValue<Post>() as Post })
+                } else {
+                    trySend(emptyList<Post>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun getPostById(postId: String): Post? = callbackFlow {
         database
             .getReference("posts")
