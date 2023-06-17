@@ -187,6 +187,136 @@ object DBHelper {
         awaitClose { }
     }.first()
 
+    fun followUser(uidToFollow: String, uid: String): Boolean {
+        val follow = Follow(
+            followId = UUID.randomUUID().toString(),
+            followedId = uidToFollow,
+            followerId = uid,
+            notified = "0"
+        )
+        var success = true
+
+        database
+            .getReference("follows")
+            .child(follow.followId.toString())
+            .setValue(follow)
+            .addOnFailureListener { error ->
+                Log.d("Error creating follow", error.toString())
+                success = false
+            }
+
+        if (success) {
+            database
+                .getReference("users")
+                .orderByKey()
+                .equalTo(uidToFollow)
+                .get()
+                .addOnSuccessListener {
+                    if (it.exists()) {
+                        val user = it.children.first().getValue<User>()
+                        val newFollowers = user?.followers?.toInt()?.plus(1)
+                        val updates: MutableMap<String, Any> = hashMapOf(
+                            "users/$uidToFollow/followers" to newFollowers.toString(),
+                        )
+                        database.reference.updateChildren(updates)
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Log.d("Error getting data", error.toString())
+                    success = false
+                }
+        }
+
+        if (success) {
+            database
+                .getReference("users")
+                .orderByKey()
+                .equalTo(uid)
+                .get()
+                .addOnSuccessListener {
+                    if (it.exists()) {
+                        val user = it.children.first().getValue<User>()
+                        val newFolloweds = user?.followed?.toInt()?.plus(1)
+                        val updates: MutableMap<String, Any> = hashMapOf(
+                            "users/$uid/followed" to newFolloweds.toString(),
+                        )
+                        database.reference.updateChildren(updates)
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Log.d("Error getting data", error.toString())
+                    success = false
+                }
+        }
+        return success
+    }
+
+    fun unfollowUser(uidToUnfollow: String, uid: String): Boolean {
+        var success = true
+
+        database
+            .getReference("follows")
+            .orderByChild("followedId")
+            .equalTo(uidToUnfollow)
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    val follows = it.children.map { follow -> follow.getValue<Follow>() as Follow }
+                    val followId = follows.find { follow -> follow.followerId == uid }?.followId
+                    database.getReference("follows").child(followId.orEmpty()).removeValue()
+                }
+            }
+            .addOnFailureListener { error ->
+                Log.d("Error getting data", error.toString())
+                success = false
+            }
+
+        if (success) {
+            database
+                .getReference("users")
+                .orderByKey()
+                .equalTo(uidToUnfollow)
+                .get()
+                .addOnSuccessListener {
+                    if (it.exists()) {
+                        val user = it.children.first().getValue<User>()
+                        val newFollowers = user?.followers?.toInt()?.plus(-1)
+                        val updates: MutableMap<String, Any> = hashMapOf(
+                            "users/$uidToUnfollow/followers" to newFollowers.toString(),
+                        )
+                        database.reference.updateChildren(updates)
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Log.d("Error getting data", error.toString())
+                    success = false
+                }
+        }
+
+        if (success) {
+            database
+                .getReference("users")
+                .orderByKey()
+                .equalTo(uid)
+                .get()
+                .addOnSuccessListener {
+                    if (it.exists()) {
+                        val user = it.children.first().getValue<User>()
+                        val newFolloweds = user?.followed?.toInt()?.plus(-1)
+                        val updates: MutableMap<String, Any> = hashMapOf(
+                            "users/$uid/followed" to newFolloweds.toString(),
+                        )
+                        database.reference.updateChildren(updates)
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Log.d("Error getting data", error.toString())
+                    success = false
+                }
+        }
+        return success
+    }
+
     suspend fun userLogin(
         username: String,
         password: String,

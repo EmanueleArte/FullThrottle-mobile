@@ -50,6 +50,8 @@
     <string name="followers_tab_label">Followers</string>
     <string name="followed_tab_label">Seguiti</string>
     <string name="modify_profile">Modifica profilo</string>
+    <string name="follow">Segui</string>
+    <string name="unfollow">Non seguire più</string>
 
     <!-- Modify user data -->
     <string name="profile_image_change">Cambia immagine profilo</string>
