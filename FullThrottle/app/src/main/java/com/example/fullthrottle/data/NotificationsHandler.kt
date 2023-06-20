@@ -16,13 +16,11 @@ import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getPostsByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DBHelper.notifyComment
+import com.example.fullthrottle.data.DBHelper.notifyFollow
 import com.example.fullthrottle.data.DBHelper.notifyLike
 import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
-import com.example.fullthrottle.data.entities.Comment
-import com.example.fullthrottle.data.entities.Like
-import com.example.fullthrottle.data.entities.Post
-import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.data.entities.*
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -33,6 +31,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.random.Random
 
 @Composable
 private fun createNotificationChannels() {
@@ -58,6 +57,16 @@ private fun createNotificationChannels() {
         description = stringResource(id = R.string.comments_notifications_channel_description)
     }
     notificationManager.createNotificationChannel(commentsChannel)
+
+    // FOLLOWERS
+    val followersChannel = NotificationChannel(
+        stringResource(id = R.string.followers_notifications_channel_id),
+        stringResource(id = R.string.followers_notifications_channel_name),
+        NotificationManager.IMPORTANCE_DEFAULT
+    ).apply {
+        description = stringResource(id = R.string.followers_notifications_channel_description)
+    }
+    notificationManager.createNotificationChannel(followersChannel)
 }
 
 @Composable
@@ -125,8 +134,31 @@ fun NotificationsHandler (
         }
     }
 
+    val followerListener = object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            var follows = dataSnapshot.children.map { follow -> follow.getValue<Follow>() }
+            val userId = settings[USER_ID_KEY].toString()
+            follows = follows.filter { follow -> follow?.followedId == userId }
+            follows = follows.filter { follow -> follow?.notified == "0" }
+            follows.forEach { follow ->
+                if (follow?.notified == "0") {
+                    notifyFollow(follow.followId.toString())
+                    if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                        || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.FOLLOWERS_NOTIFICATIONS) {
+                        sendFollowNotification(follow, context)
+                    }
+                }
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
+            Log.d("Error", databaseError.toString())
+        }
+    }
+
     Firebase.database.getReference("likes").addValueEventListener(likeListener)
     Firebase.database.getReference("comments").addValueEventListener(commentListener)
+    Firebase.database.getReference("follows").addValueEventListener(followerListener)
 }
 
 @SuppressLint("MissingPermission")
@@ -141,7 +173,7 @@ private fun sendLikeNotification (like: Like, context: Context) {
             .setContentText(user?.username + " ha messo mi piace al tuo post")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         with(NotificationManagerCompat.from(context)) {
-            notify(123, builder.build())
+            notify(Random(like.userId.hashCode() + like.postId.hashCode()).nextInt(), builder.build())
         }
     }
 }
@@ -158,7 +190,24 @@ private fun sendCommentNotification (comment: Comment, context: Context) {
             .setContentText(user?.username + ": " + comment.text)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         with(NotificationManagerCompat.from(context)) {
-            notify(123, builder.build())
+            notify(Random(comment.userId.hashCode() + comment.text.hashCode()).nextInt() + comment.postId.hashCode(), builder.build())
+        }
+    }
+}
+
+@SuppressLint("MissingPermission")
+private fun sendFollowNotification (follow: Follow, context: Context) {
+    var user: User? = null
+    CoroutineScope(EmptyCoroutineContext).launch {
+        user = getUserById(follow.followerId.toString())
+    }.invokeOnCompletion {
+        val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
+            .setSmallIcon(R.drawable.fullthrottle_logo_light)
+            .setContentTitle("Nuovo follower")
+            .setContentText(user?.username + " ha iniziato a seguirti")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        with(NotificationManagerCompat.from(context)) {
+            notify(Random(user?.userId.hashCode()).nextInt(), builder.build())
         }
     }
 }

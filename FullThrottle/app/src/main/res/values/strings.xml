@@ -119,5 +119,8 @@
     <string name="comments_notifications_channel_name">Commenti</string>
     <string name="comments_notifications_channel_description">Notifiche relative ai commenti ricevuti</string>
 
+    <string name="followers_notifications_channel_id">FullThrottleFollowersNotificationsChannel</string>
+    <string name="followers_notifications_channel_name">Nuovi follower</string>
+    <string name="followers_notifications_channel_description">Notifiche relative ai nuovi follower</string>
 
 </resources>

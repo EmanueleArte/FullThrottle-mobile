@@ -317,6 +317,17 @@ object DBHelper {
         return success
     }
 
+    fun notifyFollow(followId: String) {
+        database
+            .getReference("follows")
+            .child(followId)
+            .child("notified")
+            .setValue("1")
+            .addOnFailureListener { error ->
+                Log.d("Error notifying like", error.toString())
+            }
+    }
+
     suspend fun userLogin(
         username: String,
         password: String,
