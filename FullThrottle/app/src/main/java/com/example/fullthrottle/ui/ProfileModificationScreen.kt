@@ -2,6 +2,7 @@ package com.example.fullthrottle.ui
 
 import android.Manifest
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -188,7 +189,13 @@ fun ProfileModificationScreen(
                         iconDescription = "image icon",
                         modifier = Modifier.weight(0.49F)
                     ) {
-                        photoPickerPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        //photoPickerPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        photoPickerPermission.launch(
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                                Manifest.permission.READ_MEDIA_IMAGES
+                            else
+                                Manifest.permission.READ_EXTERNAL_STORAGE
+                        )
                     }
                 }
 
