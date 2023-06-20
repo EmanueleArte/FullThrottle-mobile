@@ -24,10 +24,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.deletePost
+import com.example.fullthrottle.data.DBHelper.followUser
+import com.example.fullthrottle.data.DBHelper.getFollowers
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DBHelper.getPostsByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
+import com.example.fullthrottle.data.DBHelper.unfollowUser
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
@@ -72,12 +75,23 @@ fun ProfileScreen(
     var posts by rememberSaveable { mutableStateOf(postsLoaded) }
     var postImagesUris by rememberSaveable { mutableStateOf(postImagesUrisLoaded) }
     var imageUri by rememberSaveable { mutableStateOf<Uri>(Uri.EMPTY) }
-    var motorbikes by remember { mutableStateOf(emptyList<Motorbike>()) }
+    var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
+    val followLabel = stringResource(id = R.string.follow)
+    val unfollowLabel = stringResource(id = R.string.unfollow)
+    var followButtonState by rememberSaveable { mutableStateOf(followLabel) }
+    var nFollowers by rememberSaveable { mutableStateOf(String()) }
 
     LaunchedEffect(key1 = "imageUri") {
         async {
             user = getUserById(userId) ?: User()
+            val followers = getFollowers(user.userId.orEmpty())
+            if (followers.map { follower -> follower.userId }.contains(settings[USER_ID_KEY])) {
+                followButtonState = unfollowLabel
+            }
         }.invokeOnCompletion {
+            if (user.followers != null) {
+                nFollowers = user.followers.toString()
+            }
             if (user.userImg?.isNotEmpty()!!) {
                 val imageUrl = userId + "/" + user.userImg
                 launch {
@@ -120,7 +134,7 @@ fun ProfileScreen(
                     .clickable { navigateTo["followers"]?.invoke() },
                 verticalArrangement = centerArrangement,
             ) {
-                BoldCenterText(text = user.followers.toString(), Modifier.requiredWidth(100.dp))
+                BoldCenterText(text = nFollowers, Modifier.requiredWidth(100.dp))
                 SimpleCenterText(text = stringResource(id = R.string.followers_label), Modifier.requiredWidth(100.dp))
             }
 
@@ -147,8 +161,27 @@ fun ProfileScreen(
         ) {
             Row(
                 horizontalArrangement = leftArrangement,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = user.username.toString(), fontWeight = FontWeight.SemiBold)
+                if (userId != settings[USER_ID_KEY]) {
+                    Spacer(modifier = Modifier.size(5.dp))
+                    SimpleTextButton(
+                        value = followButtonState,
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        modifier = Modifier.height(30.dp)
+                    ) {
+                        if (followButtonState == followLabel) {
+                            followUser(userId, settings[USER_ID_KEY].orEmpty())
+                            nFollowers = nFollowers.toInt().plus(1).toString()
+                            followButtonState = unfollowLabel
+                        } else {
+                            unfollowUser(userId, settings[USER_ID_KEY].orEmpty())
+                            nFollowers = nFollowers.toInt().plus(-1).toString()
+                            followButtonState = followLabel
+                        }
+                    }
+                }
             }
             if (userId == settings[USER_ID_KEY]) {
                 Row(
@@ -241,38 +274,41 @@ fun ProfileScreen(
                                         Text(text = post.title.orEmpty())
                                     }
 
-                                    val openDialogDeletePost = rememberSaveable { mutableStateOf(false) }
-                                    val saveDeletePost = rememberSaveable { mutableStateOf(false) }
-                                    val deletePostTitle = stringResource(id = R.string.confirm_delete_title)
+                                    if (userId == settings[USER_ID_KEY]) {
+                                        val openDialogDeletePost =
+                                            rememberSaveable { mutableStateOf(false) }
+                                        val saveDeletePost = rememberSaveable { mutableStateOf(false) }
+                                        val deletePostTitle =
+                                            stringResource(id = R.string.confirm_delete_title)
 
-                                    if (openDialogDeletePost.value) {
-                                        SimpleAlertDialog(
-                                            title = deletePostTitle,
-                                            text = "",
-                                            openDialog = openDialogDeletePost,
-                                            result = saveDeletePost,
-                                            onConfirm = {
-                                                coroutineScope.launch {
-                                                    deletePost(post.postId.orEmpty())
-                                                    posts = getPostsByUserId(userId)
+                                        if (openDialogDeletePost.value) {
+                                            SimpleAlertDialog(
+                                                title = deletePostTitle,
+                                                text = "",
+                                                openDialog = openDialogDeletePost,
+                                                result = saveDeletePost,
+                                                onConfirm = {
+                                                    coroutineScope.launch {
+                                                        deletePost(post.postId.orEmpty())
+                                                        posts = getPostsByUserId(userId)
+                                                    }
                                                 }
-                                                //showSnackBar(warningViewModel, usernameSuccess)
-                                            }
-                                        )
-                                    }
-
-                                    Column(
-                                        modifier = Modifier.padding(start = 5.dp)
-                                    ) {
-                                        IconButton(
-                                            onClick = {
-                                                openDialogDeletePost.value = true
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Delete,
-                                                contentDescription = "Delete post"
                                             )
+                                        }
+
+                                        Column(
+                                            modifier = Modifier.padding(start = 5.dp)
+                                        ) {
+                                            IconButton(
+                                                onClick = {
+                                                    openDialogDeletePost.value = true
+                                                }
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Delete,
+                                                    contentDescription = "Delete post"
+                                                )
+                                            }
                                         }
                                     }
                                 }

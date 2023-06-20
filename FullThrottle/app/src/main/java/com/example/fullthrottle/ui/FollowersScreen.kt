@@ -133,10 +133,6 @@ fun UsersList(
                         }
                     }
                 }
-                /*ItemTonalButton(value = user.username.toString(),
-                    onClick = { goToUserProfile(user.userId.toString()) },
-                    imgUri = imagesUris.getOrElse(index) { Uri.EMPTY }
-                )*/
             }
         }
     }

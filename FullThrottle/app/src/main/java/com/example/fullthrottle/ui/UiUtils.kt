@@ -310,7 +310,7 @@ fun OutlineTextButton(
     OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
-        modifier = modifier.height(30.dp),
+        modifier = modifier,
         contentPadding = contentPadding
     ) {
         Text(value)
@@ -327,7 +327,7 @@ fun ItemTonalButton(
     FilledTonalIconButton(
         onClick = onClick,
         shape = RoundedCornerShape(CORNER_RADIUS),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
