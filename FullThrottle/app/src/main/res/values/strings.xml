@@ -108,4 +108,14 @@
     <!-- Search -->
     <string name="search_label">Cerca post e riders</string>
 
+    <!-- Notifications -->
+    <string name="likes_notifications_channel_id">FullThrottleLikesNotificationsChannel</string>
+    <string name="likes_notifications_channel_name">Likes</string>
+    <string name="likes_notifications_channel_description">Notifiche relative ai like ricevuti</string>
+
+    <string name="comments_notifications_channel_id">FullThrottleCommentsNotificationsChannel</string>
+    <string name="comments_notifications_channel_name">Commenti</string>
+    <string name="comments_notifications_channel_description">Notifiche relative ai commenti ricevuti</string>
+
+
 </resources>

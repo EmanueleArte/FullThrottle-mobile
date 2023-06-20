@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,8 +33,8 @@ import com.example.fullthrottle.data.DataStoreConstants.MAIL_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.HomeValues.getFilterValueListener
-import com.example.fullthrottle.data.HomeValues.registerFilterValueListener
 import com.example.fullthrottle.data.HomeValues.setLifeCycleOwner
+import com.example.fullthrottle.data.NotificationsHandler
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
@@ -153,18 +153,20 @@ fun TopAppBarFunction(
                 }
             },
             actions = {
-                if (currentScreen == AppScreen.Home.name) {
-                    /* TODO Notifiche */
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search")
-                    }
-                }
                 if (currentScreen == AppScreen.Profile.name) {
                     IconButton(onClick = onSettingsButtonClicked) {
                         Icon(
                             Icons.Outlined.Settings,
                             contentDescription = "Settings button"
                         )
+                    }
+                } else {
+                    IconButton(
+                        onClick = {
+
+                        }
+                    ) {
+                        Icon(Icons.Filled.Notifications, contentDescription = "Search")
                     }
                 }
             },
@@ -312,6 +314,8 @@ fun NavigationApp(
     val userIdStack = remember { mutableListOf<String>() }
 
     val postIdStack = remember { mutableStateListOf<String>() }
+
+    NotificationsHandler(settingsViewModel)
 
     onBackAction.value = {
         if (currentScreen == AppScreen.Login.name

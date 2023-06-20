@@ -26,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
@@ -37,13 +36,7 @@ import com.example.fullthrottle.ui.LockScreenOrientation
 import com.example.fullthrottle.ui.theme.FullThrottleTheme
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Granularity
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
+import com.google.android.gms.location.*
 import dagger.hilt.android.AndroidEntryPoint
 
 

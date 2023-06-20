@@ -491,6 +491,17 @@ object DBHelper {
             }
     }
 
+    fun notifyComment(commentId: String) {
+        database
+            .getReference("comments")
+            .child(commentId)
+            .child("notified")
+            .setValue("1")
+            .addOnFailureListener { error ->
+                Log.d("Error notifying like", error.toString())
+            }
+    }
+
     // LIKES
     suspend fun checkLike(postId: String, userId: String): Boolean = callbackFlow{
         database
@@ -572,6 +583,17 @@ object DBHelper {
             }
         awaitClose { }
     }.first()
+
+    fun notifyLike(likeId: String) {
+        database
+            .getReference("likes")
+            .child(likeId)
+            .child("notified")
+            .setValue("1")
+            .addOnFailureListener { error ->
+                Log.d("Error notifying like", error.toString())
+            }
+    }
 
     // LOCATIONS
     suspend fun getPostsLocations(): Map<String, List<Post>> = callbackFlow {
@@ -712,5 +734,4 @@ object DBHelper {
                 }
         }
     }
-
 }

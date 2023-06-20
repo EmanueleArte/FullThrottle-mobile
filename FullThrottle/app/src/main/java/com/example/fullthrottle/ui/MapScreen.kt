@@ -40,6 +40,7 @@ fun MapScreen(
         isMyLocationEnabled = settings["location_updates"] == "true"
     )
     val cameraPositionState = rememberCameraPositionState()
+
     var locations by remember { mutableStateOf(emptyMap<String, List<Post>>()) }
     var coordinates by remember { mutableStateOf(emptyMap<String, LatLng>()) }
     var posts by remember { mutableStateOf(emptyList<Post>()) }
@@ -58,9 +59,15 @@ fun MapScreen(
                 }
             } else {
                 val tCoordinates = geocoder.getFromLocationName(location, 1)
-                coordinates = coordinates.plus(Pair(location, LatLng(tCoordinates?.get(0)?.latitude as Double, tCoordinates?.get(0)?.longitude as Double)))
+                coordinates = coordinates.plus(Pair(location, LatLng(tCoordinates?.get(0)?.latitude as Double, tCoordinates[0]?.longitude as Double)))
             }
         }
+        /*cameraPositionState.animate(
+            update = CameraUpdateFactory.newCameraPosition(
+                CameraPosition(LatLng(location.value.latitude, location.value.longitude), 0f, 0f, 0f)
+            ),
+            durationMs = 1000
+        )*/
     }
 
     Column(
