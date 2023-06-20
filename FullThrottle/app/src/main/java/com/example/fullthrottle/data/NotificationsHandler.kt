@@ -17,6 +17,7 @@ import com.example.fullthrottle.data.DBHelper.getPostsByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DBHelper.notifyComment
 import com.example.fullthrottle.data.DBHelper.notifyLike
+import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.entities.Comment
 import com.example.fullthrottle.data.entities.Like
@@ -82,7 +83,10 @@ fun NotificationsHandler (
                 likes.forEach { like ->
                     if (like?.notified == "0") {
                         notifyLike(like.likeId.toString())
-                        sendLikeNotification(like, context)
+                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
+                            sendLikeNotification(like, context)
+                        }
                     }
                 }
             }
@@ -107,7 +111,10 @@ fun NotificationsHandler (
                 comments.forEach { comment ->
                     if (comment?.notified == "0") {
                         notifyComment(comment.commentId.toString())
-                        sendCommentNotification(comment, context)
+                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
+                            sendCommentNotification(comment, context)
+                        }
                     }
                 }
             }
