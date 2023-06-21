@@ -10,27 +10,17 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Publish
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,7 +48,8 @@ import kotlinx.coroutines.launch
 fun PostScreen(
     postId : String,
     settingsViewModel: SettingsViewModel,
-    goToProfile: (String) -> Unit
+    goToProfile: (String) -> Unit,
+    goToMap: (String) -> Unit
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
@@ -145,13 +136,17 @@ fun PostScreen(
                             Text(text = "${post.publishDate}")
                         }
                         Spacer(Modifier.weight(1f))
-                        Icon(
-                            Icons.Filled.Place,
-                            contentDescription = "post location",
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .size(30.dp)
-                        )
+                        IconButton(onClick = {
+                            goToMap(post.position.toString())
+                        }) {
+                            Icon(
+                                Icons.Filled.Place,
+                                contentDescription = "post location",
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .size(30.dp)
+                            )
+                        }
                     }
                 }
                 item {

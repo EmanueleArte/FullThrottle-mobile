@@ -1,23 +1,19 @@
 package com.example.fullthrottle.ui
 
 import android.net.Uri
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -86,6 +82,7 @@ internal object HomeScreenData {
 fun HomeScreen(
     goToPost: (String) -> Unit,
     goToProfile: (String) -> Unit,
+    goToMap: (String) -> Unit,
     settingsViewModel: SettingsViewModel
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
@@ -185,13 +182,15 @@ fun HomeScreen(
                                     Text(text = "${post.publishDate}")
                                 }
                                 Spacer(Modifier.weight(1f))
-                                Icon(
-                                    Icons.Filled.Place,
-                                    contentDescription = "post location",
-                                    modifier = Modifier
-                                        .padding(5.dp)
-                                        .requiredHeight(40.dp)
-                                )
+                                IconButton(onClick = { goToMap(post.position.toString()) }) {
+                                    Icon(
+                                        Icons.Filled.Place,
+                                        contentDescription = "post location",
+                                        modifier = Modifier
+                                            .padding(5.dp)
+                                            .requiredHeight(40.dp)
+                                    )
+                                }
                             }
                             PostImage(
                                 imgUri = postImagesUris[posts.indexOf(post)],
@@ -256,7 +255,10 @@ fun HomeScreen(
                                                         } else tPost
                                                     }
                                                     likes = posts.map { post ->
-                                                        if (posts.indexOf(post) == posts.indexOf(post)) {
+                                                        if (posts.indexOf(post) == posts.indexOf(
+                                                                post
+                                                            )
+                                                        ) {
                                                             like
                                                         } else {
                                                             likes[posts.indexOf(post)]

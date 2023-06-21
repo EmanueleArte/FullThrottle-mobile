@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import com.example.fullthrottle.data.DBHelper.getAllPosts
 import com.example.fullthrottle.data.DBHelper.getImageUri
@@ -26,20 +27,32 @@ import com.example.fullthrottle.data.DBHelper.getPostsLocations
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.ui.theme.md_theme_light_primary
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun MapScreen(
     settingsViewModel: SettingsViewModel,
-    goToPost: (String) -> Unit
+    goToPost: (String) -> Unit,
+    focusLocation: String?
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+    val coroutineScope = rememberCoroutineScope()
+
     val geocoder = Geocoder(LocalContext.current)
     val mapProperties = MapProperties(
         isMyLocationEnabled = settings["location_updates"] == "true"
     )
-    val cameraPositionState = rememberCameraPositionState()
+
+    var init = false
+    val cameraPositionState = rememberCameraPositionState(
+        init = {
+            init = true
+        }
+    )
 
     var locations by remember { mutableStateOf(emptyMap<String, List<Post>>()) }
     var coordinates by remember { mutableStateOf(emptyMap<String, LatLng>()) }
@@ -47,6 +60,7 @@ fun MapScreen(
     var postImagesUris by remember { mutableStateOf(emptyList<Uri>()) }
 
     var currentLocation by remember { mutableStateOf(emptyList<Post>()) }
+    var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         posts = getAllPosts()
@@ -55,19 +69,73 @@ fun MapScreen(
         locations.keys.forEach { location ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 geocoder.getFromLocationName(location, 1) {
-                    coordinates = coordinates.plus(Pair(location, LatLng(it[0].latitude, it[0].longitude)))
+                    if (it.isNotEmpty()) {
+                        coordinates = coordinates.plus(
+                            Pair(
+                                location,
+                                LatLng(it[0].latitude, it[0].longitude)
+                            )
+                        )
+                    }
                 }
             } else {
                 val tCoordinates = geocoder.getFromLocationName(location, 1)
-                coordinates = coordinates.plus(Pair(location, LatLng(tCoordinates?.get(0)?.latitude as Double, tCoordinates[0]?.longitude as Double)))
+                if (tCoordinates != null && tCoordinates.isNotEmpty()) {
+                    coordinates = coordinates.plus(
+                        Pair(
+                            location,
+                            LatLng(
+                                tCoordinates[0].latitude,
+                                tCoordinates[0].longitude
+                            )
+                        )
+                    )
+                }
             }
         }
-        /*cameraPositionState.animate(
-            update = CameraUpdateFactory.newCameraPosition(
-                CameraPosition(LatLng(location.value.latitude, location.value.longitude), 0f, 0f, 0f)
-            ),
-            durationMs = 1000
-        )*/
+        loading = false
+        if (!focusLocation.isNullOrEmpty()) {
+            var focusCoordinates: LatLng? = null
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                geocoder.getFromLocationName(focusLocation, 1) {
+                    if (it.isNotEmpty()) {
+                        focusCoordinates = LatLng(it[0].latitude, it[0].longitude)
+                    }
+                }
+            } else {
+                val tCoordinates = geocoder.getFromLocationName(focusLocation, 1)
+                if (tCoordinates != null && tCoordinates.isNotEmpty()) {
+                    focusCoordinates = LatLng(
+                        tCoordinates[0].latitude,
+                        tCoordinates[0].longitude
+                    )
+                }
+            }
+            if (focusCoordinates != null) {
+                currentLocation = locations[focusLocation]!!
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition(
+                            focusCoordinates!!,
+                            12f,
+                            0f,
+                            0f
+                        )
+                    )
+                )
+            }
+        } else if (init) {
+            cameraPositionState.move(
+                update = CameraUpdateFactory.newCameraPosition(
+                    CameraPosition(
+                        LatLng(41.87194, 12.56738),
+                        5f,
+                        0f,
+                        0f
+                    )
+                )
+            )
+        }
     }
 
     Column(
@@ -89,9 +157,26 @@ fun MapScreen(
                     state = MarkerState(c.value),
                     onClick = {
                         currentLocation = locations[c.key]!!
+                        coroutineScope.launch {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition(
+                                        c.value,
+                                        12f,
+                                        0f,
+                                        0f
+                                    )
+                                )
+                            )
+                        }
                         true
                     }
                 )
+            }
+        }
+        if (loading) {
+            Dialog(onDismissRequest = {}) {
+                LoadingAnimation()
             }
         }
         if (currentLocation.isNotEmpty()) {

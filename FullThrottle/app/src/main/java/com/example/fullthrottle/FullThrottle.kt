@@ -414,6 +414,7 @@ private fun NavigationGraph(
     startDestination: String = AppScreen.Login.name
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+    var focusLocation by remember { mutableStateOf("") }
 
     val goToPost = fun(id : String) {
         postIdStack.add(id)
@@ -422,6 +423,10 @@ private fun NavigationGraph(
     val goToProfile = fun(id : String) {
         userIdStack.add(id)
         navController.navigate(AppScreen.Profile.name)
+    }
+    val goToMap = fun(location : String) {
+        focusLocation = location
+        navController.navigate(AppScreen.Map.name)
     }
 
     NavHost(
@@ -433,6 +438,7 @@ private fun NavigationGraph(
             HomeScreen(
                 goToPost,
                 goToProfile,
+                goToMap,
                 settingsViewModel
             )
         }
@@ -440,14 +446,17 @@ private fun NavigationGraph(
             PostScreen(
                 if (postIdStack.size > 0) postIdStack.last() else "",
                 settingsViewModel,
-                goToProfile
+                goToProfile,
+                goToMap
             )
         }
         composable(route = AppScreen.Map.name) {
             MapScreen(
                 settingsViewModel,
-                goToPost
+                goToPost,
+                focusLocation
             )
+            focusLocation = ""
         }
         composable(route = AppScreen.NewPost.name) {
             NewPostScreen(
