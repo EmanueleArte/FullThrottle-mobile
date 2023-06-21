@@ -5,7 +5,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -56,16 +58,13 @@ import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.fullthrottle.*
 import com.example.fullthrottle.R
-import com.example.fullthrottle.createImageFile
-import com.example.fullthrottle.createPermissionRequest
-import com.example.fullthrottle.saveAndCropTempFile
-import com.example.fullthrottle.uCropContractBuilder
 import com.example.fullthrottle.ui.UiConstants.ANIMATION_DURATION_LONG
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.delay
-import java.util.Objects
+import java.util.*
 
 object UiConstants {
     const val ANIMATION_DURATION = 100
@@ -143,21 +142,50 @@ fun outLineNumberTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun outLineTextFieldWithIcon(
+fun locationPicker(
     label: String,
     value: String = "",
-    icon: ImageVector,
-    iconDescription: String,
     modifier: Modifier = Modifier
 ): String {
+    val geocoder = Geocoder(LocalContext.current)
+
     var text by rememberSaveable { mutableStateOf(value) }
+    var suggestions by rememberSaveable { mutableStateOf(emptyList<String>()) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        suggestions.forEach { location ->
+            DropdownMenuItem(
+                leadingIcon = { Icon(Icons.Outlined.LocationOn, "location icon") },
+                onClick = {
+                    suggestions = emptyList()
+                    text = location
+                },
+                text = {
+                    Text(text = location)
+                }
+            )
+        }
+    }
     OutlinedTextField(
         shape = RoundedCornerShape(CORNER_RADIUS),
         value = text,
         label = { Text(text = label) },
-        leadingIcon = { Icon (icon, iconDescription) },
+        leadingIcon = { Icon(Icons.Outlined.MyLocation, "location icon") },
         onValueChange = {
             text = it
+            if (text.length > 3) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocationName(text, 5) { result ->
+                        suggestions = result.map { address -> address.getAddressLine(0) }
+                    }
+                } else {
+                    val result = geocoder.getFromLocationName(text, 5)
+                    if (result != null) suggestions = result.map { address -> address.getAddressLine(0) }
+                }
+            }
         },
         modifier = modifier
     )
