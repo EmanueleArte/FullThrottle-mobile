@@ -93,38 +93,48 @@ fun MapScreen(
                 }
             }
         }
-        loading = false
         if (!focusLocation.isNullOrEmpty()) {
-            var focusCoordinates: LatLng? = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 geocoder.getFromLocationName(focusLocation, 1) {
                     if (it.isNotEmpty()) {
-                        focusCoordinates = LatLng(it[0].latitude, it[0].longitude)
+                        currentLocation = locations[focusLocation]!!
+                        coroutineScope.launch {
+                            loading = false
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition(
+                                        LatLng(it[0].latitude, it[0].longitude),
+                                        12f,
+                                        0f,
+                                        0f
+                                    )
+                                )
+                            )
+                        }
                     }
                 }
             } else {
                 val tCoordinates = geocoder.getFromLocationName(focusLocation, 1)
                 if (tCoordinates != null && tCoordinates.isNotEmpty()) {
-                    focusCoordinates = LatLng(
-                        tCoordinates[0].latitude,
-                        tCoordinates[0].longitude
+                    currentLocation = locations[focusLocation]!!
+                    loading = false
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newCameraPosition(
+                            CameraPosition(
+                                LatLng(
+                                    tCoordinates[0].latitude,
+                                    tCoordinates[0].longitude
+                                ),
+                                12f,
+                                0f,
+                                0f
+                            )
+                        )
                     )
                 }
             }
-            if (focusCoordinates != null) {
-                currentLocation = locations[focusLocation]!!
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newCameraPosition(
-                        CameraPosition(
-                            focusCoordinates!!,
-                            12f,
-                            0f,
-                            0f
-                        )
-                    )
-                )
-            }
         } else if (init) {
+            loading = false
             cameraPositionState.move(
                 update = CameraUpdateFactory.newCameraPosition(
                     CameraPosition(
@@ -136,6 +146,7 @@ fun MapScreen(
                 )
             )
         }
+        loading = false
     }
 
     Column(
