@@ -14,6 +14,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +26,8 @@ import com.example.fullthrottle.data.DBHelper.getAllPosts
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getPostsLocations
 import com.example.fullthrottle.data.entities.Post
+import com.example.fullthrottle.ui.MapScreenData.coordinatesLoaded
+import com.example.fullthrottle.ui.MapScreenData.load
 import com.example.fullthrottle.ui.theme.md_theme_light_primary
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -32,6 +35,14 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
+
+internal object MapScreenData {
+    var coordinatesLoaded by mutableStateOf(emptyMap<String, LatLng>())
+
+    fun load(coordinates: Map<String, LatLng>) {
+        coordinatesLoaded = coordinates
+    }
+}
 
 @Composable
 fun MapScreen(
@@ -55,7 +66,7 @@ fun MapScreen(
     )
 
     var locations by remember { mutableStateOf(emptyMap<String, List<Post>>()) }
-    var coordinates by remember { mutableStateOf(emptyMap<String, LatLng>()) }
+    var coordinates by rememberSaveable { mutableStateOf(coordinatesLoaded) }
     var posts by remember { mutableStateOf(emptyList<Post>()) }
     var postImagesUris by remember { mutableStateOf(emptyList<Uri>()) }
 
@@ -66,30 +77,32 @@ fun MapScreen(
         posts = getAllPosts()
         postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
         locations = getPostsLocations()
-        locations.keys.forEach { location ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                geocoder.getFromLocationName(location, 1) {
-                    if (it.isNotEmpty()) {
+        if (coordinates.isEmpty()) {
+            locations.keys.forEach { location ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocationName(location, 1) {
+                        if (it.isNotEmpty()) {
+                            coordinates = coordinates.plus(
+                                Pair(
+                                    location,
+                                    LatLng(it[0].latitude, it[0].longitude)
+                                )
+                            )
+                        }
+                    }
+                } else {
+                    val tCoordinates = geocoder.getFromLocationName(location, 1)
+                    if (tCoordinates != null && tCoordinates.isNotEmpty()) {
                         coordinates = coordinates.plus(
                             Pair(
                                 location,
-                                LatLng(it[0].latitude, it[0].longitude)
+                                LatLng(
+                                    tCoordinates[0].latitude,
+                                    tCoordinates[0].longitude
+                                )
                             )
                         )
                     }
-                }
-            } else {
-                val tCoordinates = geocoder.getFromLocationName(location, 1)
-                if (tCoordinates != null && tCoordinates.isNotEmpty()) {
-                    coordinates = coordinates.plus(
-                        Pair(
-                            location,
-                            LatLng(
-                                tCoordinates[0].latitude,
-                                tCoordinates[0].longitude
-                            )
-                        )
-                    )
                 }
             }
         }
@@ -147,6 +160,7 @@ fun MapScreen(
             )
         }
         loading = false
+        load(coordinates)
     }
 
     Column(
