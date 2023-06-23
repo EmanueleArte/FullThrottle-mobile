@@ -1,5 +1,6 @@
 package com.example.fullthrottle.ui
 
+import android.content.Intent
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
@@ -9,10 +10,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Navigation
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
+import androidx.core.content.ContextCompat.startActivity
 import com.example.fullthrottle.data.DBHelper.getAllPosts
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getPostsLocations
@@ -50,6 +51,7 @@ fun MapScreen(
     goToPost: (String) -> Unit,
     focusLocation: String?
 ) {
+    val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
 
@@ -222,7 +224,26 @@ fun MapScreen(
                     Column (
                         modifier = Modifier.padding(5.dp)
                     ) {
-                        if (currentLocation.isNotEmpty()) Text(text = currentLocation.first().position.toString())
+                        Row (
+                            modifier = Modifier.height(IntrinsicSize.Max)
+                        ){
+                            Column (
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Spacer(modifier = Modifier.weight(1f))
+                                if (currentLocation.isNotEmpty()) Text(text = currentLocation.first().position.toString())
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                            IconButton(onClick = {
+                                val gmmIntentUri =
+                                    Uri.parse("geo:0,0?q=" + currentLocation.first().position.toString())
+                                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                                mapIntent.setPackage("com.google.android.apps.maps")
+                                startActivity(context, mapIntent, null)
+                            }) {
+                                Icon(Icons.Outlined.Navigation, "navigation icon")
+                            }
+                        }
                         LazyColumn (
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(top = 10.dp, bottom = 20.dp),
