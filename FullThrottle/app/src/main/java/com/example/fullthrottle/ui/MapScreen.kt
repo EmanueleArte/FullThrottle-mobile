@@ -1,5 +1,6 @@
 package com.example.fullthrottle.ui
 
+import android.content.Intent
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
@@ -9,11 +10,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Navigation
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,10 +22,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
+import androidx.core.content.ContextCompat.startActivity
 import com.example.fullthrottle.data.DBHelper.getAllPosts
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getPostsLocations
 import com.example.fullthrottle.data.entities.Post
+import com.example.fullthrottle.ui.MapScreenData.coordinatesLoaded
+import com.example.fullthrottle.ui.MapScreenData.load
 import com.example.fullthrottle.ui.theme.md_theme_light_primary
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -33,12 +37,21 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
 
+internal object MapScreenData {
+    var coordinatesLoaded by mutableStateOf(emptyMap<String, LatLng>())
+
+    fun load(coordinates: Map<String, LatLng>) {
+        coordinatesLoaded = coordinates
+    }
+}
+
 @Composable
 fun MapScreen(
     settingsViewModel: SettingsViewModel,
     goToPost: (String) -> Unit,
     focusLocation: String?
 ) {
+    val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
 
@@ -55,7 +68,7 @@ fun MapScreen(
     )
 
     var locations by remember { mutableStateOf(emptyMap<String, List<Post>>()) }
-    var coordinates by remember { mutableStateOf(emptyMap<String, LatLng>()) }
+    var coordinates by rememberSaveable { mutableStateOf(coordinatesLoaded) }
     var posts by remember { mutableStateOf(emptyList<Post>()) }
     var postImagesUris by remember { mutableStateOf(emptyList<Uri>()) }
 
@@ -66,65 +79,77 @@ fun MapScreen(
         posts = getAllPosts()
         postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
         locations = getPostsLocations()
-        locations.keys.forEach { location ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                geocoder.getFromLocationName(location, 1) {
-                    if (it.isNotEmpty()) {
+        if (coordinates.isEmpty()) {
+            locations.keys.forEach { location ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocationName(location, 1) {
+                        if (it.isNotEmpty()) {
+                            coordinates = coordinates.plus(
+                                Pair(
+                                    location,
+                                    LatLng(it[0].latitude, it[0].longitude)
+                                )
+                            )
+                        }
+                    }
+                } else {
+                    val tCoordinates = geocoder.getFromLocationName(location, 1)
+                    if (tCoordinates != null && tCoordinates.isNotEmpty()) {
                         coordinates = coordinates.plus(
                             Pair(
                                 location,
-                                LatLng(it[0].latitude, it[0].longitude)
+                                LatLng(
+                                    tCoordinates[0].latitude,
+                                    tCoordinates[0].longitude
+                                )
                             )
                         )
                     }
                 }
-            } else {
-                val tCoordinates = geocoder.getFromLocationName(location, 1)
-                if (tCoordinates != null && tCoordinates.isNotEmpty()) {
-                    coordinates = coordinates.plus(
-                        Pair(
-                            location,
-                            LatLng(
-                                tCoordinates[0].latitude,
-                                tCoordinates[0].longitude
-                            )
-                        )
-                    )
-                }
             }
         }
-        loading = false
         if (!focusLocation.isNullOrEmpty()) {
-            var focusCoordinates: LatLng? = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 geocoder.getFromLocationName(focusLocation, 1) {
                     if (it.isNotEmpty()) {
-                        focusCoordinates = LatLng(it[0].latitude, it[0].longitude)
+                        currentLocation = locations[focusLocation]!!
+                        coroutineScope.launch {
+                            loading = false
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition(
+                                        LatLng(it[0].latitude, it[0].longitude),
+                                        12f,
+                                        0f,
+                                        0f
+                                    )
+                                )
+                            )
+                        }
                     }
                 }
             } else {
                 val tCoordinates = geocoder.getFromLocationName(focusLocation, 1)
                 if (tCoordinates != null && tCoordinates.isNotEmpty()) {
-                    focusCoordinates = LatLng(
-                        tCoordinates[0].latitude,
-                        tCoordinates[0].longitude
+                    currentLocation = locations[focusLocation]!!
+                    loading = false
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newCameraPosition(
+                            CameraPosition(
+                                LatLng(
+                                    tCoordinates[0].latitude,
+                                    tCoordinates[0].longitude
+                                ),
+                                12f,
+                                0f,
+                                0f
+                            )
+                        )
                     )
                 }
             }
-            if (focusCoordinates != null) {
-                currentLocation = locations[focusLocation]!!
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newCameraPosition(
-                        CameraPosition(
-                            focusCoordinates!!,
-                            12f,
-                            0f,
-                            0f
-                        )
-                    )
-                )
-            }
         } else if (init) {
+            loading = false
             cameraPositionState.move(
                 update = CameraUpdateFactory.newCameraPosition(
                     CameraPosition(
@@ -136,6 +161,8 @@ fun MapScreen(
                 )
             )
         }
+        loading = false
+        load(coordinates)
     }
 
     Column(
@@ -197,7 +224,26 @@ fun MapScreen(
                     Column (
                         modifier = Modifier.padding(5.dp)
                     ) {
-                        if (currentLocation.isNotEmpty()) Text(text = currentLocation.first().position.toString())
+                        Row (
+                            modifier = Modifier.height(IntrinsicSize.Max)
+                        ){
+                            Column (
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Spacer(modifier = Modifier.weight(1f))
+                                if (currentLocation.isNotEmpty()) Text(text = currentLocation.first().position.toString())
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                            IconButton(onClick = {
+                                val gmmIntentUri =
+                                    Uri.parse("geo:0,0?q=" + currentLocation.first().position.toString())
+                                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                                mapIntent.setPackage("com.google.android.apps.maps")
+                                startActivity(context, mapIntent, null)
+                            }) {
+                                Icon(Icons.Outlined.Navigation, "navigation icon")
+                            }
+                        }
                         LazyColumn (
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(top = 10.dp, bottom = 20.dp),
