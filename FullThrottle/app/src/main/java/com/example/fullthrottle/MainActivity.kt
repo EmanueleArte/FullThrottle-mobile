@@ -2,18 +2,24 @@ package com.example.fullthrottle
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
+import android.os.PowerManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -24,12 +30,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.work.Data
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.LocationDetails
+import com.example.fullthrottle.data.NotificationWorker
+import com.example.fullthrottle.data.PushNotificationValues
 import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.ui.LockScreenOrientation
@@ -38,6 +51,7 @@ import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.example.fullthrottle.viewModel.WarningViewModel
 import com.google.android.gms.location.*
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.concurrent.TimeUnit
 
 
 @AndroidEntryPoint
@@ -147,6 +161,17 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+
+                    // Push notifications worker
+                    PushNotificationValues.SetVariables()
+                    val workManager = WorkManager.getInstance(application)
+                    val data = Data.Builder()
+                    data.putAll(settings)
+                    val notificationRequest =
+                        PeriodicWorkRequestBuilder<NotificationWorker>(10, TimeUnit.SECONDS)
+                            .setInputData(data.build())
+                            .build()
+                    workManager.enqueue(notificationRequest)
 
                     NavigationApp(
                         settingsViewModel = settingsViewModel,

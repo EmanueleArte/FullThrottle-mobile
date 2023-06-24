@@ -1,6 +1,13 @@
 package com.example.fullthrottle.ui
 
+import android.Manifest
+import android.content.Context.POWER_SERVICE
+import android.content.Intent
 import android.net.Uri
+import android.os.PowerManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -20,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,7 +44,6 @@ import com.example.fullthrottle.data.HomeValues.registerFilterValueListener
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
-import com.example.fullthrottle.ui.HomeScreenData.filterPosts
 import com.example.fullthrottle.ui.HomeScreenData.firstLoad
 import com.example.fullthrottle.ui.HomeScreenData.followedsIdsLoaded
 import com.example.fullthrottle.ui.HomeScreenData.likesLoaded
@@ -70,10 +77,6 @@ internal object HomeScreenData {
         userImagesUrisLoaded = userImagesUris
         likesLoaded = likes
         followedsIdsLoaded = followedsIds
-    }
-
-    fun filterPosts() {
-
     }
 
 }
@@ -125,7 +128,6 @@ fun HomeScreen(
             posts = tPosts
         }.invokeOnCompletion {
             load(posts, users, motorbikes, postImagesUris, userImagesUris, likes, followedsIds)
-            filterPosts()
         }
     }
 

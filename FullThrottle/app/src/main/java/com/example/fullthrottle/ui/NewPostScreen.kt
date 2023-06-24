@@ -163,7 +163,6 @@ fun NewPostScreen(
                         iconDescription = "image icon",
                         modifier = Modifier.weight(0.49F)
                     ) {
-                        //photoPickerPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                         photoPickerPermission.launch(
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                                 Manifest.permission.READ_MEDIA_IMAGES

@@ -1,6 +1,7 @@
 package com.example.fullthrottle
 
 import android.app.Application
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -34,7 +35,7 @@ import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.HomeValues.getFilterValueListener
 import com.example.fullthrottle.data.HomeValues.setLifeCycleOwner
-import com.example.fullthrottle.data.NotificationsHandler
+import com.example.fullthrottle.data.notificationsHandler
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
@@ -314,8 +315,6 @@ fun NavigationApp(
     val userIdStack = remember { mutableListOf<String>() }
 
     val postIdStack = remember { mutableStateListOf<String>() }
-
-    NotificationsHandler(settingsViewModel)
 
     onBackAction.value = {
         if (currentScreen == AppScreen.Login.name
