@@ -143,8 +143,7 @@ fun PostScreen(
                                 Icons.Filled.Place,
                                 contentDescription = "post location",
                                 modifier = Modifier
-                                    .padding(10.dp)
-                                    .size(30.dp)
+                                    .size(25.dp)
                             )
                         }
                     }

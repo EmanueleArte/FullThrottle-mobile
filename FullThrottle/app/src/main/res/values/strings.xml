@@ -94,6 +94,7 @@
     <!-- Location -->
     <string name="location_snackbar_stop">Aggiornamenti sulla posizione attuale disabilitati</string>
     <string name="location_snackbar_start">Aggiornamenti sulla posizione attuale abilitati</string>
+    <string name="map">Mappa</string>
 
     <!-- New post -->
     <string name="new_post">Nuovo post</string>
