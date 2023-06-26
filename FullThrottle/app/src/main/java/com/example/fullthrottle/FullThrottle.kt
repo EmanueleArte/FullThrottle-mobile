@@ -34,6 +34,7 @@ import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.HomeValues.getFilterValueListener
 import com.example.fullthrottle.data.HomeValues.setLifeCycleOwner
+import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.NotificationsHandler
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
@@ -301,7 +302,8 @@ fun NavigationApp(
     startDestination: String = AppScreen.Login.name,
     methods: Map<String, () -> Unit>,
     onBackAction: MutableState<() -> Unit>,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    location: MutableState<LocationDetails>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     // Get current back stack entry
@@ -361,7 +363,8 @@ fun NavigationApp(
         NavigationGraph(settingsViewModel, warningViewModel, navController, innerPadding, methods,
             userIdStack = userIdStack,
             postIdStack = postIdStack,
-            startDestination = startDestination
+            startDestination = startDestination,
+            location = location
         )
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
@@ -411,7 +414,8 @@ private fun NavigationGraph(
     userIdStack: MutableList<String>,
     postIdStack: MutableList<String>,
     modifier: Modifier = Modifier,
-    startDestination: String = AppScreen.Login.name
+    startDestination: String = AppScreen.Login.name,
+    location: MutableState<LocationDetails>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     var focusLocation by remember { mutableStateOf("") }
@@ -454,7 +458,9 @@ private fun NavigationGraph(
             MapScreen(
                 settingsViewModel,
                 goToPost,
-                focusLocation
+                focusLocation,
+                methods,
+                location
             )
             focusLocation = ""
         }
