@@ -184,9 +184,11 @@ class MainActivity : ComponentActivity() {
                             "startLocationUpdates" to ::startLocationUpdates,
                             "stopLocationUpdates" to ::stopLocationUpdates,
                             "requestingLocationUpdatesFalse" to { requestingLocationUpdates.value = false },
+                            "requestLocationPermission" to ::requestLocationPermission,
                             "exit" to ::finish
                         ),
-                        onBackAction = onBackAction
+                        onBackAction = onBackAction,
+                        location = location
                     )
 
                 }
@@ -276,6 +278,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun requestLocationPermission() {
+        warningViewModel.setPermissionSnackBarVisibility(true)
+    }
+
     private fun isOnline(connectivityManager: ConnectivityManager): Boolean {
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true ||
@@ -292,6 +298,11 @@ class MainActivity : ComponentActivity() {
         fun checkGPS(context: Context): Boolean {
             val mLocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        }
+
+        fun checkLocationPermission(context: Context): Boolean {
+            val permission = Manifest.permission.ACCESS_COARSE_LOCATION
+            return ContextCompat.checkSelfPermission (context, permission) == PackageManager.PERMISSION_GRANTED
         }
     }
 }

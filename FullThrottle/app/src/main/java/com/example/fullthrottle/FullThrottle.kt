@@ -1,7 +1,6 @@
 package com.example.fullthrottle
 
 import android.app.Application
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -37,7 +36,7 @@ import com.example.fullthrottle.data.HomeValues.getFilterValueListener
 import com.example.fullthrottle.data.HomeValues.setLifeCycleOwner
 import com.example.fullthrottle.data.LocalDB
 import com.example.fullthrottle.data.LocalDbViewModel
-import com.example.fullthrottle.data.notificationsHandler
+import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.ui.*
@@ -304,7 +303,8 @@ fun NavigationApp(
     startDestination: String = AppScreen.Login.name,
     methods: Map<String, () -> Unit>,
     onBackAction: MutableState<() -> Unit>,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    location: MutableState<LocationDetails>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     // Get current back stack entry
@@ -362,7 +362,8 @@ fun NavigationApp(
         NavigationGraph(settingsViewModel, warningViewModel, localDbViewModel, navController, innerPadding, methods,
             userIdStack = userIdStack,
             postIdStack = postIdStack,
-            startDestination = startDestination
+            startDestination = startDestination,
+            location = location
         )
         val context = LocalContext.current
         if (warningViewModel.showPermissionSnackBar.value) {
@@ -413,7 +414,8 @@ private fun NavigationGraph(
     userIdStack: MutableList<String>,
     postIdStack: MutableList<String>,
     modifier: Modifier = Modifier,
-    startDestination: String = AppScreen.Login.name
+    startDestination: String = AppScreen.Login.name,
+    location: MutableState<LocationDetails>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     var focusLocation by remember { mutableStateOf("") }
@@ -457,7 +459,9 @@ private fun NavigationGraph(
             MapScreen(
                 settingsViewModel,
                 goToPost,
-                focusLocation
+                focusLocation,
+                methods,
+                location
             )
             focusLocation = ""
         }

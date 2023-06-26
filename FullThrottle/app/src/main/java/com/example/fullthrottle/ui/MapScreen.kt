@@ -24,10 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat.startActivity
+import com.example.fullthrottle.MainActivity.Companion.checkLocationPermission
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getAllPosts
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getPostsLocations
+import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.ui.MapScreenData.coordinatesLoaded
 import com.example.fullthrottle.ui.MapScreenData.load
@@ -52,7 +54,9 @@ internal object MapScreenData {
 fun MapScreen(
     settingsViewModel: SettingsViewModel,
     goToPost: (String) -> Unit,
-    focusLocation: String?
+    focusLocation: String?,
+    methods: Map<String, () -> Unit>,
+    location: MutableState<LocationDetails>
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
@@ -60,7 +64,7 @@ fun MapScreen(
 
     val geocoder = Geocoder(LocalContext.current)
     val mapProperties = MapProperties(
-        isMyLocationEnabled = settings["location_updates"] == "true"
+        isMyLocationEnabled = settings["location_updates"] == "true" && checkLocationPermission(context)
     )
 
     var init = false
@@ -153,16 +157,29 @@ fun MapScreen(
             }
         } else if (init) {
             loading = false
-            cameraPositionState.move(
-                update = CameraUpdateFactory.newCameraPosition(
-                    CameraPosition(
-                        LatLng(41.87194, 12.56738),
-                        5f,
-                        0f,
-                        0f
+            if (settings["location_updates"] == "true" && checkLocationPermission(context)) {
+                cameraPositionState.move(
+                    update = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition(
+                            LatLng(location.value.latitude, location.value.longitude),
+                            10f,
+                            0f,
+                            0f
+                        )
                     )
                 )
-            )
+            } else {
+                cameraPositionState.move(
+                    update = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition(
+                            LatLng(41.87194, 12.56738),
+                            5f,
+                            0f,
+                            0f
+                        )
+                    )
+                )
+            }
         }
         loading = false
         load(coordinates)
