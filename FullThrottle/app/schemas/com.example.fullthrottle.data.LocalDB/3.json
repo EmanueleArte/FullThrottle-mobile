@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "4a66eaa17d7cc29cb663f93e3250496b",
+    "version": 3,
+    "identityHash": "73245e30a0d080cdf642382996cbd241",
     "entities": [
       {
         "tableName": "posts",
@@ -201,12 +201,44 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "likes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`likeId` TEXT NOT NULL, `post_id` TEXT, `value` INTEGER, PRIMARY KEY(`likeId`))",
+        "fields": [
+          {
+            "fieldPath": "likeId",
+            "columnName": "likeId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "postId",
+            "columnName": "post_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "likeId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a66eaa17d7cc29cb663f93e3250496b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '73245e30a0d080cdf642382996cbd241')"
     ]
   }
 }

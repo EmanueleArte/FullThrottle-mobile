@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.fullthrottle.FullThrottle
+import com.example.fullthrottle.data.LikesRepository
+import com.example.fullthrottle.data.MotorbikesRepository
 import com.example.fullthrottle.data.PostsRepository
 import com.example.fullthrottle.data.SettingsRepository
 import com.example.fullthrottle.data.UsersRepository
@@ -31,4 +33,15 @@ object DataModule {
     @Provides
     fun provideUsersRepository(@ApplicationContext context: Context) =
         UsersRepository((context.applicationContext as FullThrottle).database.usersDAO())
+
+    @Singleton
+    @Provides
+    fun provideMotorbikesRepository(@ApplicationContext context: Context) =
+        MotorbikesRepository((context.applicationContext as FullThrottle).database.motorbikesDAO())
+
+    @Singleton
+    @Provides
+    fun provideLikesRepository(@ApplicationContext context: Context) =
+        LikesRepository((context.applicationContext as FullThrottle).database.likesDAO())
+
 }

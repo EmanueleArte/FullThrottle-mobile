@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.checkLike
 import com.example.fullthrottle.data.DBHelper.getFolloweds
@@ -35,50 +34,23 @@ import com.example.fullthrottle.data.DBHelper.toggleLike
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.HomeValues.registerFilterValueListener
 import com.example.fullthrottle.data.LocalDbViewModel
+import com.example.fullthrottle.data.entities.LikeBool
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.HomeScreenData.firstLoad
-import com.example.fullthrottle.ui.HomeScreenData.followedsIdsLoaded
-import com.example.fullthrottle.ui.HomeScreenData.likesLoaded
-import com.example.fullthrottle.ui.HomeScreenData.loadUris
-import com.example.fullthrottle.ui.HomeScreenData.motorbikesLoaded
-import com.example.fullthrottle.ui.HomeScreenData.postImagesUrisLoaded
-import com.example.fullthrottle.ui.HomeScreenData.postsLoaded
-import com.example.fullthrottle.ui.HomeScreenData.userImagesUrisLoaded
 import com.example.fullthrottle.ui.HomeScreenData.usersLoaded
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.util.UUID
 
 internal object HomeScreenData {
-    var postsLoaded by mutableStateOf(emptyList<Post>())
     var usersLoaded by mutableStateOf(emptyList<User>())
-    var motorbikesLoaded by mutableStateOf(emptyList<Motorbike>())
-    var postImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
-    var userImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
-    var likesLoaded by mutableStateOf(emptyList<Boolean>())
-    var followedsIdsLoaded by mutableStateOf(emptyList<String>())
     var firstLoad by mutableStateOf(true)
-
-    fun loadAll(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>, likes: List<Boolean>, followedsIds: List<String>) {
-        motorbikesLoaded = motorbikes
-        postImagesUrisLoaded = postImagesUris
-        userImagesUrisLoaded = userImagesUris
-        likesLoaded = likes
-        followedsIdsLoaded = followedsIds
-    }
-
-    fun loadUris(postImagesUris: List<Uri>, userImagesUris: List<Uri>) {
-        postImagesUrisLoaded = postImagesUris
-        userImagesUrisLoaded = userImagesUris
-    }
-
 }
 
 @Composable
@@ -92,13 +64,13 @@ fun HomeScreen(
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
 
-    var posts by rememberSaveable { mutableStateOf(postsLoaded) }
-    var users by rememberSaveable { mutableStateOf(usersLoaded) }
-    var motorbikes by rememberSaveable { mutableStateOf(motorbikesLoaded) }
-    var postImagesUris by rememberSaveable { mutableStateOf(postImagesUrisLoaded) }
-    var userImagesUris by rememberSaveable { mutableStateOf(userImagesUrisLoaded) }
-    var likes by rememberSaveable { mutableStateOf(likesLoaded) }
-    var followedsIds by rememberSaveable { mutableStateOf(followedsIdsLoaded) }
+    var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
+    var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
+    var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
+    var postImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var userImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var likes by rememberSaveable { mutableStateOf(emptyList<Boolean>()) }
+    var followedsIds by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var filteredPosts by rememberSaveable { mutableStateOf(posts) }
 
     // Loads home posts from local room db
@@ -115,10 +87,10 @@ fun HomeScreen(
                 else
                     Uri.EMPTY
             }
-            likes = posts.map { post -> checkLike(post.postId, settings[USER_ID_KEY].toString()) }
+            motorbikes = posts.map { post -> localDbViewModel.getMotorbikeById(post.motorbikeId as String) }
+            likes = posts.map { post -> localDbViewModel.getLike(post.postId) }
         }
     }
-    Text(postImagesUrisLoaded.toString())
 
     // Posts filter (All/Only followeds)
     registerFilterValueListener {
@@ -150,11 +122,23 @@ fun HomeScreen(
         }.invokeOnCompletion {
             coroutineScope.launch(Dispatchers.IO) {
                 localDbViewModel.deleteAllPosts()
+                localDbViewModel.deleteAllMotorbikes()
+                localDbViewModel.deleteAllLikes()
                 posts.forEach { post ->
                     localDbViewModel.addNewPost(post)
                 }
                 users.forEach { user ->
                     localDbViewModel.addNewUser(user)
+                }
+                motorbikes.forEach { motorbike ->
+                    localDbViewModel.addNewMotorbike(motorbike)
+                }
+                posts.forEachIndexed { index, post ->
+                    localDbViewModel.addNewLike(LikeBool(
+                        likeId = UUID.randomUUID().toString(),
+                        postId = post.postId,
+                        value = likes[index]
+                    ))
                 }
             }
         }
@@ -186,7 +170,7 @@ fun HomeScreen(
                             .padding(top = 5.dp, bottom = 10.dp)
                             .fillMaxWidth()
                             .clickable {
-                                goToPost(post.postId as String)
+                                goToPost(post.postId)
                             },
                         elevation = CardDefaults.cardElevation(8.dp)
                     ) {
@@ -203,7 +187,7 @@ fun HomeScreen(
                                         .requiredWidth(40.dp)
                                         .clip(CircleShape)
                                         .background(Color.White)
-                                        .clickable { goToProfile(users[posts.indexOf(post)].userId as String) },
+                                        .clickable { goToProfile(users[posts.indexOf(post)].userId) },
                                 )
                                 Column {
                                     Text(
@@ -263,7 +247,7 @@ fun HomeScreen(
                                             coroutineScope
                                                 .launch {
                                                     like = toggleLike(
-                                                        post.postId.toString(),
+                                                        post.postId,
                                                         settings[USER_ID_KEY].toString()
                                                     )
                                                 }
