@@ -19,11 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat.startActivity
 import com.example.fullthrottle.MainActivity.Companion.checkLocationPermission
+import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getAllPosts
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getPostsLocations
@@ -98,7 +100,7 @@ fun MapScreen(
                     }
                 } else {
                     val tCoordinates = geocoder.getFromLocationName(location, 1)
-                    if (tCoordinates != null && tCoordinates.isNotEmpty()) {
+                    if (!tCoordinates.isNullOrEmpty()) {
                         coordinates = coordinates.plus(
                             Pair(
                                 location,
@@ -134,7 +136,7 @@ fun MapScreen(
                 }
             } else {
                 val tCoordinates = geocoder.getFromLocationName(focusLocation, 1)
-                if (tCoordinates != null && tCoordinates.isNotEmpty()) {
+                if (!tCoordinates.isNullOrEmpty()) {
                     currentLocation = locations[focusLocation]!!
                     loading = false
                     cameraPositionState.animate(
@@ -187,7 +189,7 @@ fun MapScreen(
             .fillMaxSize()
             .padding(10.dp)
     ) {
-        SimpleTitle(text = "Mappa")
+        SimpleTitle(text = stringResource(id = R.string.map))
         GoogleMap(
             modifier = Modifier
                 .fillMaxWidth()
@@ -242,14 +244,15 @@ fun MapScreen(
                         modifier = Modifier.padding(5.dp)
                     ) {
                         Row (
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.height(IntrinsicSize.Max)
                         ){
                             Column (
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .weight(1f)
                             ) {
-                                Spacer(modifier = Modifier.weight(1f))
                                 if (currentLocation.isNotEmpty()) Text(text = currentLocation.first().position.toString())
-                                Spacer(modifier = Modifier.weight(1f))
                             }
                             IconButton(onClick = {
                                 val gmmIntentUri =
@@ -263,11 +266,13 @@ fun MapScreen(
                         }
                         LazyColumn (
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(top = 10.dp, bottom = 20.dp),
+                            contentPadding = PaddingValues(top = 10.dp, bottom = 15.dp),
+                            modifier = Modifier.heightIn(0.dp, 150.dp)
                         ) {
                             items(currentLocation) { post ->
                                 Card(
                                     modifier = Modifier
+                                        .padding(horizontal = 5.dp)
                                         .fillMaxWidth()
                                         .clickable {
                                             goToPost(post.postId.toString())

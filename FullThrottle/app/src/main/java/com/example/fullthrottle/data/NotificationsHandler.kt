@@ -6,12 +6,12 @@ import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getPostsByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
@@ -20,8 +20,17 @@ import com.example.fullthrottle.data.DBHelper.notifyFollow
 import com.example.fullthrottle.data.DBHelper.notifyLike
 import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.PushNotificationValues.commentsNotificationsChannelDescription
+import com.example.fullthrottle.data.PushNotificationValues.commentsNotificationsChannelId
+import com.example.fullthrottle.data.PushNotificationValues.commentsNotificationsChannelName
+import com.example.fullthrottle.data.PushNotificationValues.followersNotificationsChannelDescription
+import com.example.fullthrottle.data.PushNotificationValues.followersNotificationsChannelId
+import com.example.fullthrottle.data.PushNotificationValues.followersNotificationsChannelName
+import com.example.fullthrottle.data.PushNotificationValues.likesNotificationChannelId
+import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelDescription
+import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelName
+import com.example.fullthrottle.data.PushNotificationValues.notificationManager
 import com.example.fullthrottle.data.entities.*
-import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -33,49 +42,78 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 
-@Composable
-private fun createNotificationChannels() {
-    val notificationManager: NotificationManager =
-        LocalContext.current.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+object PushNotificationValues {
+    lateinit var notificationManager: NotificationManager
+    lateinit var likesNotificationChannelId: String
+    lateinit var likesNotificationsChannelName: String
+    lateinit var likesNotificationsChannelDescription: String
+    lateinit var commentsNotificationsChannelId: String
+    lateinit var commentsNotificationsChannelName: String
+    lateinit var commentsNotificationsChannelDescription: String
+    lateinit var followersNotificationsChannelId: String
+    lateinit var followersNotificationsChannelName: String
+    lateinit var followersNotificationsChannelDescription: String
 
+    @Composable
+    fun SetVariables() {
+        notificationManager =
+            LocalContext.current.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        likesNotificationChannelId = stringResource(id = R.string.likes_notifications_channel_id)
+        likesNotificationsChannelName = stringResource(id = R.string.likes_notifications_channel_name)
+        likesNotificationsChannelDescription = stringResource(id = R.string.likes_notifications_channel_description)
+        commentsNotificationsChannelId = stringResource(id = R.string.comments_notifications_channel_id)
+        commentsNotificationsChannelName = stringResource(id = R.string.comments_notifications_channel_name)
+        commentsNotificationsChannelDescription = stringResource(id = R.string.comments_notifications_channel_description)
+        followersNotificationsChannelId = stringResource(id = R.string.followers_notifications_channel_id)
+        followersNotificationsChannelName = stringResource(id = R.string.followers_notifications_channel_name)
+        followersNotificationsChannelDescription = stringResource(id = R.string.followers_notifications_channel_description)
+    }
+}
+
+class NotificationWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+    override fun doWork(): Result {
+        notificationsHandler(applicationContext, inputData.keyValueMap)
+        return Result.success()
+    }
+
+}
+
+private fun createNotificationChannels() {
     // LIKES
     val likeChannel = NotificationChannel(
-        stringResource(id = R.string.likes_notifications_channel_id),
-        stringResource(id = R.string.likes_notifications_channel_name),
+        likesNotificationChannelId,
+        likesNotificationsChannelName,
         NotificationManager.IMPORTANCE_DEFAULT
     ).apply {
-        description = stringResource(id = R.string.likes_notifications_channel_description)
+        description = likesNotificationsChannelDescription
     }
     notificationManager.createNotificationChannel(likeChannel)
 
     // COMMENTS
     val commentsChannel = NotificationChannel(
-        stringResource(id = R.string.comments_notifications_channel_id),
-        stringResource(id = R.string.comments_notifications_channel_name),
+        commentsNotificationsChannelId,
+        commentsNotificationsChannelName,
         NotificationManager.IMPORTANCE_DEFAULT
     ).apply {
-        description = stringResource(id = R.string.comments_notifications_channel_description)
+        description = commentsNotificationsChannelDescription
     }
     notificationManager.createNotificationChannel(commentsChannel)
 
     // FOLLOWERS
     val followersChannel = NotificationChannel(
-        stringResource(id = R.string.followers_notifications_channel_id),
-        stringResource(id = R.string.followers_notifications_channel_name),
+        followersNotificationsChannelId,
+        followersNotificationsChannelName,
         NotificationManager.IMPORTANCE_DEFAULT
     ).apply {
-        description = stringResource(id = R.string.followers_notifications_channel_description)
+        description = followersNotificationsChannelDescription
     }
     notificationManager.createNotificationChannel(followersChannel)
 }
 
-@Composable
-fun NotificationsHandler (
-    settingsViewModel: SettingsViewModel
+fun notificationsHandler (
+    context: Context,
+    settings: Map<String, Any>
 ) {
-    val context = LocalContext.current
-    val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
-
     createNotificationChannels()
 
     val likeListener = object : ValueEventListener {
@@ -168,7 +206,7 @@ private fun sendLikeNotification (like: Like, context: Context) {
         user = getUserById(like.userId.toString())
     }.invokeOnCompletion {
         val builder = NotificationCompat.Builder(context, "FullThrottleLikesNotificationsChannel")
-            .setSmallIcon(R.drawable.fullthrottle_logo_light)
+            .setSmallIcon(R.drawable.ic_app_round)
             .setContentTitle("Nuovo like ricevuto")
             .setContentText(user?.username + " ha messo mi piace al tuo post")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -185,7 +223,7 @@ private fun sendCommentNotification (comment: Comment, context: Context) {
         user = getUserById(comment.userId.toString())
     }.invokeOnCompletion {
         val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
-            .setSmallIcon(R.drawable.fullthrottle_logo_light)
+            .setSmallIcon(R.drawable.ic_app_round)
             .setContentTitle("Nuovo commento")
             .setContentText(user?.username + ": " + comment.text)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -202,7 +240,7 @@ private fun sendFollowNotification (follow: Follow, context: Context) {
         user = getUserById(follow.followerId.toString())
     }.invokeOnCompletion {
         val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
-            .setSmallIcon(R.drawable.fullthrottle_logo_light)
+            .setSmallIcon(R.drawable.ic_app_round)
             .setContentTitle("Nuovo follower")
             .setContentText(user?.username + " ha iniziato a seguirti")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
