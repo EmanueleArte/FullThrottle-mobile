@@ -17,9 +17,11 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -528,7 +530,9 @@ object DBHelper {
             .child("${post?.userId}/${post?.postImg}")
             .delete()
             .addOnSuccessListener {
-                localDelete()
+                GlobalScope.launch(Dispatchers.IO) {
+                    localDelete()
+                }
             }
             .addOnFailureListener { error ->
                 Log.d("Error deleting image", error.toString())

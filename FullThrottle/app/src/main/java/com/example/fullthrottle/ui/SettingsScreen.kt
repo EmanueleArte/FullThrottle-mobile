@@ -194,7 +194,8 @@ fun SettingsScreen(
             ) {
                 OutlineTextButton(
                     value = "Logout",
-                    modifier = Modifier.height(30.dp)
+                    modifier = Modifier.height(35.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
                 ) {
                     openDialogLogout.value = true
                 }

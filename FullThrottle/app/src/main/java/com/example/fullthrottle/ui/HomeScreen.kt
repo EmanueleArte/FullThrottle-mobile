@@ -144,7 +144,7 @@ fun HomeScreen(
         }
     }
 
-    val baseModifier = Modifier.padding(horizontal = 5.dp)
+    val baseModifier = Modifier.padding(horizontal = 10.dp)
 
     if (filteredPosts.isEmpty() || postImagesUris.isEmpty() || likes.isEmpty()) {
         LoadingAnimation()
@@ -181,8 +181,8 @@ fun HomeScreen(
                                 ProfileImage(
                                     imgUri = userImagesUris[posts.indexOf(post)],
                                     contentDescription = "user image",
-                                    modifier = baseModifier
-                                        .padding(vertical = 8.dp)
+                                    modifier = Modifier
+                                        .padding(horizontal = 10.dp, vertical = 8.dp)
                                         .requiredHeight(40.dp)
                                         .requiredWidth(40.dp)
                                         .clip(CircleShape)
@@ -216,7 +216,7 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.size(3.dp))
                             Row(
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Column(
                                     modifier = baseModifier

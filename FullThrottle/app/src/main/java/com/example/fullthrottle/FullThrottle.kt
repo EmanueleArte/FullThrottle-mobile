@@ -172,7 +172,7 @@ fun TopAppBarFunction(
                 }
             },
             colors = TopAppBarDefaults.smallTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = MaterialTheme.colorScheme.background
             )
         )
     }
