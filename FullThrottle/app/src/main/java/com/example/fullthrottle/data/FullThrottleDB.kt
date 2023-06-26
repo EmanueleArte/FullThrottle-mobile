@@ -521,12 +521,16 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun deletePost(postId: String) {
+    suspend fun deletePost(postId: String, localDelete: () -> Unit) {
         val post = getPostById(postId)
         database.getReference("posts").child(postId).removeValue()
         storage.reference
             .child("${post?.userId}/${post?.postImg}")
-            .delete().addOnFailureListener { error ->
+            .delete()
+            .addOnSuccessListener {
+                localDelete()
+            }
+            .addOnFailureListener { error ->
                 Log.d("Error deleting image", error.toString())
             }
     }

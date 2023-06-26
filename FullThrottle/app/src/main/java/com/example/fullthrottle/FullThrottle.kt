@@ -475,6 +475,7 @@ private fun NavigationGraph(
         composable(route = AppScreen.Profile.name) {
             ProfileScreen(
                 settingsViewModel,
+                localDbViewModel,
                 mapOf(
                     "followers" to { navController.navigate(AppScreen.Followers.name) },
                     "followed" to { navController.navigate(AppScreen.Followeds.name) },

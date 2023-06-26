@@ -1,13 +1,6 @@
 package com.example.fullthrottle.ui
 
-import android.Manifest
-import android.content.Context.POWER_SERVICE
-import android.content.Intent
 import android.net.Uri
-import android.os.PowerManager
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,10 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.checkLike
 import com.example.fullthrottle.data.DBHelper.getFolloweds
@@ -48,7 +41,7 @@ import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.HomeScreenData.firstLoad
 import com.example.fullthrottle.ui.HomeScreenData.followedsIdsLoaded
 import com.example.fullthrottle.ui.HomeScreenData.likesLoaded
-import com.example.fullthrottle.ui.HomeScreenData.load
+import com.example.fullthrottle.ui.HomeScreenData.loadUris
 import com.example.fullthrottle.ui.HomeScreenData.motorbikesLoaded
 import com.example.fullthrottle.ui.HomeScreenData.postImagesUrisLoaded
 import com.example.fullthrottle.ui.HomeScreenData.postsLoaded
@@ -57,8 +50,11 @@ import com.example.fullthrottle.ui.HomeScreenData.usersLoaded
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal object HomeScreenData {
     var postsLoaded by mutableStateOf(emptyList<Post>())
@@ -70,14 +66,17 @@ internal object HomeScreenData {
     var followedsIdsLoaded by mutableStateOf(emptyList<String>())
     var firstLoad by mutableStateOf(true)
 
-    fun load(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>, likes: List<Boolean>, followedsIds: List<String>) {
-        postsLoaded = posts
-        usersLoaded = users
+    fun loadAll(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>, likes: List<Boolean>, followedsIds: List<String>) {
         motorbikesLoaded = motorbikes
         postImagesUrisLoaded = postImagesUris
         userImagesUrisLoaded = userImagesUris
         likesLoaded = likes
         followedsIdsLoaded = followedsIds
+    }
+
+    fun loadUris(postImagesUris: List<Uri>, userImagesUris: List<Uri>) {
+        postImagesUrisLoaded = postImagesUris
+        userImagesUrisLoaded = userImagesUris
     }
 
 }
@@ -102,6 +101,26 @@ fun HomeScreen(
     var followedsIds by rememberSaveable { mutableStateOf(followedsIdsLoaded) }
     var filteredPosts by rememberSaveable { mutableStateOf(posts) }
 
+    // Loads home posts from local room db
+    posts = localDbViewModel.posts.collectAsState(initial = listOf()).value
+    when {
+        posts.isNotEmpty() -> LaunchedEffect(Unit) {
+            users = posts.map { post ->
+                localDbViewModel.getUserById(post.userId.orEmpty())
+            }
+            postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
+            userImagesUris = users.map { user ->
+                if (user.userImg.toString().isNotEmpty())
+                    getImageUri(user.userId + "/" + user.userImg)
+                else
+                    Uri.EMPTY
+            }
+            likes = posts.map { post -> checkLike(post.postId, settings[USER_ID_KEY].toString()) }
+        }
+    }
+    Text(postImagesUrisLoaded.toString())
+
+    // Posts filter (All/Only followeds)
     registerFilterValueListener {
         filteredPosts = if (it == R.string.all_posts) {
             posts
@@ -125,17 +144,25 @@ fun HomeScreen(
                 else
                     Uri.EMPTY
             }
-            likes = tPosts.map { post -> checkLike(post.postId.toString(), settings[USER_ID_KEY].toString()) }
-            followedsIds = getFolloweds(settings[USER_ID_KEY].toString()).map { user -> user.userId.toString() }
+            likes = tPosts.map { post -> checkLike(post.postId, settings[USER_ID_KEY].toString()) }
+            followedsIds = getFolloweds(settings[USER_ID_KEY].toString()).map { user -> user.userId }
             posts = tPosts
         }.invokeOnCompletion {
-            load(posts, users, motorbikes, postImagesUris, userImagesUris, likes, followedsIds)
+            coroutineScope.launch(Dispatchers.IO) {
+                localDbViewModel.deleteAllPosts()
+                posts.forEach { post ->
+                    localDbViewModel.addNewPost(post)
+                }
+                users.forEach { user ->
+                    localDbViewModel.addNewUser(user)
+                }
+            }
         }
     }
 
     val baseModifier = Modifier.padding(horizontal = 5.dp)
 
-    if (filteredPosts.isEmpty() || postImagesUris.isEmpty()) {
+    if (filteredPosts.isEmpty() || postImagesUris.isEmpty() || likes.isEmpty()) {
         LoadingAnimation()
     } else {
         Column(

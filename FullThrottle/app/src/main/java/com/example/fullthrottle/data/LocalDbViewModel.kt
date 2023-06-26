@@ -19,6 +19,14 @@ class LocalDbViewModel @Inject constructor(
         postsRepository.insertNewPost(post)
     }
 
+    fun deletePost(postId: String) {
+        postsRepository.deletePost(postId)
+    }
+
+    fun deleteAllPosts() {
+        postsRepository.deleteAllPosts()
+    }
+
     fun addNewUser(user: User) = viewModelScope.launch {
         usersRepository.insertNewUser(user)
     }

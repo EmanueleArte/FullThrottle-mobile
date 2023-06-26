@@ -32,34 +32,25 @@ import com.example.fullthrottle.data.DBHelper.getPostsByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DBHelper.unfollowUser
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.LocalDbViewModel
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
-import com.example.fullthrottle.ui.ProfileScreenData.postImagesUrisLoaded
-import com.example.fullthrottle.ui.ProfileScreenData.postsLoaded
 import com.example.fullthrottle.ui.ProfileScreenData.uid
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 
 internal object ProfileScreenData {
     var uid by mutableStateOf(String())
-    var postsLoaded by mutableStateOf(emptyList<Post>())
-    var postImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
-
-    fun load(posts: List<Post>, postImagesUris: List<Uri>) {
-        postsLoaded = posts
-        postImagesUrisLoaded = postImagesUris
-    }
-
 }
 
 @Composable
 fun ProfileScreen(
     settingsViewModel: SettingsViewModel,
+    localDbViewModel: LocalDbViewModel,
     navigateTo: Map<String, () -> Unit>,
     userId: String,
     goToPost: (String) -> Unit
@@ -69,12 +60,10 @@ fun ProfileScreen(
 
     if (uid != userId) {
         uid = userId
-        postsLoaded = emptyList()
-        postImagesUrisLoaded = emptyList()
     }
     var user by remember { mutableStateOf(User()) }
-    var posts by rememberSaveable { mutableStateOf(postsLoaded) }
-    var postImagesUris by rememberSaveable { mutableStateOf(postImagesUrisLoaded) }
+    var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
+    var postImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
     var imageUri by rememberSaveable { mutableStateOf<Uri>(Uri.EMPTY) }
     var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
     val followLabel = stringResource(id = R.string.follow)
@@ -85,7 +74,7 @@ fun ProfileScreen(
     LaunchedEffect(key1 = "imageUri") {
         async {
             user = getUserById(userId) ?: User()
-            val followers = getFollowers(user.userId.orEmpty())
+            val followers = getFollowers(user.userId)
             if (followers.map { follower -> follower.userId }.contains(settings[USER_ID_KEY])) {
                 followButtonState = unfollowLabel
             }
@@ -106,7 +95,6 @@ fun ProfileScreen(
         }.invokeOnCompletion {
             launch {
                 postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
-                //load(posts, postImagesUris)
             }
         }
     }
@@ -244,7 +232,7 @@ fun ProfileScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    goToPost(post.postId as String)
+                                    goToPost(post.postId)
                                 },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
@@ -291,7 +279,9 @@ fun ProfileScreen(
                                                 result = saveDeletePost,
                                                 onConfirm = {
                                                     coroutineScope.launch {
-                                                        deletePost(post.postId.orEmpty())
+                                                        deletePost(post.postId) {
+                                                            localDbViewModel.deletePost(post.postId)
+                                                        }
                                                         posts = getPostsByUserId(userId)
                                                     }
                                                 }

@@ -10,11 +10,17 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PostsDAO {
-    @Query("SELECT * FROM posts ORDER BY publish_date ASC")
+    @Query("SELECT * FROM posts ORDER BY publish_date DESC")
     fun getPosts(): Flow<List<Post>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: Post)
+
+    @Query("DELETE FROM posts WHERE postId=:postId")
+    fun delete(postId: String)
+
+    @Query("DELETE FROM posts")
+    fun deleteAll()
 }
 
 @Dao
