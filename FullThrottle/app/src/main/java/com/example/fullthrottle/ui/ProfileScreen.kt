@@ -43,6 +43,7 @@ import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 
 internal object ProfileScreenData {
     var uid by mutableStateOf(String())
@@ -231,7 +232,8 @@ fun ProfileScreen(
                 Text(text = stringResource(id = R.string.my_posts), fontWeight = FontWeight.Bold)
             }
             if (posts.isEmpty() || postImagesUris.isEmpty()) {
-                LoadingAnimation()
+                LoadingAnimation(1500)
+                Text(text = stringResource(id = R.string.no_posts))
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),

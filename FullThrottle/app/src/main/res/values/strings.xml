@@ -52,6 +52,8 @@
     <string name="modify_profile">Modifica profilo</string>
     <string name="follow">Segui</string>
     <string name="unfollow">Non seguire più</string>
+    <string name="no_posts">Non ci sono posts.</string>
+    <string name="confirm_logout">Confermi di voler eseguire il logout?</string>
 
     <!-- Modify user data -->
     <string name="profile_image_change">Cambia immagine profilo</string>

@@ -3,11 +3,14 @@ package com.example.fullthrottle.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
+import com.example.fullthrottle.ValidityUtils
+import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
 import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
@@ -20,6 +23,7 @@ import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.deleteMemorizedUserData
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
@@ -153,16 +157,9 @@ fun SettingsScreen(
                     checked = settings["location_updates"] == "true",
                     onCheckedChange = {
                         if (it) {
-                            methods["startLocationUpdates"]?.invoke().let {
-                                //if (checkGPS(context)) {
-                                settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
-                                //}
-                            }
+                            settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
                         } else {
-                            methods["stopLocationUpdates"]?.invoke().let {
-                                settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
-                                methods["requestingLocationUpdatesFalse"]?.invoke()
-                            }
+                            settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
                         }
                     }
                 )
@@ -171,6 +168,22 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.size(10.dp))
 
             // Logout
+            val openDialogLogout = rememberSaveable { mutableStateOf(false) }
+            val logoutConfirm = rememberSaveable { mutableStateOf(false) }
+
+            if (openDialogLogout.value) {
+                logoutConfirm.value = false
+                SimpleAlertDialog(
+                    title = stringResource(id = R.string.confirm_logout),
+                    text = "",
+                    openDialog = openDialogLogout,
+                    result = logoutConfirm,
+                    onConfirm = {
+                        deleteMemorizedUserData(settingsViewModel)
+                    }
+                )
+            }
+
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -181,7 +194,7 @@ fun SettingsScreen(
                     value = "Logout",
                     modifier = Modifier.height(30.dp)
                 ) {
-                        deleteMemorizedUserData(settingsViewModel)
+                    openDialogLogout.value = true
                 }
             }
         }

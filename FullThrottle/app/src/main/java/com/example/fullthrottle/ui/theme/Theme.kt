@@ -1,25 +1,16 @@
 package com.example.fullthrottle.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.LogosIds.LOGO_DARK
 import com.example.fullthrottle.data.LogosIds.LOGO_LIGHT
-import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
-import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.ui.Logo.logoId
-import com.example.fullthrottle.viewModel.SettingsViewModel
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,

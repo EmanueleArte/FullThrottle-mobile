@@ -480,7 +480,9 @@ fun SimpleAlertDialog(
             Text(text = title)
         },
         text = {
-            Text(text = text)
+            if (text.isNotEmpty()) {
+                Text(text = text)
+            }
         },
         confirmButton = {
             SimpleTextButton(value = confirm) {
