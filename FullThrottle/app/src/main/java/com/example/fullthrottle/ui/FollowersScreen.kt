@@ -111,7 +111,7 @@ fun UsersList(
                             .height(IntrinsicSize.Max)
                     ) {
                         Column(
-                            modifier = Modifier.padding(2.dp)
+                            modifier = Modifier.padding(vertical = 5.dp, horizontal = 5.dp)
                         ) {
                             ProfileImage(
                                 imgUri = imagesUris.getOrElse(index) { Uri.EMPTY },

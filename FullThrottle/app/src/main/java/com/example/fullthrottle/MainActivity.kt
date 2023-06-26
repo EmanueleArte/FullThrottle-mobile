@@ -40,6 +40,7 @@ import androidx.work.WorkManager
 import com.android.volley.RequestQueue
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.LocalDbViewModel
 import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.NotificationWorker
 import com.example.fullthrottle.data.PushNotificationValues
@@ -142,6 +143,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val localDbViewModel = hiltViewModel<LocalDbViewModel>()
             val settingsViewModel = hiltViewModel<SettingsViewModel>()
             val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
             var darkTheme = isSystemInDarkTheme()
@@ -176,6 +178,7 @@ class MainActivity : ComponentActivity() {
                     NavigationApp(
                         settingsViewModel = settingsViewModel,
                         warningViewModel = warningViewModel,
+                        localDbViewModel = localDbViewModel,
                         startDestination = startDestination,
                         methods = mapOf(
                             "startLocationUpdates" to ::startLocationUpdates,
@@ -193,11 +196,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    fun showSnackBar(content: String) {
-        warningViewModel.setSimpleSnackBarContent(content)
-        warningViewModel.setSimpleSnackBarVisibility(true)
     }
 
     override fun onResume() {

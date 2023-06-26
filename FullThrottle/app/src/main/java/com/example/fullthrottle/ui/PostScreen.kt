@@ -290,7 +290,7 @@ fun PostScreen(
                 } else {
                     itemsIndexed(comments) { i, comment ->
                         Card(
-                            modifier = Modifier.padding(bottom = 5.dp),
+                            modifier = Modifier.padding(bottom = 10.dp),
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
                             Row(

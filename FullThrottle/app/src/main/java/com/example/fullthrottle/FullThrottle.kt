@@ -35,6 +35,8 @@ import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.HomeValues.getFilterValueListener
 import com.example.fullthrottle.data.HomeValues.setLifeCycleOwner
+import com.example.fullthrottle.data.LocalDB
+import com.example.fullthrottle.data.LocalDbViewModel
 import com.example.fullthrottle.data.notificationsHandler
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
@@ -62,8 +64,7 @@ sealed class AppScreen(val name: String) {
 
 @HiltAndroidApp
 class FullThrottle : Application() {
-    // lazy --> the database and the repository are only created when they're needed
-    //val database by lazy { PlacesDatabase.getDatabase(this) }
+    val database by lazy { LocalDB.getDatabase(this) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -299,6 +300,7 @@ fun BottomAppBarFunction(
 fun NavigationApp(
     settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel,
+    localDbViewModel: LocalDbViewModel,
     startDestination: String = AppScreen.Login.name,
     methods: Map<String, () -> Unit>,
     onBackAction: MutableState<() -> Unit>,
@@ -357,7 +359,7 @@ fun NavigationApp(
             }
         }
     ) { innerPadding ->
-        NavigationGraph(settingsViewModel, warningViewModel, navController, innerPadding, methods,
+        NavigationGraph(settingsViewModel, warningViewModel, localDbViewModel, navController, innerPadding, methods,
             userIdStack = userIdStack,
             postIdStack = postIdStack,
             startDestination = startDestination
@@ -404,6 +406,7 @@ fun NavigationApp(
 private fun NavigationGraph(
     settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel,
+    localDbViewModel: LocalDbViewModel,
     navController: NavHostController,
     innerPadding: PaddingValues,
     methods: Map<String, () -> Unit>,
@@ -438,7 +441,8 @@ private fun NavigationGraph(
                 goToPost,
                 goToProfile,
                 goToMap,
-                settingsViewModel
+                settingsViewModel,
+                localDbViewModel
             )
         }
         composable(route = AppScreen.Post.name) {

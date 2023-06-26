@@ -16,6 +16,7 @@ import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
+import com.example.fullthrottle.data.PushNotificationConstants.NO_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.POSTS_NOTIFICATIONS
 import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.LIGHT_THEME
@@ -41,7 +42,8 @@ fun SettingsScreen(
     val notificationsText = mapOf(
         ALL_NOTIFICATIONS to stringResource(id = R.string.all_notifications),
         POSTS_NOTIFICATIONS to stringResource(id = R.string.posts_notifications),
-        FOLLOWERS_NOTIFICATIONS to stringResource(id = R.string.followers_notifications)
+        FOLLOWERS_NOTIFICATIONS to stringResource(id = R.string.followers_notifications),
+        NO_NOTIFICATIONS to stringResource(id = R.string.no_notifications)
     )
 
     Column(

@@ -41,6 +41,7 @@ import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DBHelper.toggleLike
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.HomeValues.registerFilterValueListener
+import com.example.fullthrottle.data.LocalDbViewModel
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
@@ -86,7 +87,8 @@ fun HomeScreen(
     goToPost: (String) -> Unit,
     goToProfile: (String) -> Unit,
     goToMap: (String) -> Unit,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    localDbViewModel: LocalDbViewModel
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
