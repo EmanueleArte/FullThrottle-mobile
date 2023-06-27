@@ -31,6 +31,7 @@ import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsCh
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelName
 import com.example.fullthrottle.data.PushNotificationValues.notificationIcon
 import com.example.fullthrottle.data.PushNotificationValues.notificationManager
+import com.example.fullthrottle.data.PushNotificationValues.settings
 import com.example.fullthrottle.data.entities.*
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -54,6 +55,7 @@ object PushNotificationValues {
     lateinit var followersNotificationsChannelId: String
     lateinit var followersNotificationsChannelName: String
     lateinit var followersNotificationsChannelDescription: String
+    lateinit var settings: Map<String, String>
     var notificationIcon = R.drawable.ic_notification
 
     @Composable
@@ -70,11 +72,15 @@ object PushNotificationValues {
         followersNotificationsChannelName = stringResource(id = R.string.followers_notifications_channel_name)
         followersNotificationsChannelDescription = stringResource(id = R.string.followers_notifications_channel_description)
     }
+
+    fun setPushNotificationsSettings(settings: Map<String, String>) {
+        this.settings = settings
+    }
 }
 
 class NotificationWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
     override fun doWork(): Result {
-        notificationsHandler(applicationContext, inputData.keyValueMap)
+        notificationsHandler(applicationContext)
         return Result.success()
     }
 
@@ -113,8 +119,7 @@ private fun createNotificationChannels() {
 }
 
 fun notificationsHandler (
-    context: Context,
-    settings: Map<String, Any>
+    context: Context
 ) {
     createNotificationChannels()
 
@@ -132,8 +137,8 @@ fun notificationsHandler (
                 likes.forEach { like ->
                     if (like?.notified == "0") {
                         notifyLike(like.likeId.toString())
-                        if (settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.ALL_NOTIFICATIONS
-                            || settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.POSTS_NOTIFICATIONS) {
+                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
                             sendLikeNotification(like, context)
                         }
                     }
@@ -160,8 +165,8 @@ fun notificationsHandler (
                 comments.forEach { comment ->
                     if (comment?.notified == "0") {
                         notifyComment(comment.commentId.toString())
-                        if (settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.ALL_NOTIFICATIONS
-                            || settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.POSTS_NOTIFICATIONS) {
+                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
                             sendCommentNotification(comment, context)
                         }
                     }
@@ -183,8 +188,8 @@ fun notificationsHandler (
             follows.forEach { follow ->
                 if (follow?.notified == "0") {
                     notifyFollow(follow.followId.toString())
-                    if (settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.ALL_NOTIFICATIONS
-                        || settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.FOLLOWERS_NOTIFICATIONS) {
+                    if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                        || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.FOLLOWERS_NOTIFICATIONS) {
                         sendFollowNotification(follow, context)
                     }
                 }
