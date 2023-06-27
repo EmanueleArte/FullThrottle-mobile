@@ -114,6 +114,7 @@ fun notificationsHandler (
     context: Context,
     settings: Map<String, Any>
 ) {
+    val settings = settings as Map<String, String>
     createNotificationChannels()
 
     val likeListener = object : ValueEventListener {

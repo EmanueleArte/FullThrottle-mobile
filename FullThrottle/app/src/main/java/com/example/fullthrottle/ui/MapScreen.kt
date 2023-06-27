@@ -33,7 +33,8 @@ import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.ui.MapScreenData.coordinatesLoaded
 import com.example.fullthrottle.ui.MapScreenData.load
-import com.example.fullthrottle.ui.theme.md_theme_light_primary
+import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
+import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -187,14 +188,16 @@ fun MapScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp)
+            .padding(horizontal = MAIN_H_PADDING)
+            .padding(bottom = 10.dp)
     ) {
         SimpleTitle(text = stringResource(id = R.string.map))
         GoogleMap(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .border(2.dp, md_theme_light_primary),
+                .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(CORNER_RADIUS))
+                .clip(RoundedCornerShape(CORNER_RADIUS)),
             properties = mapProperties,
             cameraPositionState = cameraPositionState
         ) {

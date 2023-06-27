@@ -1,13 +1,6 @@
 package com.example.fullthrottle.ui
 
-import android.Manifest
-import android.content.Context.POWER_SERVICE
-import android.content.Intent
 import android.net.Uri
-import android.os.PowerManager
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,44 +33,24 @@ import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DBHelper.toggleLike
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.HomeValues.registerFilterValueListener
+import com.example.fullthrottle.data.LocalDbViewModel
+import com.example.fullthrottle.data.entities.LikeBool
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.HomeScreenData.firstLoad
-import com.example.fullthrottle.ui.HomeScreenData.followedsIdsLoaded
-import com.example.fullthrottle.ui.HomeScreenData.likesLoaded
-import com.example.fullthrottle.ui.HomeScreenData.load
-import com.example.fullthrottle.ui.HomeScreenData.motorbikesLoaded
-import com.example.fullthrottle.ui.HomeScreenData.postImagesUrisLoaded
-import com.example.fullthrottle.ui.HomeScreenData.postsLoaded
-import com.example.fullthrottle.ui.HomeScreenData.userImagesUrisLoaded
 import com.example.fullthrottle.ui.HomeScreenData.usersLoaded
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 internal object HomeScreenData {
-    var postsLoaded by mutableStateOf(emptyList<Post>())
     var usersLoaded by mutableStateOf(emptyList<User>())
-    var motorbikesLoaded by mutableStateOf(emptyList<Motorbike>())
-    var postImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
-    var userImagesUrisLoaded by mutableStateOf(emptyList<Uri>())
-    var likesLoaded by mutableStateOf(emptyList<Boolean>())
-    var followedsIdsLoaded by mutableStateOf(emptyList<String>())
     var firstLoad by mutableStateOf(true)
-
-    fun load(posts: List<Post>, users: List<User>, motorbikes: List<Motorbike>, postImagesUris: List<Uri>, userImagesUris: List<Uri>, likes: List<Boolean>, followedsIds: List<String>) {
-        postsLoaded = posts
-        usersLoaded = users
-        motorbikesLoaded = motorbikes
-        postImagesUrisLoaded = postImagesUris
-        userImagesUrisLoaded = userImagesUris
-        likesLoaded = likes
-        followedsIdsLoaded = followedsIds
-    }
-
 }
 
 @Composable
@@ -86,20 +58,41 @@ fun HomeScreen(
     goToPost: (String) -> Unit,
     goToProfile: (String) -> Unit,
     goToMap: (String) -> Unit,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    localDbViewModel: LocalDbViewModel
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val coroutineScope = rememberCoroutineScope()
 
-    var posts by rememberSaveable { mutableStateOf(postsLoaded) }
-    var users by rememberSaveable { mutableStateOf(usersLoaded) }
-    var motorbikes by rememberSaveable { mutableStateOf(motorbikesLoaded) }
-    var postImagesUris by rememberSaveable { mutableStateOf(postImagesUrisLoaded) }
-    var userImagesUris by rememberSaveable { mutableStateOf(userImagesUrisLoaded) }
-    var likes by rememberSaveable { mutableStateOf(likesLoaded) }
-    var followedsIds by rememberSaveable { mutableStateOf(followedsIdsLoaded) }
+    var posts by rememberSaveable { mutableStateOf(emptyList<Post>()) }
+    var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
+    var motorbikes by rememberSaveable { mutableStateOf(emptyList<Motorbike>()) }
+    var postImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var userImagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var likes by rememberSaveable { mutableStateOf(emptyList<Boolean>()) }
+    var followedsIds by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var filteredPosts by rememberSaveable { mutableStateOf(posts) }
 
+    // Loads home posts from local room db
+    posts = localDbViewModel.posts.collectAsState(initial = listOf()).value
+    when {
+        posts.isNotEmpty() -> LaunchedEffect(Unit) {
+            users = posts.map { post ->
+                localDbViewModel.getUserById(post.userId.orEmpty())
+            }
+            postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
+            userImagesUris = users.map { user ->
+                if (user.userImg.toString().isNotEmpty())
+                    getImageUri(user.userId + "/" + user.userImg)
+                else
+                    Uri.EMPTY
+            }
+            motorbikes = posts.map { post -> localDbViewModel.getMotorbikeById(post.motorbikeId as String) }
+            likes = posts.map { post -> localDbViewModel.getLike(post.postId) }
+        }
+    }
+
+    // Posts filter (All/Only followeds)
     registerFilterValueListener {
         filteredPosts = if (it == R.string.all_posts) {
             posts
@@ -123,17 +116,37 @@ fun HomeScreen(
                 else
                     Uri.EMPTY
             }
-            likes = tPosts.map { post -> checkLike(post.postId.toString(), settings[USER_ID_KEY].toString()) }
-            followedsIds = getFolloweds(settings[USER_ID_KEY].toString()).map { user -> user.userId.toString() }
+            likes = tPosts.map { post -> checkLike(post.postId, settings[USER_ID_KEY].toString()) }
+            followedsIds = getFolloweds(settings[USER_ID_KEY].toString()).map { user -> user.userId }
             posts = tPosts
         }.invokeOnCompletion {
-            load(posts, users, motorbikes, postImagesUris, userImagesUris, likes, followedsIds)
+            coroutineScope.launch(Dispatchers.IO) {
+                localDbViewModel.deleteAllPosts()
+                localDbViewModel.deleteAllMotorbikes()
+                localDbViewModel.deleteAllLikes()
+                posts.forEach { post ->
+                    localDbViewModel.addNewPost(post)
+                }
+                users.forEach { user ->
+                    localDbViewModel.addNewUser(user)
+                }
+                motorbikes.forEach { motorbike ->
+                    localDbViewModel.addNewMotorbike(motorbike)
+                }
+                posts.forEachIndexed { index, post ->
+                    localDbViewModel.addNewLike(LikeBool(
+                        likeId = UUID.randomUUID().toString(),
+                        postId = post.postId,
+                        value = likes[index]
+                    ))
+                }
+            }
         }
     }
 
-    val baseModifier = Modifier.padding(horizontal = 5.dp)
+    val baseModifier = Modifier.padding(horizontal = 10.dp)
 
-    if (filteredPosts.isEmpty() || postImagesUris.isEmpty()) {
+    if (filteredPosts.isEmpty() || postImagesUris.isEmpty() || likes.isEmpty()) {
         LoadingAnimation()
     } else {
         Column(
@@ -157,7 +170,7 @@ fun HomeScreen(
                             .padding(top = 5.dp, bottom = 10.dp)
                             .fillMaxWidth()
                             .clickable {
-                                goToPost(post.postId as String)
+                                goToPost(post.postId)
                             },
                         elevation = CardDefaults.cardElevation(8.dp)
                     ) {
@@ -168,13 +181,13 @@ fun HomeScreen(
                                 ProfileImage(
                                     imgUri = userImagesUris[posts.indexOf(post)],
                                     contentDescription = "user image",
-                                    modifier = baseModifier
-                                        .padding(vertical = 8.dp)
+                                    modifier = Modifier
+                                        .padding(horizontal = 10.dp, vertical = 8.dp)
                                         .requiredHeight(40.dp)
                                         .requiredWidth(40.dp)
                                         .clip(CircleShape)
                                         .background(Color.White)
-                                        .clickable { goToProfile(users[posts.indexOf(post)].userId as String) },
+                                        .clickable { goToProfile(users[posts.indexOf(post)].userId) },
                                 )
                                 Column {
                                     Text(
@@ -203,7 +216,7 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.size(3.dp))
                             Row(
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Column(
                                     modifier = baseModifier
@@ -234,7 +247,7 @@ fun HomeScreen(
                                             coroutineScope
                                                 .launch {
                                                     like = toggleLike(
-                                                        post.postId.toString(),
+                                                        post.postId,
                                                         settings[USER_ID_KEY].toString()
                                                     )
                                                 }

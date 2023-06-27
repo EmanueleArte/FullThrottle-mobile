@@ -3,16 +3,20 @@ package com.example.fullthrottle.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
+import com.example.fullthrottle.ValidityUtils
+import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
 import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
+import com.example.fullthrottle.data.PushNotificationConstants.NO_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.POSTS_NOTIFICATIONS
 import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.LIGHT_THEME
@@ -20,6 +24,7 @@ import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.deleteMemorizedUserData
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
@@ -37,7 +42,8 @@ fun SettingsScreen(
     val notificationsText = mapOf(
         ALL_NOTIFICATIONS to stringResource(id = R.string.all_notifications),
         POSTS_NOTIFICATIONS to stringResource(id = R.string.posts_notifications),
-        FOLLOWERS_NOTIFICATIONS to stringResource(id = R.string.followers_notifications)
+        FOLLOWERS_NOTIFICATIONS to stringResource(id = R.string.followers_notifications),
+        NO_NOTIFICATIONS to stringResource(id = R.string.no_notifications)
     )
 
     Column(
@@ -153,16 +159,9 @@ fun SettingsScreen(
                     checked = settings["location_updates"] == "true",
                     onCheckedChange = {
                         if (it) {
-                            methods["startLocationUpdates"]?.invoke().let {
-                                //if (checkGPS(context)) {
-                                settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
-                                //}
-                            }
+                            settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
                         } else {
-                            methods["stopLocationUpdates"]?.invoke().let {
-                                settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
-                                methods["requestingLocationUpdatesFalse"]?.invoke()
-                            }
+                            settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
                         }
                     }
                 )
@@ -171,6 +170,22 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.size(10.dp))
 
             // Logout
+            val openDialogLogout = rememberSaveable { mutableStateOf(false) }
+            val logoutConfirm = rememberSaveable { mutableStateOf(false) }
+
+            if (openDialogLogout.value) {
+                logoutConfirm.value = false
+                SimpleAlertDialog(
+                    title = stringResource(id = R.string.confirm_logout),
+                    text = "",
+                    openDialog = openDialogLogout,
+                    result = logoutConfirm,
+                    onConfirm = {
+                        deleteMemorizedUserData(settingsViewModel)
+                    }
+                )
+            }
+
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -179,9 +194,10 @@ fun SettingsScreen(
             ) {
                 OutlineTextButton(
                     value = "Logout",
-                    modifier = Modifier.height(30.dp)
+                    modifier = Modifier.height(35.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
                 ) {
-                        deleteMemorizedUserData(settingsViewModel)
+                    openDialogLogout.value = true
                 }
             }
         }

@@ -17,9 +17,11 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -521,12 +523,18 @@ object DBHelper {
         awaitClose { }
     }.first()
 
-    suspend fun deletePost(postId: String) {
+    suspend fun deletePost(postId: String, localDelete: () -> Unit) {
         val post = getPostById(postId)
         database.getReference("posts").child(postId).removeValue()
         storage.reference
             .child("${post?.userId}/${post?.postImg}")
-            .delete().addOnFailureListener { error ->
+            .delete()
+            .addOnSuccessListener {
+                GlobalScope.launch(Dispatchers.IO) {
+                    localDelete()
+                }
+            }
+            .addOnFailureListener { error ->
                 Log.d("Error deleting image", error.toString())
             }
     }

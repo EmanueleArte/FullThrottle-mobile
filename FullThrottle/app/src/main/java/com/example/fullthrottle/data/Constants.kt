@@ -14,6 +14,7 @@ object PushNotificationConstants {
     const val ALL_NOTIFICATIONS = "all"
     const val POSTS_NOTIFICATIONS = "posts_only"
     const val FOLLOWERS_NOTIFICATIONS = "followers_only"
+    const val NO_NOTIFICATIONS = "none"
 }
 
 object DataStoreConstants {
