@@ -38,11 +38,17 @@ import androidx.work.Data
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.android.volley.RequestQueue
+import com.example.fullthrottle.data.DataStoreConstants
+import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
+import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.LocalDbViewModel
 import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.NotificationWorker
+import com.example.fullthrottle.data.PushNotificationConstants
+import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
+import com.example.fullthrottle.data.PushNotificationConstants.NO_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationValues
 import com.example.fullthrottle.data.ThemeConstants.DARK_THEME
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
@@ -74,6 +80,8 @@ class MainActivity : ComponentActivity() {
 
     val warningViewModel by viewModels<WarningViewModel>()
 
+    val settingsViewModel by viewModels<SettingsViewModel>()
+
     private var showSnackbar: Boolean = true
 
     private val onBackAction = mutableStateOf({})
@@ -103,6 +111,7 @@ class MainActivity : ComponentActivity() {
         ) { isGranted ->
             if (isGranted) {
                 startLocationUpdates()
+                settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
             } else {
                 warningViewModel.setPermissionSnackBarVisibility(true)
             }
@@ -144,7 +153,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val localDbViewModel = hiltViewModel<LocalDbViewModel>()
-            val settingsViewModel = hiltViewModel<SettingsViewModel>()
+            //val settingsViewModel = hiltViewModel<SettingsViewModel>()
             val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
             var darkTheme = isSystemInDarkTheme()
             if (settings[THEME_KEY] != SYSTEM_THEME) {

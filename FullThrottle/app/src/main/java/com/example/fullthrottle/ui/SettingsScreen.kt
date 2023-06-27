@@ -1,13 +1,17 @@
 package com.example.fullthrottle.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.fullthrottle.R
 import com.example.fullthrottle.ValidityUtils
 import com.example.fullthrottle.data.DBHelper
@@ -24,13 +28,13 @@ import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 import com.example.fullthrottle.deleteMemorizedUserData
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel,
     methods: Map<String, () -> Unit>
 ) {
+    val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
 
     val themesText = mapOf(
@@ -159,8 +163,14 @@ fun SettingsScreen(
                     checked = settings["location_updates"] == "true",
                     onCheckedChange = {
                         if (it) {
-                            settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
+                            methods["startLocationUpdates"]?.invoke()
+                            if (
+                                ContextCompat.checkSelfPermission (context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
+                            }
                         } else {
+                            methods["stopLocationUpdates"]?.invoke()
                             settingsViewModel.saveData(LOCATION_UPDATES_KEY, "false")
                         }
                     }

@@ -56,7 +56,7 @@ fun SearchScreen(
                         postResults = tPosts
                         val tUsers = searchUsers(text)
                         userImagesUris = tUsers.map { user ->
-                            if (user.userImg.toString().isNotEmpty())
+                            if (user.userImg.orEmpty().isNotEmpty())
                                 getImageUri(user.userId + "/" + user.userImg)
                             else
                                 Uri.EMPTY

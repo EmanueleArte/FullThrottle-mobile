@@ -1,6 +1,12 @@
 package com.example.fullthrottle.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -20,10 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.fullthrottle.R
+import com.example.fullthrottle.createPermissionRequest
 import com.example.fullthrottle.data.DBHelper.checkLike
 import com.example.fullthrottle.data.DBHelper.getFolloweds
 import com.example.fullthrottle.data.DBHelper.getImageUri
@@ -31,9 +40,11 @@ import com.example.fullthrottle.data.DBHelper.getMotorbikeById
 import com.example.fullthrottle.data.DBHelper.getRecentPosts
 import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DBHelper.toggleLike
+import com.example.fullthrottle.data.DataStoreConstants
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.HomeValues.registerFilterValueListener
 import com.example.fullthrottle.data.LocalDbViewModel
+import com.example.fullthrottle.data.PushNotificationConstants
 import com.example.fullthrottle.data.entities.LikeBool
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.data.entities.Post
@@ -111,7 +122,7 @@ fun HomeScreen(
             motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
             postImagesUris = tPosts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
             userImagesUris = users.map { user ->
-                if (user.userImg.toString().isNotEmpty())
+                if (user.userImg.orEmpty().isNotEmpty())
                     getImageUri(user.userId + "/" + user.userImg)
                 else
                     Uri.EMPTY
@@ -122,8 +133,6 @@ fun HomeScreen(
         }.invokeOnCompletion {
             coroutineScope.launch(Dispatchers.IO) {
                 localDbViewModel.deleteAllPosts()
-                localDbViewModel.deleteAllMotorbikes()
-                localDbViewModel.deleteAllLikes()
                 posts.forEach { post ->
                     localDbViewModel.addNewPost(post)
                 }

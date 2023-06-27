@@ -71,7 +71,7 @@ fun PostScreen(
             val res = getPostById(postId)
             if (res != null) {
                 user = getUserById(res.userId as String) as User
-                if (user.userImg.toString().isNotEmpty()) {
+                if (user.userImg.orEmpty().isNotEmpty()) {
                     userImageUri = getImageUri(res.userId + "/" + user.userImg)
                 }
                 motorbike = getMotorbikeById(res.motorbikeId as String) as Motorbike
@@ -83,7 +83,7 @@ fun PostScreen(
             val tComments = getCommentsByPostId(postId)
             commentsUsers = tComments.map { comment -> getUserById(comment.userId as String) as User }
             commentsUsersImagesUris = commentsUsers.map { user ->
-                if (user.userImg.toString().isNotEmpty()) {
+                if (user.userImg.orEmpty().isNotEmpty()) {
                     getImageUri(user.userId + "/" + user.userImg)
                 } else {
                     Uri.EMPTY
@@ -269,7 +269,7 @@ fun PostScreen(
                                         commentsUsers =
                                             tComments.map { comment -> getUserById(comment.userId as String) as User }
                                         commentsUsersImagesUris = commentsUsers.map { user ->
-                                            if (user.userImg.toString().isNotEmpty()) {
+                                            if (user.userImg.orEmpty().isNotEmpty()) {
                                                 getImageUri(user.userId + "/" + user.userImg)
                                             } else {
                                                 Uri.EMPTY

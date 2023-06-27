@@ -52,7 +52,7 @@ interface LikesDAO {
     @Query("SELECT * FROM likes WHERE post_id=:postId")
     fun getLike(postId: String): Flow<LikeBool>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(like: LikeBool)
 
     @Query("DELETE FROM likes")

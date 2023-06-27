@@ -7,6 +7,7 @@ import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.data.entities.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.single
 
 class PostsRepository(private val postsDAO: PostsDAO) {
 

@@ -12,6 +12,7 @@ import com.example.fullthrottle.data.DataStoreConstants.USERNAME_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.DataStoreConstants.USER_IMAGE_KEY
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
+import com.example.fullthrottle.data.PushNotificationConstants.NO_NOTIFICATIONS
 import com.example.fullthrottle.data.ThemeConstants.SYSTEM_THEME
 
 import kotlinx.coroutines.flow.Flow
@@ -52,7 +53,7 @@ class SettingsRepository(private val context: Context) {
             prefMap[USER_IMAGE_KEY] = preferences[USER_IMAGE]?: ""
             prefMap[MAIL_KEY] = preferences[MAIL]?: ""
             prefMap[THEME_KEY] = preferences[THEME]?: SYSTEM_THEME
-            prefMap[PUSH_NOTIFICATIONS_KEY] = preferences[PUSH_NOTIFICATIONS]?: ALL_NOTIFICATIONS
+            prefMap[PUSH_NOTIFICATIONS_KEY] = preferences[PUSH_NOTIFICATIONS]?: NO_NOTIFICATIONS
             prefMap[LOCATION_UPDATES_KEY] = preferences[LOCATION_UPDATES]?: "false"
             prefMap
         }

@@ -82,7 +82,7 @@ fun ProfileScreen(
             if (user.followers != null) {
                 nFollowers = user.followers.toString()
             }
-            if (user.userImg?.isNotEmpty()!!) {
+            if (user.userImg.orEmpty().isNotEmpty()) {
                 val imageUrl = userId + "/" + user.userImg
                 launch {
                     imageUri = getImageUri(imageUrl)

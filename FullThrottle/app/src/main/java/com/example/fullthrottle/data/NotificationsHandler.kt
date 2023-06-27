@@ -29,6 +29,7 @@ import com.example.fullthrottle.data.PushNotificationValues.followersNotificatio
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationChannelId
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelDescription
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelName
+import com.example.fullthrottle.data.PushNotificationValues.notificationIcon
 import com.example.fullthrottle.data.PushNotificationValues.notificationManager
 import com.example.fullthrottle.data.entities.*
 import com.google.firebase.database.DataSnapshot
@@ -53,6 +54,7 @@ object PushNotificationValues {
     lateinit var followersNotificationsChannelId: String
     lateinit var followersNotificationsChannelName: String
     lateinit var followersNotificationsChannelDescription: String
+    var notificationIcon = R.drawable.ic_notification
 
     @Composable
     fun SetVariables() {
@@ -114,7 +116,6 @@ fun notificationsHandler (
     context: Context,
     settings: Map<String, Any>
 ) {
-    val settings = settings as Map<String, String>
     createNotificationChannels()
 
     val likeListener = object : ValueEventListener {
@@ -131,8 +132,8 @@ fun notificationsHandler (
                 likes.forEach { like ->
                     if (like?.notified == "0") {
                         notifyLike(like.likeId.toString())
-                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
-                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
+                        if (settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.ALL_NOTIFICATIONS
+                            || settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.POSTS_NOTIFICATIONS) {
                             sendLikeNotification(like, context)
                         }
                     }
@@ -159,8 +160,8 @@ fun notificationsHandler (
                 comments.forEach { comment ->
                     if (comment?.notified == "0") {
                         notifyComment(comment.commentId.toString())
-                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
-                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
+                        if (settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.ALL_NOTIFICATIONS
+                            || settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.POSTS_NOTIFICATIONS) {
                             sendCommentNotification(comment, context)
                         }
                     }
@@ -182,8 +183,8 @@ fun notificationsHandler (
             follows.forEach { follow ->
                 if (follow?.notified == "0") {
                     notifyFollow(follow.followId.toString())
-                    if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
-                        || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.FOLLOWERS_NOTIFICATIONS) {
+                    if (settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.ALL_NOTIFICATIONS
+                        || settings[PUSH_NOTIFICATIONS_KEY].toString() == PushNotificationConstants.FOLLOWERS_NOTIFICATIONS) {
                         sendFollowNotification(follow, context)
                     }
                 }
@@ -207,7 +208,7 @@ private fun sendLikeNotification (like: Like, context: Context) {
         user = getUserById(like.userId.toString())
     }.invokeOnCompletion {
         val builder = NotificationCompat.Builder(context, "FullThrottleLikesNotificationsChannel")
-            .setSmallIcon(R.drawable.ic_app_round)
+            .setSmallIcon(notificationIcon)
             .setContentTitle("Nuovo like ricevuto")
             .setContentText(user?.username + " ha messo mi piace al tuo post")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -224,7 +225,7 @@ private fun sendCommentNotification (comment: Comment, context: Context) {
         user = getUserById(comment.userId.toString())
     }.invokeOnCompletion {
         val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
-            .setSmallIcon(R.drawable.ic_app_round)
+            .setSmallIcon(notificationIcon)
             .setContentTitle("Nuovo commento")
             .setContentText(user?.username + ": " + comment.text)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -241,7 +242,7 @@ private fun sendFollowNotification (follow: Follow, context: Context) {
         user = getUserById(follow.followerId.toString())
     }.invokeOnCompletion {
         val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
-            .setSmallIcon(R.drawable.ic_app_round)
+            .setSmallIcon(notificationIcon)
             .setContentTitle("Nuovo follower")
             .setContentText(user?.username + " ha iniziato a seguirti")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
