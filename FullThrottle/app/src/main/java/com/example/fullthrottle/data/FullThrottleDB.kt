@@ -651,7 +651,6 @@ object DBHelper {
             }
     }
 
-    // LIKES
     suspend fun checkLike(postId: String, userId: String): Boolean = callbackFlow{
         database
             .getReference("likes")

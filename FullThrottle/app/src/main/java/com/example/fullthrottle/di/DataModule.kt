@@ -1,15 +1,8 @@
 package com.example.fullthrottle.di
 
 import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.fullthrottle.FullThrottle
-import com.example.fullthrottle.data.LikesRepository
-import com.example.fullthrottle.data.MotorbikesRepository
-import com.example.fullthrottle.data.PostsRepository
-import com.example.fullthrottle.data.SettingsRepository
-import com.example.fullthrottle.data.UsersRepository
-import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.example.fullthrottle.data.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,5 +36,20 @@ object DataModule {
     @Provides
     fun provideLikesRepository(@ApplicationContext context: Context) =
         LikesRepository((context.applicationContext as FullThrottle).database.likesDAO())
+
+    @Singleton
+    @Provides
+    fun provideCommentsNotificationsRepository(@ApplicationContext context: Context) =
+        CommentsNotificationsRepository((context.applicationContext as FullThrottle).database.commentsNotificationsDAO())
+
+    @Singleton
+    @Provides
+    fun provideLikesNotificationsRepository(@ApplicationContext context: Context) =
+        LikesNotificationsRepository((context.applicationContext as FullThrottle).database.likesNotificationsDAO())
+
+    @Singleton
+    @Provides
+    fun provideFollowsNotificationsRepository(@ApplicationContext context: Context) =
+        FollowsNotificationsRepository((context.applicationContext as FullThrottle).database.followsNotificationsDAO())
 
 }

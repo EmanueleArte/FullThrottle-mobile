@@ -4,18 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.fullthrottle.data.entities.LikeBool
-import com.example.fullthrottle.data.entities.Motorbike
-import com.example.fullthrottle.data.entities.Post
-import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.data.entities.*
 
-@Database(entities = [Post::class, User::class, Motorbike::class, LikeBool::class], version = 3, exportSchema = true)
+@Database(entities = [Post::class, User::class, Motorbike::class, LikeBool::class, CommentNotification::class, LikeNotification::class, FollowNotification::class], version = 5, exportSchema = true)
 abstract class LocalDB : RoomDatabase() {
 
     abstract fun postsDAO(): PostsDAO
     abstract fun usersDAO(): UsersDAO
     abstract fun motorbikesDAO(): MotorbikesDAO
     abstract fun likesDAO(): LikesDAO
+    abstract fun commentsNotificationsDAO(): CommentsNotificationsDAO
+    abstract fun likesNotificationsDAO(): LikesNotificationsDAO
+    abstract fun followsNotificationsDAO(): FollowsNotificationsDAO
 
     companion object {
         @Volatile

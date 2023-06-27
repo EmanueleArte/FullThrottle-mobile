@@ -1,6 +1,7 @@
 package com.example.fullthrottle
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -83,6 +84,7 @@ class MainActivity : ComponentActivity() {
         onBackAction.value()
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

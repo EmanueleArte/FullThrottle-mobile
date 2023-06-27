@@ -59,6 +59,7 @@ sealed class AppScreen(val name: String) {
     object Followers : AppScreen("Followers Screen")
     object Followeds : AppScreen("Followed Screen")
     object ProfileModification : AppScreen("Profile modification")
+    object Notifications : AppScreen("Notifications Screen")
 }
 
 @HiltAndroidApp
@@ -73,7 +74,8 @@ fun TopAppBarFunction(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    onSettingsButtonClicked: () -> Unit
+    onSettingsButtonClicked: () -> Unit,
+    onNotificationsButtonClicked: () -> Unit
 ) {
     AnimatedVisibility(
         visible = currentScreen != AppScreen.Login.name,
@@ -162,12 +164,8 @@ fun TopAppBarFunction(
                         )
                     }
                 } else {
-                    IconButton(
-                        onClick = {
-
-                        }
-                    ) {
-                        Icon(Icons.Filled.Notifications, contentDescription = "Search")
+                    IconButton(onClick = onNotificationsButtonClicked) {
+                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
                     }
                 }
             },
@@ -345,7 +343,8 @@ fun NavigationApp(
                 navigateUp = {
                     onBackAction.value()
                 },
-                onSettingsButtonClicked = { navController.navigate(AppScreen.Settings.name) }
+                onSettingsButtonClicked = { navController.navigate(AppScreen.Settings.name) },
+                onNotificationsButtonClicked = { navController.navigate(AppScreen.Notifications.name) }
             )
         },
         bottomBar = {
@@ -527,6 +526,13 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Settings.name) {
             SettingsScreen(settingsViewModel, methods)
+        }
+        composable(route = AppScreen.Notifications.name) {
+            NotificationsScreen(
+                goToPost,
+                goToProfile,
+                localDbViewModel
+            )
         }
     }
 }

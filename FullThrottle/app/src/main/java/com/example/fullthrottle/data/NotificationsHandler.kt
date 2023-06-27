@@ -3,15 +3,19 @@ package com.example.fullthrottle.data
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.example.fullthrottle.MainActivity
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getPostsByUserId
 import com.example.fullthrottle.data.DBHelper.getUserById
@@ -30,6 +34,7 @@ import com.example.fullthrottle.data.PushNotificationValues.likesNotificationCha
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelDescription
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelName
 import com.example.fullthrottle.data.PushNotificationValues.notificationIcon
+import com.example.fullthrottle.data.PushNotificationValues.localDbViewModel
 import com.example.fullthrottle.data.PushNotificationValues.notificationManager
 import com.example.fullthrottle.data.PushNotificationValues.settings
 import com.example.fullthrottle.data.entities.*
@@ -45,6 +50,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 
 object PushNotificationValues {
+    lateinit var localDbViewModel: LocalDbViewModel
     lateinit var notificationManager: NotificationManager
     lateinit var likesNotificationChannelId: String
     lateinit var likesNotificationsChannelName: String
@@ -60,6 +66,7 @@ object PushNotificationValues {
 
     @Composable
     fun SetVariables() {
+        localDbViewModel = hiltViewModel()
         notificationManager =
             LocalContext.current.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         likesNotificationChannelId = stringResource(id = R.string.likes_notifications_channel_id)
@@ -167,7 +174,7 @@ fun notificationsHandler (
                         notifyComment(comment.commentId.toString())
                         if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
                             || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
-                            sendCommentNotification(comment, context)
+                            sendCommentNotification(comment, context, localDbViewModel)
                         }
                     }
                 }
@@ -212,31 +219,61 @@ private fun sendLikeNotification (like: Like, context: Context) {
     CoroutineScope(EmptyCoroutineContext).launch {
         user = getUserById(like.userId.toString())
     }.invokeOnCompletion {
+        val id = Random(like.userId.hashCode() + like.postId.hashCode()).nextInt()
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val builder = NotificationCompat.Builder(context, "FullThrottleLikesNotificationsChannel")
             .setSmallIcon(notificationIcon)
             .setContentTitle("Nuovo like ricevuto")
             .setContentText(user?.username + " ha messo mi piace al tuo post")
+            .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         with(NotificationManagerCompat.from(context)) {
-            notify(Random(like.userId.hashCode() + like.postId.hashCode()).nextInt(), builder.build())
+            notify(id, builder.build())
         }
+        val likeNotification = LikeNotification(
+            id.toString(),
+            "0",
+            like.postId,
+            like.userId,
+            user?.username
+        )
+        localDbViewModel.addNewLikeNotification(likeNotification)
     }
 }
 
 @SuppressLint("MissingPermission")
-private fun sendCommentNotification (comment: Comment, context: Context) {
+private fun sendCommentNotification (comment: Comment, context: Context, localDbViewModel: LocalDbViewModel) {
     var user: User? = null
     CoroutineScope(EmptyCoroutineContext).launch {
         user = getUserById(comment.userId.toString())
     }.invokeOnCompletion {
+        val id = Random(comment.userId.hashCode() + comment.text.hashCode()).nextInt() + comment.postId.hashCode()
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
             .setSmallIcon(notificationIcon)
             .setContentTitle("Nuovo commento")
             .setContentText(user?.username + ": " + comment.text)
+            .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         with(NotificationManagerCompat.from(context)) {
-            notify(Random(comment.userId.hashCode() + comment.text.hashCode()).nextInt() + comment.postId.hashCode(), builder.build())
+            notify(id, builder.build())
         }
+        val commentNotification = CommentNotification(
+            id.toString(),
+            "0",
+            comment.postId,
+            comment.publishDate,
+            comment.text,
+            comment.userId,
+            user?.username
+            )
+        localDbViewModel.addNewCommentNotification(commentNotification)
     }
 }
 
@@ -246,13 +283,27 @@ private fun sendFollowNotification (follow: Follow, context: Context) {
     CoroutineScope(EmptyCoroutineContext).launch {
         user = getUserById(follow.followerId.toString())
     }.invokeOnCompletion {
+        val id = Random(user?.userId.hashCode()).nextInt()
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
             .setSmallIcon(notificationIcon)
             .setContentTitle("Nuovo follower")
             .setContentText(user?.username + " ha iniziato a seguirti")
+            .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         with(NotificationManagerCompat.from(context)) {
-            notify(Random(user?.userId.hashCode()).nextInt(), builder.build())
+            notify(id, builder.build())
         }
+        val followNotification = FollowNotification(
+            id.toString(),
+            follow.followedId,
+            follow.followerId,
+            "0",
+            user?.username
+        )
+        localDbViewModel.addNewFollowNotification(followNotification)
     }
 }

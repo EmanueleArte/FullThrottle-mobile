@@ -4,11 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.fullthrottle.data.entities.Like
-import com.example.fullthrottle.data.entities.LikeBool
-import com.example.fullthrottle.data.entities.Motorbike
-import com.example.fullthrottle.data.entities.Post
-import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.data.entities.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -57,4 +53,34 @@ interface LikesDAO {
 
     @Query("DELETE FROM likes")
     fun deleteAll()
+}
+
+@Dao
+interface CommentsNotificationsDAO {
+    @Query("SELECT * FROM comments_notifications")
+    fun getCommentsNotifications(): Flow<List<CommentNotification>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(commentNotification: CommentNotification)
+
+}
+
+@Dao
+interface LikesNotificationsDAO {
+    @Query("SELECT * FROM likes_notifications")
+    fun getLikesNotifications(): Flow<List<LikeNotification>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(likeNotification: LikeNotification)
+
+}
+
+@Dao
+interface FollowsNotificationsDAO {
+    @Query("SELECT * FROM follows_notifications")
+    fun getFollowsNotifications(): Flow<List<FollowNotification>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(followNotification: FollowNotification)
+
 }
