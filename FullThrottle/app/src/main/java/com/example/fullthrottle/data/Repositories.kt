@@ -1,10 +1,7 @@
 package com.example.fullthrottle.data
 
 import androidx.annotation.WorkerThread
-import com.example.fullthrottle.data.entities.LikeBool
-import com.example.fullthrottle.data.entities.Motorbike
-import com.example.fullthrottle.data.entities.Post
-import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.data.entities.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
@@ -63,10 +60,41 @@ class LikesRepository(private val likesDAO: LikesDAO) {
 
     suspend fun getLike(postId: String): Boolean {
         val like = likesDAO.getLike(postId).first()
+        if (like == null) return false
         return like.value == true
     }
 
     fun deleteAllLikes() {
         likesDAO.deleteAll()
+    }
+}
+
+class CommentsNotificationsRepository(private val commentsNotificationsDAO: CommentsNotificationsDAO) {
+
+    val commentsNotifications: Flow<List<CommentNotification>> = commentsNotificationsDAO.getCommentsNotifications()
+
+    @WorkerThread
+    suspend fun insertNewCommentNotification(commentNotification: CommentNotification) {
+        commentsNotificationsDAO.insert(commentNotification)
+    }
+}
+
+class LikesNotificationsRepository(private val likesNotificationsDAO: LikesNotificationsDAO) {
+
+    val likesNotifications: Flow<List<LikeNotification>> = likesNotificationsDAO.getLikesNotifications()
+
+    @WorkerThread
+    suspend fun insertNewLikeNotification(likeNotification: LikeNotification) {
+        likesNotificationsDAO.insert(likeNotification)
+    }
+}
+
+class FollowsNotificationsRepository(private val followsNotificationsDAO: FollowsNotificationsDAO) {
+
+    val followsNotifications: Flow<List<FollowNotification>> = followsNotificationsDAO.getFollowsNotifications()
+
+    @WorkerThread
+    suspend fun insertNewFollowNotification(followNotification: FollowNotification) {
+        followsNotificationsDAO.insert(followNotification)
     }
 }

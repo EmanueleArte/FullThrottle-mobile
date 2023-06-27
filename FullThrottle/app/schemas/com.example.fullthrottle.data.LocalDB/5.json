@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "1afbdf70a66e379a3824772223f59211",
+    "version": 5,
+    "identityHash": "24ed48d7c5add1f7f0e39eb1a6b29b0a",
     "entities": [
       {
         "tableName": "posts",
@@ -333,12 +333,56 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "follows_notifications",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`followId` TEXT NOT NULL, `followed_id` TEXT, `follower_id` TEXT, `notified` TEXT, `username` TEXT, PRIMARY KEY(`followId`))",
+        "fields": [
+          {
+            "fieldPath": "followId",
+            "columnName": "followId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "followedId",
+            "columnName": "followed_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "followerId",
+            "columnName": "follower_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "notified",
+            "columnName": "notified",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "followId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1afbdf70a66e379a3824772223f59211')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '24ed48d7c5add1f7f0e39eb1a6b29b0a')"
     ]
   }
 }

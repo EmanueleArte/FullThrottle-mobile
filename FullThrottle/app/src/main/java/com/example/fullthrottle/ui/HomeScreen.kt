@@ -46,7 +46,7 @@ import com.example.fullthrottle.viewModel.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.util.UUID
+import java.util.*
 
 internal object HomeScreenData {
     var usersLoaded by mutableStateOf(emptyList<User>())
@@ -74,21 +74,22 @@ fun HomeScreen(
     var filteredPosts by rememberSaveable { mutableStateOf(posts) }
 
     // Loads home posts from local room db
-    posts = localDbViewModel.posts.collectAsState(initial = listOf()).value
-    when {
-        posts.isNotEmpty() -> LaunchedEffect(Unit) {
-            users = posts.map { post ->
+    val tPosts = localDbViewModel.posts.collectAsState(initial = listOf()).value
+    if (tPosts.isNotEmpty()) {
+        LaunchedEffect(Unit) {
+            users = tPosts.map { post ->
                 localDbViewModel.getUserById(post.userId.orEmpty())
             }
-            postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
+            postImagesUris = tPosts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
             userImagesUris = users.map { user ->
                 if (user.userImg.toString().isNotEmpty())
                     getImageUri(user.userId + "/" + user.userImg)
                 else
                     Uri.EMPTY
             }
-            motorbikes = posts.map { post -> localDbViewModel.getMotorbikeById(post.motorbikeId as String) }
-            likes = posts.map { post -> localDbViewModel.getLike(post.postId) }
+            motorbikes = tPosts.map { post -> localDbViewModel.getMotorbikeById(post.motorbikeId as String) }
+            likes = tPosts.map { post -> localDbViewModel.getLike(post.postId) }
+            posts = tPosts
         }
     }
 
@@ -163,8 +164,8 @@ fun HomeScreen(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                item {}
                 items(filteredPosts) { post ->
+                    val index = posts.indexOf(post)
                     Card(
                         modifier = Modifier
                             .padding(top = 5.dp, bottom = 10.dp)
@@ -179,7 +180,7 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 ProfileImage(
-                                    imgUri = userImagesUris[posts.indexOf(post)],
+                                    imgUri = if (userImagesUris.size > index) userImagesUris[index] else Uri.EMPTY,
                                     contentDescription = "user image",
                                     modifier = Modifier
                                         .padding(horizontal = 10.dp, vertical = 8.dp)
@@ -187,11 +188,11 @@ fun HomeScreen(
                                         .requiredWidth(40.dp)
                                         .clip(CircleShape)
                                         .background(Color.White)
-                                        .clickable { goToProfile(users[posts.indexOf(post)].userId) },
+                                        .clickable { if (users.size > index) goToProfile(users[index].userId) },
                                 )
                                 Column {
                                     Text(
-                                        text = "${users[posts.indexOf(post)].username}",
+                                        text = if (users.size > index) "${users[posts.indexOf(post)].username}" else "",
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(text = "${post.publishDate}")
@@ -208,7 +209,7 @@ fun HomeScreen(
                                 }
                             }
                             PostImage(
-                                imgUri = postImagesUris[posts.indexOf(post)],
+                                imgUri = if (postImagesUris.size > index) postImagesUris[index] else Uri.EMPTY,
                                 contentDescription = "post image",
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -232,7 +233,7 @@ fun HomeScreen(
                                 }
                                 Spacer(Modifier.weight(1f))
                                 Icon(
-                                    imageVector = if (likes[posts.indexOf(post)]) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                                    imageVector = if (likes.size > index && likes[index]) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
                                     contentDescription = "like button",
                                     modifier = Modifier
                                         .padding(10.dp)
@@ -269,14 +270,11 @@ fun HomeScreen(
                                                             }
                                                         } else tPost
                                                     }
-                                                    likes = posts.map { post ->
-                                                        if (posts.indexOf(post) == posts.indexOf(
-                                                                post
-                                                            )
-                                                        ) {
+                                                    likes = posts.map { tPost ->
+                                                        if (post.postId == tPost.postId) {
                                                             like
                                                         } else {
-                                                            likes[posts.indexOf(post)]
+                                                            likes[posts.indexOf(tPost)]
                                                         }
                                                     }
                                                 }
@@ -284,11 +282,7 @@ fun HomeScreen(
                                 )
                             }
                             Text(
-                                text = stringResource(id = R.string.motorbike) + ": ${motorbikes[posts.indexOf(post)].brand} ${
-                                    motorbikes[posts.indexOf(
-                                        post
-                                    )].model
-                                }",
+                                text = if (motorbikes.size > index) stringResource(id = R.string.motorbike) + ": ${motorbikes[index].brand} ${motorbikes[index].model}" else "",
                                 modifier = baseModifier
                             )
                             Text(text = stringResource(id = R.string.path_length) + ": ${post.length}km", modifier = baseModifier)

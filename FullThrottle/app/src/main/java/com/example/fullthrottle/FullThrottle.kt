@@ -530,7 +530,8 @@ private fun NavigationGraph(
         composable(route = AppScreen.Notifications.name) {
             NotificationsScreen(
                 goToPost,
-                goToProfile
+                goToProfile,
+                localDbViewModel
             )
         }
     }

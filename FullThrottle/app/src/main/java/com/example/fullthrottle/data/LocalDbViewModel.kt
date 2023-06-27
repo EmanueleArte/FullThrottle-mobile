@@ -2,11 +2,7 @@ package com.example.fullthrottle.data
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fullthrottle.data.entities.Like
-import com.example.fullthrottle.data.entities.LikeBool
-import com.example.fullthrottle.data.entities.Motorbike
-import com.example.fullthrottle.data.entities.Post
-import com.example.fullthrottle.data.entities.User
+import com.example.fullthrottle.data.entities.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,9 +12,16 @@ class LocalDbViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
     private val usersRepository: UsersRepository,
     private val motorbikesRepository: MotorbikesRepository,
-    private val likesRepository: LikesRepository
+    private val likesRepository: LikesRepository,
+    private val commentsNotificationsRepository: CommentsNotificationsRepository,
+    private val likesNotificationsRepository: LikesNotificationsRepository,
+    private val followsNotificationsRepository: FollowsNotificationsRepository
 ) : ViewModel() {
     val posts = postsRepository.posts
+
+    val commentsNotifications = commentsNotificationsRepository.commentsNotifications
+    val likesNotifications = likesNotificationsRepository.likesNotifications
+    val followsNotifications = followsNotificationsRepository.followsNotifications
 
     fun addNewPost(post: Post) = viewModelScope.launch {
         postsRepository.insertNewPost(post)
@@ -62,5 +65,18 @@ class LocalDbViewModel @Inject constructor(
 
     fun deleteAllLikes() {
         likesRepository.deleteAllLikes()
+    }
+
+    // NOTIFICATIONS
+    fun addNewCommentNotification(commentNotification: CommentNotification) = viewModelScope.launch {
+        commentsNotificationsRepository.insertNewCommentNotification(commentNotification)
+    }
+
+    fun addNewLikeNotification(likeNotification: LikeNotification) = viewModelScope.launch {
+        likesNotificationsRepository.insertNewLikeNotification(likeNotification)
+    }
+
+    fun addNewFollowNotification(followNotification: FollowNotification) = viewModelScope.launch {
+        followsNotificationsRepository.insertNewFollowNotification(followNotification)
     }
 }
