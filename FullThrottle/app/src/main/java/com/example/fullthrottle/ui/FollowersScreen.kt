@@ -101,7 +101,7 @@ fun UsersList(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            goToUserProfile(user.userId.toString())
+                            goToUserProfile(user.userId)
                         },
                     elevation = CardDefaults.cardElevation(5.dp)
                 ) {

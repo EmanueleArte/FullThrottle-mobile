@@ -57,7 +57,7 @@ interface LikesDAO {
 
 @Dao
 interface CommentsNotificationsDAO {
-    @Query("SELECT * FROM comments_notifications")
+    @Query("SELECT * FROM comments_notifications ORDER BY publish_date DESC")
     fun getCommentsNotifications(): Flow<List<CommentNotification>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
