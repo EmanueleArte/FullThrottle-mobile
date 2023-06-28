@@ -1,7 +1,9 @@
 package com.example.fullthrottle.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.provider.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,9 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import com.example.fullthrottle.R
-import com.example.fullthrottle.ValidityUtils
-import com.example.fullthrottle.data.DBHelper
 import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
 import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
@@ -165,8 +166,9 @@ fun SettingsScreen(
                         if (it) {
                             methods["startLocationUpdates"]?.invoke()
                             if (
-                                ContextCompat.checkSelfPermission (context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                             ) {
+                                methods["showLocSnackBar"]?.invoke()
                                 settingsViewModel.saveData(LOCATION_UPDATES_KEY, "true")
                             }
                         } else {

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat.startActivity
 import com.example.fullthrottle.MainActivity.Companion.checkLocationPermission
@@ -29,6 +29,7 @@ import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getAllPosts
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getPostsLocations
+import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
 import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.entities.Post
 import com.example.fullthrottle.ui.MapScreenData.coordinatesLoaded
@@ -37,6 +38,7 @@ import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -60,6 +62,17 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
+
+    // Check GPS settings
+    var showToast by remember { mutableStateOf(true) }
+    if (settings[LOCATION_UPDATES_KEY] == "false" && showToast) {
+        Toast.makeText(context, stringResource(id = R.string.curr_position_off), Toast.LENGTH_LONG).show()
+        showToast = false
+    } else if (settings[LOCATION_UPDATES_KEY] == "true" && showToast) {
+        methods["startLocationUpdates"]?.invoke()
+        showToast = false
+    }
+
     val coroutineScope = rememberCoroutineScope()
 
     val geocoder = Geocoder(LocalContext.current)
@@ -162,7 +175,7 @@ fun MapScreen(
                     update = CameraUpdateFactory.newCameraPosition(
                         CameraPosition(
                             LatLng(location.value.latitude, location.value.longitude),
-                            10f,
+                            1f,
                             0f,
                             0f
                         )
@@ -204,6 +217,7 @@ fun MapScreen(
             for (c in coordinates) {
                 Marker(
                     state = MarkerState(c.value),
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ft_marker),
                     onClick = {
                         currentLocation = locations[c.key]!!
                         coroutineScope.launch {
@@ -223,11 +237,11 @@ fun MapScreen(
                 )
             }
         }
-        if (loading) {
+        /*if (loading) {
             Dialog(onDismissRequest = {}) {
                 LoadingAnimation()
             }
-        }
+        }*/
         if (currentLocation.isNotEmpty()) {
             Popup (
                 onDismissRequest = {

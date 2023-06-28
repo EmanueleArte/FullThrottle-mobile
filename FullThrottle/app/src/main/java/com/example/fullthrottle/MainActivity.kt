@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.work.Data
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.android.volley.RequestQueue
@@ -154,6 +153,10 @@ class MainActivity : ComponentActivity() {
                 AppScreen.Login.name
             }
 
+            if (settings[LOCATION_UPDATES_KEY] == "true") {
+                startLocationUpdates(false, false)
+            }
+
             FullThrottleTheme(darkTheme = darkTheme) {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -177,10 +180,14 @@ class MainActivity : ComponentActivity() {
                         localDbViewModel = localDbViewModel,
                         startDestination = startDestination,
                         methods = mapOf(
-                            "startLocationUpdates" to ::startLocationUpdates,
+                            "startLocationUpdates" to { startLocationUpdates(showLocSnackBar = false) },
+                            "showLocSnackBar" to {
+                                warningViewModel.setStartLocationSnackBarVisibility(true)
+                                warningViewModel.setStopLocationSnackBarVisibility(false)
+                            },
                             "stopLocationUpdates" to ::stopLocationUpdates,
                             "requestingLocationUpdatesFalse" to { requestingLocationUpdates.value = false },
-                            "requestLocationPermission" to ::requestLocationPermission,
+                            "requestLocationPermission" to ::requestLocationPermissionSnackBar,
                             "exit" to ::finish
                         ),
                         onBackAction = onBackAction,
@@ -198,7 +205,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (requestingLocationUpdates.value) startLocationUpdates()
+        if (requestingLocationUpdates.value) startLocationUpdates(false)
         showSnackbar = true
     }
 
@@ -224,7 +231,7 @@ class MainActivity : ComponentActivity() {
                 .registerDefaultNetworkCallback(networkCallback)
     }
 
-    private fun startLocationUpdates() {
+    private fun startLocationUpdates(enableGpsRequest: Boolean = true, showLocSnackBar: Boolean = true) {
         requestingLocationUpdates.value = true
 
         val permission = Manifest.permission.ACCESS_COARSE_LOCATION
@@ -245,11 +252,11 @@ class MainActivity : ComponentActivity() {
                         locationCallback,
                         Looper.getMainLooper()
                     )
-                    if (showSnackbar) {
+                    if (showLocSnackBar) {
                         warningViewModel.setStartLocationSnackBarVisibility(true)
                         warningViewModel.setStopLocationSnackBarVisibility(false)
                     }
-                } else {
+                } else if (enableGpsRequest) {
                     warningViewModel.setGPSAlertDialogVisibility(true)
                 }
             }
@@ -274,7 +281,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun requestLocationPermission() {
+    private fun requestLocationPermissionSnackBar() {
         warningViewModel.setPermissionSnackBarVisibility(true)
     }
 
