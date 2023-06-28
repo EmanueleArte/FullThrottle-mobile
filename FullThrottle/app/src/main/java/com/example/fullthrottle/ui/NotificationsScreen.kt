@@ -46,7 +46,7 @@ fun NotificationsScreen(
                         Card(
                             Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 5.dp)
+                                .padding(bottom = 8.dp)
                                 .clickable { goToProfile(follow.followerId.toString()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
@@ -72,7 +72,7 @@ fun NotificationsScreen(
                         Card(
                             Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 5.dp)
+                                .padding(bottom = 8.dp)
                                 .clickable { goToPost(like.postId.toString()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
@@ -98,7 +98,7 @@ fun NotificationsScreen(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 10.dp)
+                                .padding(bottom = 8.dp)
                                 .clickable { goToPost(comment.postId.toString()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {

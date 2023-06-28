@@ -32,6 +32,7 @@ import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getFolloweds
 import com.example.fullthrottle.data.DBHelper.getFollowers
 import com.example.fullthrottle.data.DBHelper.getImageUri
+import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.data.entities.User
@@ -74,8 +75,13 @@ fun UsersList(
 ) {
     var users by rememberSaveable { mutableStateOf(emptyList<User>()) }
     var imagesUris by rememberSaveable { mutableStateOf(emptyList<Uri>()) }
+    var nFollowers by rememberSaveable { mutableStateOf(0) }
+    var nFolloweds by rememberSaveable { mutableStateOf(0) }
 
     LaunchedEffect(key1 = "followersQuery") {
+        val loggedUser = getUserById(uid) as User
+        nFollowers = loggedUser.followers.orEmpty().toInt()
+        nFolloweds = loggedUser.followed.orEmpty().toInt()
         users = if (currentTab == FOLLOWERS_TAB) {
             getFollowers(uid)
         } else {
@@ -89,47 +95,50 @@ fun UsersList(
         }
     }
 
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .padding(horizontal = 10.dp),
-        contentPadding = PaddingValues(top = 10.dp, bottom = 20.dp),
-    ) {
-        users.forEachIndexed { index, user ->
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            goToUserProfile(user.userId)
-                        },
-                    elevation = CardDefaults.cardElevation(5.dp)
-                ) {
-                    Row(
+    if ((currentTab == FOLLOWERS_TAB && users.size == nFollowers) ||
+        (currentTab == FOLLOWED_TAB && users.size == nFolloweds)) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .padding(horizontal = 10.dp),
+            contentPadding = PaddingValues(top = 10.dp, bottom = 20.dp),
+        ) {
+            users.forEachIndexed { index, user ->
+                item {
+                    Card(
                         modifier = Modifier
-                            .padding(2.dp)
-                            .height(IntrinsicSize.Max)
+                            .fillMaxWidth()
+                            .clickable {
+                                goToUserProfile(user.userId)
+                            },
+                        elevation = CardDefaults.cardElevation(5.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(vertical = 5.dp, horizontal = 5.dp)
+                        Row(
+                            modifier = Modifier
+                                .padding(2.dp)
+                                .height(IntrinsicSize.Max)
                         ) {
-                            ProfileImage(
-                                imgUri = imagesUris.getOrElse(index) { Uri.EMPTY },
-                                contentDescription = "user image",
-                                modifier = Modifier
-                                    .requiredWidth(40.dp)
-                                    .requiredHeight(40.dp)
-                                    .clip(CircleShape)
-                            )
-                        }
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxHeight()
-                        ) {
-                            Text(
-                                text = user.username.toString(),
-                                modifier = Modifier.padding(PaddingValues(start = 5.dp))
-                            )
+                            Column(
+                                modifier = Modifier.padding(vertical = 5.dp, horizontal = 5.dp)
+                            ) {
+                                ProfileImage(
+                                    imgUri = imagesUris.getOrElse(index) { Uri.EMPTY },
+                                    contentDescription = "user image",
+                                    modifier = Modifier
+                                        .requiredWidth(40.dp)
+                                        .requiredHeight(40.dp)
+                                        .clip(CircleShape)
+                                )
+                            }
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxHeight()
+                            ) {
+                                Text(
+                                    text = user.username.toString(),
+                                    modifier = Modifier.padding(PaddingValues(start = 5.dp))
+                                )
+                            }
                         }
                     }
                 }
