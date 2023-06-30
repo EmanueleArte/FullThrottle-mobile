@@ -59,7 +59,10 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.fullthrottle.*
+import com.example.fullthrottle.MainActivity.Companion.checkLocationPermission
 import com.example.fullthrottle.R
+import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
+import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.ui.UiConstants.ANIMATION_DURATION_LONG
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.viewModel.WarningViewModel
@@ -145,9 +148,12 @@ fun outLineNumberTextField(
 fun locationPicker(
     label: String,
     value: String = "",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    location: MutableState<LocationDetails>,
+    settings: Map<String, String>
 ): String {
-    val geocoder = Geocoder(LocalContext.current)
+    val context = LocalContext.current
+    val geocoder = Geocoder(context)
 
     var text by rememberSaveable { mutableStateOf(value) }
     var suggestions by rememberSaveable { mutableStateOf(emptyList<String>()) }
@@ -173,7 +179,34 @@ fun locationPicker(
         shape = RoundedCornerShape(CORNER_RADIUS),
         value = text,
         label = { Text(text = label) },
-        leadingIcon = { Icon(Icons.Outlined.MyLocation, "location icon") },
+        leadingIcon = {
+            IconButton(
+                onClick = {
+                    if (settings[LOCATION_UPDATES_KEY] == "true" && checkLocationPermission(context)) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            geocoder.getFromLocation(
+                                location.value.latitude,
+                                location.value.longitude,
+                                5
+                            ) { result ->
+                                if (result.isNotEmpty()) {
+                                    text = result[0].getAddressLine(0)
+                                }
+                            }
+                        } else {
+                            val result = geocoder.getFromLocation(
+                                location.value.latitude,
+                                location.value.longitude,
+                                5
+                            )
+                            if (result != null && result.isNotEmpty()) {
+                                text = result[0].getAddressLine(0)
+                            }
+                        }
+                    }
+                }
+            ) { Icon(Icons.Outlined.MyLocation, "location icon") }
+        },
         onValueChange = {
             text = it
             if (text.length > 3) {

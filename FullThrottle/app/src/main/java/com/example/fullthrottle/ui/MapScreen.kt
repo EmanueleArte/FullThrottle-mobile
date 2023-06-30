@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat.startActivity
@@ -29,9 +30,11 @@ import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getAllPosts
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.getPostsLocations
+import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
 import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.entities.Post
+import com.example.fullthrottle.data.entities.User
 import com.example.fullthrottle.ui.MapScreenData.coordinatesLoaded
 import com.example.fullthrottle.ui.MapScreenData.load
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
@@ -90,6 +93,7 @@ fun MapScreen(
     var locations by remember { mutableStateOf(emptyMap<String, List<Post>>()) }
     var coordinates by rememberSaveable { mutableStateOf(coordinatesLoaded) }
     var posts by remember { mutableStateOf(emptyList<Post>()) }
+    var users by remember { mutableStateOf(emptyList<User>()) }
     var postImagesUris by remember { mutableStateOf(emptyList<Uri>()) }
 
     var currentLocation by remember { mutableStateOf(emptyList<Post>()) }
@@ -97,6 +101,7 @@ fun MapScreen(
 
     LaunchedEffect(Unit) {
         posts = getAllPosts()
+        users = posts.map { post -> getUserById(post.userId.toString()) as User }
         postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
         locations = getPostsLocations()
         if (coordinates.isEmpty()) {
@@ -170,7 +175,7 @@ fun MapScreen(
             }
         } else if (init) {
             loading = false
-            if (settings["location_updates"] == "true" && checkLocationPermission(context)) {
+            if (settings[LOCATION_UPDATES_KEY] == "true" && checkLocationPermission(context)) {
                 cameraPositionState.move(
                     update = CameraUpdateFactory.newCameraPosition(
                         CameraPosition(
@@ -292,7 +297,7 @@ fun MapScreen(
                                         .padding(horizontal = 5.dp)
                                         .fillMaxWidth()
                                         .clickable {
-                                            goToPost(post.postId.toString())
+                                            goToPost(post.postId)
                                         },
                                     elevation = CardDefaults.cardElevation(5.dp)
                                 ) {
@@ -306,8 +311,8 @@ fun MapScreen(
                                                 imgUri = postImagesUris[posts.indexOf(post)],
                                                 contentDescription = "post image",
                                                 modifier = Modifier
-                                                    .requiredWidth(71.dp)
-                                                    .requiredHeight(40.dp)
+                                                    .requiredWidth(105.dp)
+                                                    .requiredHeight(60.dp)
                                                     .clip(RoundedCornerShape(UiConstants.CORNER_RADIUS))
                                             )
                                         }
@@ -315,6 +320,10 @@ fun MapScreen(
                                         Column(
                                             modifier = Modifier.padding(start = 5.dp)
                                         ) {
+                                            Text(
+                                                text = users[posts.indexOf(post)].username.orEmpty(),
+                                                fontWeight = FontWeight.SemiBold
+                                            )
                                             Text(text = post.publishDate.orEmpty())
                                             Text(text = post.title.orEmpty())
                                         }

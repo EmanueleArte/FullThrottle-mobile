@@ -466,8 +466,10 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.NewPost.name) {
             NewPostScreen(
-                settingsViewModel
-            ) { navController.navigate(AppScreen.Home.name) }
+                settingsViewModel,
+                { navController.navigate(AppScreen.Home.name) },
+                location
+            )
         }
         composable(route = AppScreen.Search.name) {
             SearchScreen(

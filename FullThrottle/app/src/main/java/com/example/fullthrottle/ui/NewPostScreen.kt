@@ -33,6 +33,7 @@ import com.example.fullthrottle.createPermissionRequest
 import com.example.fullthrottle.data.DBHelper.createPost
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
+import com.example.fullthrottle.data.LocationDetails
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.saveAndCropTempFile
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
@@ -43,7 +44,8 @@ import kotlinx.coroutines.async
 @Composable
 fun NewPostScreen(
     settingsViewModel: SettingsViewModel,
-    navigateToHome: () -> Unit
+    navigateToHome: () -> Unit,
+    location: MutableState<LocationDetails>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
     val context = LocalContext.current
@@ -239,7 +241,9 @@ fun NewPostScreen(
             item {
                 place = locationPicker(
                     label =  stringResource(id = R.string.place),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    location = location,
+                    settings = settings
                 )
                 Spacer(modifier = Modifier.size(20.dp))
             }
