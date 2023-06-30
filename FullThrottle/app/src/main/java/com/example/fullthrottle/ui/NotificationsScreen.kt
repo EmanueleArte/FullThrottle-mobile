@@ -9,11 +9,13 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.example.fullthrottle.R
 import com.example.fullthrottle.data.LocalDbViewModel
 import com.example.fullthrottle.data.entities.CommentNotification
 import com.example.fullthrottle.data.entities.FollowNotification
@@ -125,7 +127,7 @@ fun NotificationsScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 Row(Modifier.fillMaxWidth()) {
                     Spacer(modifier = Modifier.weight(1f))
-                    SimpleTitle(text = "Non ci sono notifiche")
+                    SimpleTitle(text = stringResource(id = R.string.no_notifications_present))
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 Spacer(modifier = Modifier.weight(1f))

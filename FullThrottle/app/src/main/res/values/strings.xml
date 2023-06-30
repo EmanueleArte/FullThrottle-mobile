@@ -18,6 +18,7 @@
     <string name="all_posts">Tutti</string>
     <string name="followeds_posts_only">Preferiti</string>
     <string name="curr_position_off">Vai in profilo > impostazioni per abilitare l\'utilizzo della posizione attuale</string>
+    <string name="no_followeds">Non segui ancora nessun rider</string>
 
     <!-- Login/registration -->
     <string name="not_registered_yet">Non hai ancora un account?</string>
@@ -127,5 +128,7 @@
     <string name="followers_notifications_channel_id">FullThrottleFollowersNotificationsChannel</string>
     <string name="followers_notifications_channel_name">Nuovi follower</string>
     <string name="followers_notifications_channel_description">Notifiche relative ai nuovi follower</string>
+
+    <string name="no_notifications_present">Non ci sono notifiche</string>
 
 </resources>

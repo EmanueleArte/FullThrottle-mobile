@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.checkLike
@@ -94,11 +95,19 @@ fun HomeScreen(
     }
 
     // Posts filter (All/Only followeds)
+    var filteredPresence by rememberSaveable { mutableStateOf(false) }
     registerFilterValueListener {
-        filteredPosts = if (it == R.string.all_posts) {
-            posts
+        if (it == R.string.all_posts) {
+            filteredPosts = posts
+            filteredPresence = true
         } else {
-            posts.filter { post -> followedsIds.contains(post.userId) }
+            if (followedsIds.isNotEmpty()) {
+                filteredPosts = posts.filter { post -> followedsIds.contains(post.userId) }
+                filteredPresence = true
+            } else {
+                filteredPosts = emptyList()
+                filteredPresence = false
+            }
         }
     }
 
@@ -146,7 +155,18 @@ fun HomeScreen(
     val baseModifier = Modifier.padding(horizontal = 10.dp)
 
     if (filteredPosts.isEmpty() || postImagesUris.isEmpty() || likes.isEmpty()) {
-        LoadingAnimation()
+        if (filteredPresence) {
+            LoadingAnimation()
+        } else {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                SimpleTitle(text = stringResource(id = R.string.no_followeds))
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
     } else {
         Column(
             modifier = Modifier
