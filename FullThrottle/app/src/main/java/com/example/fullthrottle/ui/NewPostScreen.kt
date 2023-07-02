@@ -39,11 +39,13 @@ import com.example.fullthrottle.saveAndCropTempFile
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.example.fullthrottle.viewModel.WarningViewModel
 import kotlinx.coroutines.async
 
 @Composable
 fun NewPostScreen(
     settingsViewModel: SettingsViewModel,
+    warningViewModel: WarningViewModel,
     navigateToHome: () -> Unit,
     location: MutableState<LocationDetails>
 ) {
@@ -241,6 +243,7 @@ fun NewPostScreen(
             item {
                 place = locationPicker(
                     label =  stringResource(id = R.string.place),
+                    warningViewModel = warningViewModel,
                     modifier = Modifier.fillMaxWidth(),
                     location = location,
                     settings = settings

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -148,6 +149,7 @@ fun outLineNumberTextField(
 fun locationPicker(
     label: String,
     value: String = "",
+    warningViewModel: WarningViewModel,
     modifier: Modifier = Modifier,
     location: MutableState<LocationDetails>,
     settings: Map<String, String>
@@ -175,6 +177,7 @@ fun locationPicker(
             )
         }
     }
+    val toastText = stringResource(id = R.string.curr_position_off)
     OutlinedTextField(
         shape = RoundedCornerShape(CORNER_RADIUS),
         value = text,
@@ -183,26 +186,33 @@ fun locationPicker(
             IconButton(
                 onClick = {
                     if (settings[LOCATION_UPDATES_KEY] == "true" && checkLocationPermission(context)) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            geocoder.getFromLocation(
-                                location.value.latitude,
-                                location.value.longitude,
-                                5
-                            ) { result ->
-                                if (result.isNotEmpty()) {
+                        val mLocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                geocoder.getFromLocation(
+                                    location.value.latitude,
+                                    location.value.longitude,
+                                    5
+                                ) { result ->
+                                    if (result.isNotEmpty()) {
+                                        text = result[0].getAddressLine(0)
+                                    }
+                                }
+                            } else {
+                                val result = geocoder.getFromLocation(
+                                    location.value.latitude,
+                                    location.value.longitude,
+                                    5
+                                )
+                                if (!result.isNullOrEmpty()) {
                                     text = result[0].getAddressLine(0)
                                 }
                             }
                         } else {
-                            val result = geocoder.getFromLocation(
-                                location.value.latitude,
-                                location.value.longitude,
-                                5
-                            )
-                            if (result != null && result.isNotEmpty()) {
-                                text = result[0].getAddressLine(0)
-                            }
+                            warningViewModel.setGPSAlertDialogVisibility(true)
                         }
+                    } else {
+                        Toast.makeText(context, toastText, Toast.LENGTH_LONG).show()
                     }
                 }
             ) { Icon(Icons.Outlined.MyLocation, "location icon") }
