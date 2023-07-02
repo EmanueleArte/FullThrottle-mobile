@@ -6,8 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import android.provider.Settings.Global.putString
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -244,6 +242,7 @@ fun notificationsHandler (
                         val id = Random(user?.userId.hashCode()).nextInt()
                         if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
                             || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
+                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.FOLLOWERS_COMMENTS_NOTIFICATIONS
                         ) {
                             sendFollowNotification(id, user?.username.orEmpty(), context)
                         }
