@@ -55,7 +55,7 @@ internal fun PermissionSnackBarComposable(
 ) {
     LaunchedEffect(snackbarHostState) {
         val result = snackbarHostState.showSnackbar(
-            message = "Sono richiesti i permessi per ottenere la tua posizione",
+            message = "Sono richiesti i permessi per ottenere la tua posizione\n",
             actionLabel = "Vai alle impostazioni"
         )
         when (result) {

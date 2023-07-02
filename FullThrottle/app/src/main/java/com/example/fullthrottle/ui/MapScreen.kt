@@ -1,6 +1,7 @@
 package com.example.fullthrottle.ui
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
@@ -19,12 +20,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.graphics.drawable.toBitmap
 import com.example.fullthrottle.MainActivity.Companion.checkLocationPermission
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getAllPosts
@@ -228,9 +232,10 @@ fun MapScreen(
             cameraPositionState = cameraPositionState
         ) {
             for (c in coordinates) {
+                val icon = getDrawable(context, R.drawable.ft_marker)!!.toBitmap(100, 100)
                 Marker(
                     state = MarkerState(c.value),
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ft_marker),
+                    icon = BitmapDescriptorFactory.fromBitmap(icon),
                     onClick = {
                         currentLocation = locations[c.key]!!
                         coroutineScope.launch {
