@@ -654,6 +654,7 @@ fun SimpleSnackBarComposable(
             }
             SnackbarResult.Dismissed -> {
                 warningViewModel.setSimpleSnackBarVisibility(false)
+                warningViewModel.setButtonSnackBarVisibility(false)
             }
         }
     }
