@@ -36,6 +36,7 @@ import com.example.fullthrottle.data.DBHelper.getUserById
 import com.example.fullthrottle.data.TabConstants.FOLLOWED_TAB
 import com.example.fullthrottle.data.TabConstants.FOLLOWERS_TAB
 import com.example.fullthrottle.data.entities.User
+import kotlinx.coroutines.delay
 
 @Composable
 fun FollowersScreen(
@@ -82,17 +83,18 @@ fun UsersList(
         val loggedUser = getUserById(uid) as User
         nFollowers = loggedUser.followers.orEmpty().toInt()
         nFolloweds = loggedUser.followed.orEmpty().toInt()
-        users = if (currentTab == FOLLOWERS_TAB) {
+        val tUsers = if (currentTab == FOLLOWERS_TAB) {
             getFollowers(uid)
         } else {
             getFolloweds(uid)
         }
-        imagesUris = users.map { user ->
+        imagesUris = tUsers.map { user ->
             if (user.userImg.toString().isNotEmpty())
                 getImageUri(user.userId + "/" + user.userImg)
             else
                 Uri.EMPTY
         }
+        users = tUsers
     }
 
     if ((currentTab == FOLLOWERS_TAB && users.size == nFollowers) ||

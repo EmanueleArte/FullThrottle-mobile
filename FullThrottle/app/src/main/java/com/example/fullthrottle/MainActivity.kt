@@ -141,7 +141,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val localDbViewModel = hiltViewModel<LocalDbViewModel>()
-            //val settingsViewModel = hiltViewModel<SettingsViewModel>()
             val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
             var darkTheme = isSystemInDarkTheme()
             if (settings[THEME_KEY] != SYSTEM_THEME) {

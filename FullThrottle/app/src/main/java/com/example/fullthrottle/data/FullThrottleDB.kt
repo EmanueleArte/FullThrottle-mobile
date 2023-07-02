@@ -175,7 +175,7 @@ object DBHelper {
             .get()
             .addOnSuccessListener {
                 if (it.exists()) {
-                    val followers = mutableListOf<User>()
+                    val followeds = mutableListOf<User>()
                     it.children.map { follow ->
                         follow.child("followedId").value.toString()
                     }.forEach { followerId ->
@@ -186,11 +186,11 @@ object DBHelper {
                             .get()
                             .addOnSuccessListener { followed ->
                                 if (followed.exists()) {
-                                    followers.add(
+                                    followeds.add(
                                         followed.children.first().getValue<User>() as User
                                     )
                                 }
-                                trySend(followers)
+                                trySend(followeds)
                             }
                             .addOnFailureListener { error ->
                                 Log.d("Error getting data", error.toString())
