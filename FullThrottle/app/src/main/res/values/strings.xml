@@ -17,8 +17,10 @@
     <string name="use_current_position">Utilizza posizione attuale</string>
     <string name="all_posts">Tutti</string>
     <string name="followeds_posts_only">Preferiti</string>
-    <string name="curr_position_off">Vai in profilo > impostazioni per abilitare l\'utilizzo della posizione attuale</string>
+    <string name="curr_position_off">Bisogna prima abilitare l\'utilizzo della posizione attuale</string>
+    <string name="curr_position_off2">Vai in profilo > impostazioni per abilitare l\'utilizzo della posizione attuale</string>
     <string name="no_followeds">Non segui ancora nessun rider</string>
+    <string name="go_settings">Vai alle impostazioni</string>
 
     <!-- Login/registration -->
     <string name="not_registered_yet">Non hai ancora un account?</string>

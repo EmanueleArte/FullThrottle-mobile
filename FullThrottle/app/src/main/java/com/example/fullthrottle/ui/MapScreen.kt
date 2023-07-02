@@ -40,6 +40,7 @@ import com.example.fullthrottle.ui.MapScreenData.load
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.example.fullthrottle.viewModel.WarningViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -58,7 +59,9 @@ internal object MapScreenData {
 @Composable
 fun MapScreen(
     settingsViewModel: SettingsViewModel,
+    warningViewModel: WarningViewModel,
     goToPost: (String) -> Unit,
+    goToSettings: () -> Unit,
     focusLocation: String?,
     methods: Map<String, () -> Unit>,
     location: MutableState<LocationDetails>
@@ -69,7 +72,12 @@ fun MapScreen(
     // Check GPS settings
     var showToast by remember { mutableStateOf(true) }
     if (settings[LOCATION_UPDATES_KEY] == "false" && showToast) {
-        Toast.makeText(context, stringResource(id = R.string.curr_position_off), Toast.LENGTH_LONG).show()
+        showButtonSnackBar(
+            warningViewModel,
+            stringResource(id = R.string.curr_position_off),
+            stringResource(id = R.string.go_settings),
+            goToSettings
+        )
         showToast = false
     } else if (settings[LOCATION_UPDATES_KEY] == "true" && showToast) {
         methods["startLocationUpdates"]?.invoke()

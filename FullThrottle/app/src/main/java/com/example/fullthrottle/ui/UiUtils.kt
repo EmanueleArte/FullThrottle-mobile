@@ -152,7 +152,8 @@ fun locationPicker(
     warningViewModel: WarningViewModel,
     modifier: Modifier = Modifier,
     location: MutableState<LocationDetails>,
-    settings: Map<String, String>
+    settings: Map<String, String>,
+    action: () -> Unit = {}
 ): String {
     val context = LocalContext.current
     val geocoder = Geocoder(context)
@@ -178,6 +179,7 @@ fun locationPicker(
         }
     }
     val toastText = stringResource(id = R.string.curr_position_off)
+    val actionLabel = stringResource(id = R.string.go_settings)
     OutlinedTextField(
         shape = RoundedCornerShape(CORNER_RADIUS),
         value = text,
@@ -212,7 +214,12 @@ fun locationPicker(
                             warningViewModel.setGPSAlertDialogVisibility(true)
                         }
                     } else {
-                        Toast.makeText(context, toastText, Toast.LENGTH_LONG).show()
+                        showButtonSnackBar(
+                            warningViewModel,
+                            toastText,
+                            actionLabel,
+                            action
+                        )
                     }
                 }
             ) { Icon(Icons.Outlined.MyLocation, "location icon") }
@@ -631,15 +638,20 @@ fun ImageAlertDialog(
 fun SimpleSnackBarComposable(
     snackbarHostState: SnackbarHostState,
     warningViewModel: WarningViewModel,
-    message: String
+    message: String,
+    actionLabel: String = "",
+    action: () -> Unit = {}
 ) {
     LaunchedEffect(snackbarHostState) {
         val result = snackbarHostState.showSnackbar(
             message = message,
+            actionLabel = actionLabel,
             duration = SnackbarDuration.Short
         )
         when (result) {
-            SnackbarResult.ActionPerformed -> {}
+            SnackbarResult.ActionPerformed -> {
+                action()
+            }
             SnackbarResult.Dismissed -> {
                 warningViewModel.setSimpleSnackBarVisibility(false)
             }
@@ -650,6 +662,18 @@ fun SimpleSnackBarComposable(
 fun showSnackBar(warningViewModel: WarningViewModel, message: String) {
     warningViewModel.setSimpleSnackBarContent(message)
     warningViewModel.setSimpleSnackBarVisibility(true)
+}
+
+fun showButtonSnackBar(
+    warningViewModel: WarningViewModel,
+    message: String,
+    actionLabel: String,
+    action: () -> Unit
+) {
+    warningViewModel.setSimpleSnackBarContent(message)
+    warningViewModel.setSimpleSnackBarActionLabel(actionLabel)
+    warningViewModel.action.value = action
+    warningViewModel.setButtonSnackBarVisibility(true)
 }
 
 @Composable

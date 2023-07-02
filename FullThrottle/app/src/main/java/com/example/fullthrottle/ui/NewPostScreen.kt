@@ -47,6 +47,7 @@ fun NewPostScreen(
     settingsViewModel: SettingsViewModel,
     warningViewModel: WarningViewModel,
     navigateToHome: () -> Unit,
+    navigateToSettings: () -> Unit,
     location: MutableState<LocationDetails>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
@@ -224,7 +225,7 @@ fun NewPostScreen(
                                 onClick = {
                                     expanded = false
                                     motorbikeName = "${motorbike.brand} ${motorbike.model} ${motorbike.productionYear}"
-                                    motorbikeId = motorbike.motorbikeId.orEmpty()
+                                    motorbikeId = motorbike.motorbikeId
                                 },
                                 text = {
                                     Text(text = "${motorbike.brand} ${motorbike.model} ${motorbike.productionYear}")
@@ -246,7 +247,8 @@ fun NewPostScreen(
                     warningViewModel = warningViewModel,
                     modifier = Modifier.fillMaxWidth(),
                     location = location,
-                    settings = settings
+                    settings = settings,
+                    action = navigateToSettings
                 )
                 Spacer(modifier = Modifier.size(20.dp))
             }
