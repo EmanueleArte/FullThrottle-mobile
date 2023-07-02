@@ -34,17 +34,24 @@ import com.example.fullthrottle.data.DBHelper.createPost
 import com.example.fullthrottle.data.DBHelper.getMotorbikesByUserId
 import com.example.fullthrottle.data.DataStoreConstants.USER_ID_KEY
 import com.example.fullthrottle.data.LocationDetails
+import com.example.fullthrottle.data.PushNotificationValues.localDbViewModel
 import com.example.fullthrottle.data.entities.Motorbike
 import com.example.fullthrottle.saveAndCropTempFile
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.example.fullthrottle.viewModel.WarningViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 @Composable
 fun NewPostScreen(
     settingsViewModel: SettingsViewModel,
+    warningViewModel: WarningViewModel,
     navigateToHome: () -> Unit,
+    navigateToSettings: () -> Unit,
     location: MutableState<LocationDetails>
 ) {
     val settings by settingsViewModel.settings.collectAsState(initial = emptyMap())
@@ -127,6 +134,9 @@ fun NewPostScreen(
                                         place,
                                         length
                                     )
+                                    GlobalScope.launch(Dispatchers.IO) {
+                                        localDbViewModel.addNewMotorbike(motorbikes.first { it.motorbikeId == motorbikeId })
+                                    }
                                 }.invokeOnCompletion {
                                     navigateToHome()
                                 }
@@ -222,7 +232,7 @@ fun NewPostScreen(
                                 onClick = {
                                     expanded = false
                                     motorbikeName = "${motorbike.brand} ${motorbike.model} ${motorbike.productionYear}"
-                                    motorbikeId = motorbike.motorbikeId.orEmpty()
+                                    motorbikeId = motorbike.motorbikeId
                                 },
                                 text = {
                                     Text(text = "${motorbike.brand} ${motorbike.model} ${motorbike.productionYear}")
@@ -241,9 +251,11 @@ fun NewPostScreen(
             item {
                 place = locationPicker(
                     label =  stringResource(id = R.string.place),
+                    warningViewModel = warningViewModel,
                     modifier = Modifier.fillMaxWidth(),
                     location = location,
-                    settings = settings
+                    settings = settings,
+                    action = navigateToSettings
                 )
                 Spacer(modifier = Modifier.size(20.dp))
             }

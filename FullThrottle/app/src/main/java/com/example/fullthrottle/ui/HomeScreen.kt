@@ -74,7 +74,7 @@ fun HomeScreen(
     var filteredPosts by rememberSaveable { mutableStateOf(posts) }
 
     // Loads home posts from local room db
-    val tPosts = localDbViewModel.posts.collectAsState(initial = listOf()).value
+    var tPosts = localDbViewModel.posts.collectAsState(initial = listOf()).value
     if (tPosts.isNotEmpty()) {
         LaunchedEffect(Unit) {
             users = tPosts.map { post ->
@@ -100,6 +100,7 @@ fun HomeScreen(
             filteredPosts = posts
             filteredPresence = true
         } else {
+            println(followedsIds.size)
             if (followedsIds.isNotEmpty()) {
                 filteredPosts = posts.filter { post -> followedsIds.contains(post.userId) }
                 filteredPresence = true
@@ -115,7 +116,7 @@ fun HomeScreen(
             if (usersLoaded.isNotEmpty()) {
                 firstLoad = false
             }
-            val tPosts = getRecentPosts()
+            tPosts = getRecentPosts()
             users = tPosts.map { post -> getUserById(post.userId as String) as User }
             motorbikes = tPosts.map { post -> getMotorbikeById(post.motorbikeId as String) as Motorbike }
             postImagesUris = tPosts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
@@ -153,7 +154,8 @@ fun HomeScreen(
 
     val baseModifier = Modifier.padding(horizontal = 10.dp)
 
-    if (filteredPosts.isEmpty() || postImagesUris.isEmpty() || likes.isEmpty()) {
+    if (filteredPosts.isEmpty() || postImagesUris.isEmpty()
+        || likes.isEmpty()) {
         if (filteredPresence) {
             LoadingAnimation()
         } else {

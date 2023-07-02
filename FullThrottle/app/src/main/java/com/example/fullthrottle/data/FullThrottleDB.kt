@@ -477,7 +477,7 @@ object DBHelper {
         )
         database
             .getReference("posts")
-            .child(post.postId.toString())
+            .child(post.postId)
             .setValue(post)
 
         uploadTask.addOnFailureListener {

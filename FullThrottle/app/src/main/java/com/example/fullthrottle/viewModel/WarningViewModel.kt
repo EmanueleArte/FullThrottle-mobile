@@ -1,8 +1,5 @@
 package com.example.fullthrottle.viewModel
 
-import android.net.Uri
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 
@@ -28,11 +25,20 @@ class WarningViewModel: ViewModel() {
         get() = _stopLocationSnackBar
 
     private var _simpleSnackBar = mutableStateOf(false)
+    private var _simpleSnackBarButton = mutableStateOf(false)
+    private var _action = mutableStateOf({})
     private var _simpleSnackBarContent = mutableStateOf("")
+    private var _simpleSnackBarActionLabel = mutableStateOf("")
     val simpleSnackBarContent
         get() = _simpleSnackBarContent
+    val simpleSnackBarActionLabel
+        get() = _simpleSnackBarActionLabel
+    val action
+        get() = _action
     val showModificationDone
         get() = _simpleSnackBar
+    val showGoToSettings
+        get() = _simpleSnackBarButton
 
     fun setPermissionSnackBarVisibility(visible: Boolean) {
         _showPermissionSnackBar.value = visible
@@ -58,8 +64,16 @@ class WarningViewModel: ViewModel() {
         _simpleSnackBar.value = visible
     }
 
+    fun setButtonSnackBarVisibility(visible: Boolean) {
+        _simpleSnackBarButton.value = visible
+    }
+
     fun setSimpleSnackBarContent(content: String) {
         _simpleSnackBarContent.value = content
+    }
+
+    fun setSimpleSnackBarActionLabel(content: String) {
+        _simpleSnackBarActionLabel.value = content
     }
 
 }

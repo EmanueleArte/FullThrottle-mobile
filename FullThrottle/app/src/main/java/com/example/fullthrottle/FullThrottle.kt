@@ -331,7 +331,6 @@ fun NavigationApp(
             postIdStack = postIdStack,
             currentScreen = currentScreen
         )
-        println("ok ok ok")
     }
 
     Scaffold(
@@ -399,6 +398,15 @@ fun NavigationApp(
                 warningViewModel.simpleSnackBarContent.value
             )
         }
+        if (warningViewModel.showGoToSettings.value) {
+            SimpleSnackBarComposable(
+                snackbarHostState,
+                warningViewModel,
+                warningViewModel.simpleSnackBarContent.value,
+                warningViewModel.simpleSnackBarActionLabel.value,
+                warningViewModel.action.value
+            )
+        }
     }
 }
 
@@ -457,7 +465,9 @@ private fun NavigationGraph(
         composable(route = AppScreen.Map.name) {
             MapScreen(
                 settingsViewModel,
+                warningViewModel,
                 goToPost,
+                { navController.navigate(AppScreen.Settings.name) },
                 focusLocation,
                 methods,
                 location
@@ -467,7 +477,9 @@ private fun NavigationGraph(
         composable(route = AppScreen.NewPost.name) {
             NewPostScreen(
                 settingsViewModel,
+                warningViewModel,
                 { navController.navigate(AppScreen.Home.name) },
+                { navController.navigate(AppScreen.Settings.name) },
                 location
             )
         }

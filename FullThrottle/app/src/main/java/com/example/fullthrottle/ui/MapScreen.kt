@@ -1,6 +1,7 @@
 package com.example.fullthrottle.ui
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
@@ -19,12 +20,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.graphics.drawable.toBitmap
 import com.example.fullthrottle.MainActivity.Companion.checkLocationPermission
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.getAllPosts
@@ -40,6 +44,7 @@ import com.example.fullthrottle.ui.MapScreenData.load
 import com.example.fullthrottle.ui.UiConstants.CORNER_RADIUS
 import com.example.fullthrottle.ui.UiConstants.MAIN_H_PADDING
 import com.example.fullthrottle.viewModel.SettingsViewModel
+import com.example.fullthrottle.viewModel.WarningViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -58,7 +63,9 @@ internal object MapScreenData {
 @Composable
 fun MapScreen(
     settingsViewModel: SettingsViewModel,
+    warningViewModel: WarningViewModel,
     goToPost: (String) -> Unit,
+    goToSettings: () -> Unit,
     focusLocation: String?,
     methods: Map<String, () -> Unit>,
     location: MutableState<LocationDetails>
@@ -69,7 +76,12 @@ fun MapScreen(
     // Check GPS settings
     var showToast by remember { mutableStateOf(true) }
     if (settings[LOCATION_UPDATES_KEY] == "false" && showToast) {
-        Toast.makeText(context, stringResource(id = R.string.curr_position_off), Toast.LENGTH_LONG).show()
+        showButtonSnackBar(
+            warningViewModel,
+            stringResource(id = R.string.curr_position_off),
+            stringResource(id = R.string.go_settings),
+            goToSettings
+        )
         showToast = false
     } else if (settings[LOCATION_UPDATES_KEY] == "true" && showToast) {
         methods["startLocationUpdates"]?.invoke()
@@ -220,9 +232,10 @@ fun MapScreen(
             cameraPositionState = cameraPositionState
         ) {
             for (c in coordinates) {
+                val icon = getDrawable(context, R.drawable.ft_marker)!!.toBitmap(100, 100)
                 Marker(
                     state = MarkerState(c.value),
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ft_marker),
+                    icon = BitmapDescriptorFactory.fromBitmap(icon),
                     onClick = {
                         currentLocation = locations[c.key]!!
                         coroutineScope.launch {

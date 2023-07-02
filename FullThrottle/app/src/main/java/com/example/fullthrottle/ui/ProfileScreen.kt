@@ -283,6 +283,7 @@ fun ProfileScreen(
                                                             localDbViewModel.deletePost(post.postId)
                                                         }
                                                         posts = getPostsByUserId(userId)
+                                                        postImagesUris = posts.map { post -> getImageUri(post.userId + "/" + post.postImg) }
                                                     }
                                                 }
                                             )
