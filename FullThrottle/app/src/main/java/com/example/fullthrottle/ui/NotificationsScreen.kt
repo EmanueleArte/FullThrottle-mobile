@@ -52,7 +52,7 @@ fun NotificationsScreen(
                                 .clickable { goToProfile(follow.followerId.orEmpty()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
-                            Text(text = follow.date.orEmpty(), Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
+                            Text(text = follow.date.orEmpty(), Modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp))
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -60,7 +60,7 @@ fun NotificationsScreen(
                                     }
                                     append(" ha iniziato a seguirti")
                                 },
-                                Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                                Modifier.padding(start = 10.dp, end = 10.dp, bottom = 5.dp)
                             )
                         }
                     }
@@ -79,7 +79,7 @@ fun NotificationsScreen(
                                 .clickable { goToPost(like.postId.orEmpty()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
-                            Text(text = like.date.orEmpty(), Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
+                            Text(text = like.date.orEmpty(), Modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp))
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -87,7 +87,7 @@ fun NotificationsScreen(
                                     }
                                     append(" ha messo like al tuo post")
                                 },
-                                Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                                Modifier.padding(start = 10.dp, end = 10.dp, bottom = 5.dp)
                             )
                         }
                     }
@@ -106,7 +106,7 @@ fun NotificationsScreen(
                                 .clickable { goToPost(comment.postId.orEmpty()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
-                            Text(text = comment.date.orEmpty(), Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
+                            Text(text = comment.date.orEmpty(), Modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp))
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -114,7 +114,7 @@ fun NotificationsScreen(
                                     }
                                     append(" ha commentato il tuo post:")
                                 },
-                                Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                                Modifier.padding(start = 10.dp, end = 10.dp, bottom = 5.dp)
                             )
                             Text(
                                 text = comment.text.orEmpty(),

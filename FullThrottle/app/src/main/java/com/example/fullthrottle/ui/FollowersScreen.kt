@@ -83,18 +83,17 @@ fun UsersList(
         val loggedUser = getUserById(uid) as User
         nFollowers = loggedUser.followers.orEmpty().toInt()
         nFolloweds = loggedUser.followed.orEmpty().toInt()
-        val tUsers = if (currentTab == FOLLOWERS_TAB) {
+        val users = if (currentTab == FOLLOWERS_TAB) {
             getFollowers(uid)
         } else {
             getFolloweds(uid)
         }
-        imagesUris = tUsers.map { user ->
+        imagesUris = users.map { user ->
             if (user.userImg.toString().isNotEmpty())
                 getImageUri(user.userId + "/" + user.userImg)
             else
                 Uri.EMPTY
         }
-        users = tUsers
     }
 
     if ((currentTab == FOLLOWERS_TAB && users.size == nFollowers) ||
