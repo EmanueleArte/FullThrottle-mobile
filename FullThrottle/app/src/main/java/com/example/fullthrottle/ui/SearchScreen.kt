@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
+import com.example.fullthrottle.data.DBHelper.getAllUsers
 import com.example.fullthrottle.data.DBHelper.getImageUri
 import com.example.fullthrottle.data.DBHelper.searchPosts
 import com.example.fullthrottle.data.DBHelper.searchUsers
@@ -35,8 +36,13 @@ fun SearchScreen(
     var postResults by remember { mutableStateOf(emptyList<Post>()) }
     var postImagesUris by remember { mutableStateOf(emptyList<Uri>()) }
     var userResults by remember { mutableStateOf(emptyList<User>()) }
+    var users by remember { mutableStateOf(emptyList<User>()) }
     var userImagesUris by remember { mutableStateOf(emptyList<Uri>()) }
     var searching by remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        users = getAllUsers()
+    }
 
     Column(
         modifier = Modifier
@@ -102,8 +108,8 @@ fun SearchScreen(
                                         imgUri = postImagesUris[postResults.indexOf(post)],
                                         contentDescription = "post image",
                                         modifier = Modifier
-                                            .requiredWidth(71.dp)
-                                            .requiredHeight(40.dp)
+                                            .requiredWidth(105.dp)
+                                            .requiredHeight(60.dp)
                                             .clip(RoundedCornerShape(UiConstants.CORNER_RADIUS))
                                     )
                                 }
@@ -111,6 +117,10 @@ fun SearchScreen(
                                 Column(
                                     modifier = Modifier.padding(start = 5.dp)
                                 ) {
+                                    Text(
+                                        text = users.find { user -> user.userId == post.userId }?.username.orEmpty(),
+                                        fontWeight = FontWeight.SemiBold
+                                    )
                                     Text(text = post.publishDate.orEmpty())
                                     Text(text = post.title.orEmpty())
                                 }

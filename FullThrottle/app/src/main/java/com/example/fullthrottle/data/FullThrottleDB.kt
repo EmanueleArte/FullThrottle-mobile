@@ -34,6 +34,23 @@ object DBHelper {
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
     // USERS
+    suspend fun getAllUsers(): List<User> = callbackFlow {
+        database
+            .getReference("users")
+            .get()
+            .addOnSuccessListener { users ->
+                if (users.exists()) {
+                    trySend(users.children.map { user -> user.getValue<User>() as User })
+                } else {
+                    trySend(emptyList<User>())
+                }
+            }
+            .addOnFailureListener{ error ->
+                Log.d("Error getting data", error.toString())
+            }
+        awaitClose { }
+    }.first()
+
     suspend fun getUserByUsername(username: String): User? = callbackFlow {
         database
             .getReference("users")
