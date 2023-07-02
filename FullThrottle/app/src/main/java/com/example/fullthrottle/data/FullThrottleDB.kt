@@ -137,9 +137,11 @@ object DBHelper {
             .addOnSuccessListener {
                 if (it.exists()) {
                     val followers = mutableListOf<User>()
-                    it.children.map { follow ->
+                    val temp = it.children.map { follow ->
                         follow.child("followerId").value.toString()
-                    }.forEach { followerId ->
+                    }
+                    val nFollowers = temp.size
+                    temp.forEach { followerId ->
                         database
                             .getReference("users")
                             .orderByKey()
@@ -151,7 +153,9 @@ object DBHelper {
                                         follower.children.first().getValue<User>() as User
                                     )
                                 }
-                                trySend(followers)
+                                if (followers.size == nFollowers) {
+                                    trySend(followers)
+                                }
                             }
                             .addOnFailureListener { error ->
                                 Log.d("Error getting data", error.toString())
@@ -176,13 +180,15 @@ object DBHelper {
             .addOnSuccessListener {
                 if (it.exists()) {
                     val followeds = mutableListOf<User>()
-                    it.children.map { follow ->
+                    val temp = it.children.map { follow ->
                         follow.child("followedId").value.toString()
-                    }.forEach { followerId ->
+                    }
+                    val nFolloweds = temp.size
+                    temp.forEach { followedId ->
                         database
                             .getReference("users")
                             .orderByKey()
-                            .equalTo(followerId)
+                            .equalTo(followedId)
                             .get()
                             .addOnSuccessListener { followed ->
                                 if (followed.exists()) {
@@ -190,7 +196,9 @@ object DBHelper {
                                         followed.children.first().getValue<User>() as User
                                     )
                                 }
-                                trySend(followeds)
+                                if (followeds.size == nFolloweds) {
+                                    trySend(followeds)
+                                }
                             }
                             .addOnFailureListener { error ->
                                 Log.d("Error getting data", error.toString())
