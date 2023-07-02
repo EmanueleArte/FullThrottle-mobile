@@ -153,8 +153,8 @@ class MainActivity : ComponentActivity() {
                 AppScreen.Login.name
             }
 
-            if (settings[LOCATION_UPDATES_KEY] == "true") {
-                startLocationUpdates(false, false)
+            if (settings[LOCATION_UPDATES_KEY] == "true" && settings[USER_ID_KEY] != "") {
+                startLocationUpdates(enableGpsRequest = false, showLocSnackBar = false)
             }
 
             FullThrottleTheme(darkTheme = darkTheme) {

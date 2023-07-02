@@ -331,7 +331,6 @@ fun NavigationApp(
             postIdStack = postIdStack,
             currentScreen = currentScreen
         )
-        println("ok ok ok")
     }
 
     Scaffold(
