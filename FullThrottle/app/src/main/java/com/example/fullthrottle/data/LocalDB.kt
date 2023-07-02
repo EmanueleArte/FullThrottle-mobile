@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.fullthrottle.data.entities.*
 
-@Database(entities = [Post::class, User::class, Motorbike::class, LikeBool::class, CommentNotification::class, LikeNotification::class, FollowNotification::class], version = 5, exportSchema = true)
+@Database(entities = [Post::class, User::class, Motorbike::class, LikeBool::class, CommentNotification::class, LikeNotification::class, FollowNotification::class], version = 6, exportSchema = true)
 abstract class LocalDB : RoomDatabase() {
 
     abstract fun postsDAO(): PostsDAO

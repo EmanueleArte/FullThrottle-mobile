@@ -49,13 +49,14 @@ fun NotificationsScreen(
                             Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp)
-                                .clickable { goToProfile(follow.followerId.toString()) },
+                                .clickable { goToProfile(follow.followerId.orEmpty()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
+                            Text(text = follow.date.orEmpty(), Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(follow.username.toString())
+                                        append(follow.username.orEmpty())
                                     }
                                     append(" ha iniziato a seguirti")
                                 },
@@ -75,13 +76,14 @@ fun NotificationsScreen(
                             Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp)
-                                .clickable { goToPost(like.postId.toString()) },
+                                .clickable { goToPost(like.postId.orEmpty()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
+                            Text(text = like.date.orEmpty(), Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(like.username.toString())
+                                        append(like.username.orEmpty())
                                     }
                                     append(" ha messo like al tuo post")
                                 },
@@ -101,20 +103,21 @@ fun NotificationsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp)
-                                .clickable { goToPost(comment.postId.toString()) },
+                                .clickable { goToPost(comment.postId.orEmpty()) },
                             elevation = CardDefaults.cardElevation(5.dp)
                         ) {
+                            Text(text = comment.date.orEmpty(), Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(comment.username.toString())
+                                        append(comment.username.orEmpty())
                                     }
                                     append(" ha commentato il tuo post:")
                                 },
                                 Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                             )
                             Text(
-                                text = comment.text.toString(),
+                                text = comment.text.orEmpty(),
                                 Modifier.padding(start = 10.dp, end = 10.dp, top = 0.dp, bottom = 5.dp)
                             )
                         }

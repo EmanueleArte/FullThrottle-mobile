@@ -29,5 +29,7 @@ data class FollowNotification(
     @ColumnInfo(name = "notified")
     val notified: String? = null,
     @ColumnInfo(name = "username")
-    val username: String? = null
+    val username: String? = null,
+    @ColumnInfo(name = "date")
+    val date: String? = null
 ) : Parcelable

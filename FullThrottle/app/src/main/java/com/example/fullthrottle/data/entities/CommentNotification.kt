@@ -24,5 +24,7 @@ data class CommentNotification(
     @ColumnInfo(name = "user_id")
     val userId: String? = null,
     @ColumnInfo(name = "username")
-    val username: String? = null
+    val username: String? = null,
+    @ColumnInfo(name = "date")
+    val date: String? = null
 ) : Parcelable

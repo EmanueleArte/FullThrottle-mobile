@@ -1,11 +1,12 @@
 package com.example.fullthrottle.ui
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.provider.Settings
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -14,12 +15,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DataStoreConstants.LOCATION_UPDATES_KEY
 import com.example.fullthrottle.data.DataStoreConstants.PUSH_NOTIFICATIONS_KEY
 import com.example.fullthrottle.data.DataStoreConstants.THEME_KEY
 import com.example.fullthrottle.data.PushNotificationConstants.ALL_NOTIFICATIONS
+import com.example.fullthrottle.data.PushNotificationConstants.COMMENTS_NOTIFICATIONS
+import com.example.fullthrottle.data.PushNotificationConstants.FOLLOWERS_COMMENTS_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.NO_NOTIFICATIONS
 import com.example.fullthrottle.data.PushNotificationConstants.POSTS_NOTIFICATIONS
@@ -48,6 +50,8 @@ fun SettingsScreen(
         ALL_NOTIFICATIONS to stringResource(id = R.string.all_notifications),
         POSTS_NOTIFICATIONS to stringResource(id = R.string.posts_notifications),
         FOLLOWERS_NOTIFICATIONS to stringResource(id = R.string.followers_notifications),
+        COMMENTS_NOTIFICATIONS to stringResource(id = R.string.comments_notifications),
+        FOLLOWERS_COMMENTS_NOTIFICATIONS to stringResource(id = R.string.followers_comments_notifications),
         NO_NOTIFICATIONS to stringResource(id = R.string.no_notifications)
     )
 

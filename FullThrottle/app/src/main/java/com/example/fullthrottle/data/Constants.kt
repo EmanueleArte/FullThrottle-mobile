@@ -14,6 +14,8 @@ object PushNotificationConstants {
     const val ALL_NOTIFICATIONS = "all"
     const val POSTS_NOTIFICATIONS = "posts_only"
     const val FOLLOWERS_NOTIFICATIONS = "followers_only"
+    const val COMMENTS_NOTIFICATIONS = "comments_only"
+    const val FOLLOWERS_COMMENTS_NOTIFICATIONS = "followers_and_comments"
     const val NO_NOTIFICATIONS = "none"
 }
 

@@ -33,8 +33,8 @@ import com.example.fullthrottle.data.PushNotificationValues.followersNotificatio
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationChannelId
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelDescription
 import com.example.fullthrottle.data.PushNotificationValues.likesNotificationsChannelName
-import com.example.fullthrottle.data.PushNotificationValues.notificationIcon
 import com.example.fullthrottle.data.PushNotificationValues.localDbViewModel
+import com.example.fullthrottle.data.PushNotificationValues.notificationIcon
 import com.example.fullthrottle.data.PushNotificationValues.notificationManager
 import com.example.fullthrottle.data.PushNotificationValues.settings
 import com.example.fullthrottle.data.entities.*
@@ -46,6 +46,8 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 
@@ -144,9 +146,26 @@ fun notificationsHandler (
                 likes.forEach { like ->
                     if (like?.notified == "0") {
                         notifyLike(like.likeId.toString())
-                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
-                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
-                            sendLikeNotification(like, context)
+                        var user: User? = null
+                        CoroutineScope(EmptyCoroutineContext).launch {
+                            user = getUserById(like.userId.toString())
+                        }.invokeOnCompletion {
+                            val id = Random(like.userId.hashCode() + like.postId.hashCode()).nextInt()
+                            if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                                || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS
+                            ) {
+                                sendLikeNotification(id, user?.username.orEmpty(), context)
+                            }
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                            val likeNotification = LikeNotification(
+                                id.toString(),
+                                "0",
+                                like.postId,
+                                like.userId,
+                                user?.username,
+                                LocalDateTime.now().format(formatter).toString()
+                            )
+                            localDbViewModel.addNewLikeNotification(likeNotification)
                         }
                     }
                 }
@@ -172,9 +191,30 @@ fun notificationsHandler (
                 comments.forEach { comment ->
                     if (comment?.notified == "0") {
                         notifyComment(comment.commentId.toString())
-                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
-                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS) {
-                            sendCommentNotification(comment, context, localDbViewModel)
+                        var user: User? = null
+                        CoroutineScope(EmptyCoroutineContext).launch {
+                            user = getUserById(comment.userId.toString())
+                        }.invokeOnCompletion {
+                            val id = Random(comment.userId.hashCode() + comment.text.hashCode()).nextInt() + comment.postId.hashCode()
+                            if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                                || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.POSTS_NOTIFICATIONS
+                                || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.COMMENTS_NOTIFICATIONS
+                                || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.FOLLOWERS_COMMENTS_NOTIFICATIONS
+                            ) {
+                                sendCommentNotification(comment.text.orEmpty(), id, user?.username.orEmpty(), context)
+                            }
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                            val commentNotification = CommentNotification(
+                                id.toString(),
+                                "0",
+                                comment.postId,
+                                comment.publishDate,
+                                comment.text,
+                                comment.userId,
+                                user?.username,
+                                LocalDateTime.now().format(formatter).toString()
+                            )
+                            localDbViewModel.addNewCommentNotification(commentNotification)
                         }
                     }
                 }
@@ -195,9 +235,26 @@ fun notificationsHandler (
             follows.forEach { follow ->
                 if (follow?.notified == "0") {
                     notifyFollow(follow.followId.toString())
-                    if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
-                        || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.FOLLOWERS_NOTIFICATIONS) {
-                        sendFollowNotification(follow, context)
+                    var user: User? = null
+                    CoroutineScope(EmptyCoroutineContext).launch {
+                        user = getUserById(follow.followerId.toString())
+                    }.invokeOnCompletion {
+                        val id = Random(user?.userId.hashCode()).nextInt()
+                        if (settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.ALL_NOTIFICATIONS
+                            || settings[PUSH_NOTIFICATIONS_KEY] == PushNotificationConstants.FOLLOWERS_NOTIFICATIONS
+                        ) {
+                            sendFollowNotification(id, user?.username.orEmpty(), context)
+                        }
+                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                        val followNotification = FollowNotification(
+                            id.toString(),
+                            follow.followedId,
+                            follow.followerId,
+                            "0",
+                            user?.username,
+                            LocalDateTime.now().format(formatter).toString()
+                        )
+                        localDbViewModel.addNewFollowNotification(followNotification)
                     }
                 }
             }
@@ -214,96 +271,52 @@ fun notificationsHandler (
 }
 
 @SuppressLint("MissingPermission")
-private fun sendLikeNotification (like: Like, context: Context) {
-    var user: User? = null
-    CoroutineScope(EmptyCoroutineContext).launch {
-        user = getUserById(like.userId.toString())
-    }.invokeOnCompletion {
-        val id = Random(like.userId.hashCode() + like.postId.hashCode()).nextInt()
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        val builder = NotificationCompat.Builder(context, "FullThrottleLikesNotificationsChannel")
-            .setSmallIcon(notificationIcon)
-            .setContentTitle("Nuovo like ricevuto")
-            .setContentText(user?.username + " ha messo mi piace al tuo post")
-            .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        with(NotificationManagerCompat.from(context)) {
-            notify(id, builder.build())
-        }
-        val likeNotification = LikeNotification(
-            id.toString(),
-            "0",
-            like.postId,
-            like.userId,
-            user?.username
-        )
-        localDbViewModel.addNewLikeNotification(likeNotification)
+private fun sendLikeNotification (id: Int, username: String, context: Context) {
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    }
+    val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    val builder = NotificationCompat.Builder(context, "FullThrottleLikesNotificationsChannel")
+        .setSmallIcon(notificationIcon)
+        .setContentTitle("Nuovo like ricevuto")
+        .setContentText("$username ha messo mi piace al tuo post")
+        .setContentIntent(pendingIntent)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+    with(NotificationManagerCompat.from(context)) {
+        notify(id, builder.build())
     }
 }
 
 @SuppressLint("MissingPermission")
-private fun sendCommentNotification (comment: Comment, context: Context, localDbViewModel: LocalDbViewModel) {
-    var user: User? = null
-    CoroutineScope(EmptyCoroutineContext).launch {
-        user = getUserById(comment.userId.toString())
-    }.invokeOnCompletion {
-        val id = Random(comment.userId.hashCode() + comment.text.hashCode()).nextInt() + comment.postId.hashCode()
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
-            .setSmallIcon(notificationIcon)
-            .setContentTitle("Nuovo commento")
-            .setContentText(user?.username + ": " + comment.text)
-            .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        with(NotificationManagerCompat.from(context)) {
-            notify(id, builder.build())
-        }
-        val commentNotification = CommentNotification(
-            id.toString(),
-            "0",
-            comment.postId,
-            comment.publishDate,
-            comment.text,
-            comment.userId,
-            user?.username
-            )
-        localDbViewModel.addNewCommentNotification(commentNotification)
+private fun sendCommentNotification (text: String, id: Int, username: String, context: Context) {
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    }
+    val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
+        .setSmallIcon(notificationIcon)
+        .setContentTitle("Nuovo commento")
+        .setContentText("$username: $text")
+        .setContentIntent(pendingIntent)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+    with(NotificationManagerCompat.from(context)) {
+        notify(id, builder.build())
     }
 }
 
 @SuppressLint("MissingPermission")
-private fun sendFollowNotification (follow: Follow, context: Context) {
-    var user: User? = null
-    CoroutineScope(EmptyCoroutineContext).launch {
-        user = getUserById(follow.followerId.toString())
-    }.invokeOnCompletion {
-        val id = Random(user?.userId.hashCode()).nextInt()
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
-            .setSmallIcon(notificationIcon)
-            .setContentTitle("Nuovo follower")
-            .setContentText(user?.username + " ha iniziato a seguirti")
-            .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        with(NotificationManagerCompat.from(context)) {
-            notify(id, builder.build())
-        }
-        val followNotification = FollowNotification(
-            id.toString(),
-            follow.followedId,
-            follow.followerId,
-            "0",
-            user?.username
-        )
-        localDbViewModel.addNewFollowNotification(followNotification)
+private fun sendFollowNotification (id: Int, username: String, context: Context) {
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    }
+    val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    val builder = NotificationCompat.Builder(context, "FullThrottleCommentsNotificationsChannel")
+        .setSmallIcon(notificationIcon)
+        .setContentTitle("Nuovo follower")
+        .setContentText("$username ha iniziato a seguirti")
+        .setContentIntent(pendingIntent)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+    with(NotificationManagerCompat.from(context)) {
+        notify(id, builder.build())
     }
 }

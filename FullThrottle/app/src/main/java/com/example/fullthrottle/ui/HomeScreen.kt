@@ -22,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.fullthrottle.R
 import com.example.fullthrottle.data.DBHelper.checkLike
@@ -210,7 +209,7 @@ fun HomeScreen(
                                 )
                                 Column {
                                     Text(
-                                        text = if (users.size > index) "${users[posts.indexOf(post)].username}" else "",
+                                        text = if (users.size > index) "${users[index].username}" else "",
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(text = "${post.publishDate}")

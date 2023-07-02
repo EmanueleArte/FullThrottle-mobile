@@ -40,4 +40,6 @@ data class LikeNotification(
     val userId: String? = null,
     @ColumnInfo(name = "username")
     val username: String? = null,
+    @ColumnInfo(name = "date")
+    val date: String? = null
 ): Parcelable

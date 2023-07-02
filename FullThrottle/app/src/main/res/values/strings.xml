@@ -9,7 +9,9 @@
     <string name="light_theme">Chiaro</string>
     <string name="all_notifications">Tutte</string>
     <string name="posts_notifications">Solo riguardanti i post</string>
-    <string name="followers_notifications">Solo riguardanti followers</string>
+    <string name="followers_notifications">Solo riguardanti i nuovi followers</string>
+    <string name="comments_notifications">Solo riguardanti i nuovi commenti</string>
+    <string name="followers_comments_notifications">Solo riguardanti nuovi followers e commenti</string>
     <string name="no_notifications">Nessuna</string>
     <string name="permission_denied">Permessi negati</string>
     <string name="theme">Tema</string>
